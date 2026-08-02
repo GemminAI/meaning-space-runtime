@@ -1,0 +1,33 @@
+{
+  "experiment": "EXP-MSR-003",
+  "noise_std": 0.05,
+  "experienced_arm": {
+    "experienced": true,
+    "concepts_before_phase3": {
+      "concept-001": [
+        1.0,
+        -0.5
+      ]
+    },
+    "stabilized_at_phase3_step": 28,
+    "mean_phase3_speed": 0.504241217101988,
+    "mean_settled_speed": 0.0,
+    "final_phase3_speed": 0.0,
+    "final_basin": "concept-001"
+  },
+  "naive_arm": {
+    "experienced": false,
+    "concepts_before_phase3": {
+      "concept-001": [
+        -1.5,
+        1.0
+      ]
+    },
+    "stabilized_at_phase3_step": null,
+    "mean_phase3_speed": 0.7949367300854344,
+    "mean_settled_speed": 0.10713590081580648,
+    "final_phase3_speed": 0.06576684089910942,
+    "final_basin": null
+  },
+  "pass": true
+}

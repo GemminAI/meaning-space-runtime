@@ -1,0 +1,30 @@
+{
+  "experiment": "EXP-MSR-002",
+  "stationary_arm": {
+    "stabilized_at_step": 4,
+    "lifts": 2,
+    "lift_steps": [
+      4,
+      9
+    ],
+    "novel": [
+      true,
+      false
+    ],
+    "concepts": [
+      "concept-001"
+    ],
+    "lifts_in_final_10_steps": 0,
+    "final_speed": 0.0
+  },
+  "drifting_control_arm": {
+    "stabilized_at_step": null,
+    "lifts": 0,
+    "lift_steps": [],
+    "novel": [],
+    "concepts": [],
+    "lifts_in_final_10_steps": 0,
+    "final_speed": 1.0980700949573574
+  },
+  "pass": true
+}

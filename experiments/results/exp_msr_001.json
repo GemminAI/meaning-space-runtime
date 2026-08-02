@@ -1,0 +1,12 @@
+{
+  "experiment": "EXP-MSR-001",
+  "steps": 201,
+  "start_distance": 1.979898987322333,
+  "final_distance": 7.521246762499156e-19,
+  "start_potential": -0.5634336836841801,
+  "final_potential": -4.0,
+  "potential_monotonically_decreasing": true,
+  "first_step_inside_basin": 0,
+  "final_basin_id": "c-known",
+  "pass": true
+}

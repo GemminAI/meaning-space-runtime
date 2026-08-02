@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "meaning-space-runtime"
+version = "0.1.0"
+description = "Meaning Space Runtime (MSR) — the L2/L3 runtime layer of SensOS"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=5", "mypy>=1.10", "ruff>=0.6"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/msr"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+branch = true
+source = ["msr"]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src", "tests", "experiments"]
+plugins = []
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+# RUF002/RUF003: Greek letters (θ, Σ, Φ, γ) are the domain's notation, not typos.
+# N818: the error names are the domain's vocabulary; an Error suffix on every one
+#       of them makes call sites read worse, and MSRError already marks the base.
+ignore = ["RUF002", "RUF003", "N818"]
