@@ -44,10 +44,20 @@ class CFLViolation(MSRError):
     """
 
 
+class InsufficientHistory(MSRError):
+    """Not enough states/elapsed time to estimate a trajectory-level metric.
+
+    Runtime Stability (λ) and the Lyapunov exponent are both defined as rates
+    over an elapsed interval; a single state, or a run of states sharing one
+    ``time_s``, has no interval to measure a rate over.
+    """
+
+
 __all__ = [
     "CFLViolation",
     "DimensionMismatch",
     "FrameMismatch",
+    "InsufficientHistory",
     "MSRError",
     "NotPositiveDefinite",
 ]
