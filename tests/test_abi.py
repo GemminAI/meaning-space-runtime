@@ -60,6 +60,15 @@ def test_state_dimension() -> None:
     assert _state().dimension == 2
 
 
+def test_state_round_trips_through_dict() -> None:
+    state = _state()
+    payload = state.as_dict()
+    assert payload["theta"] == [1.0, 0.0]
+    assert payload["precision"] == [[1.0, 0.0], [0.0, 1.0]]
+    restored = MeaningState.from_dict(payload)
+    assert restored == state
+
+
 def test_kernel_view_serializes() -> None:
     view = KernelView(
         frame_id="F",
@@ -95,3 +104,22 @@ def test_trajectory_novelty_and_dimension() -> None:
     assert novel.dimension == 2
     known = dataclasses.replace(novel, basin_id="c1")
     assert known.is_novel is False
+
+
+def test_trajectory_round_trips_through_dict() -> None:
+    trajectory = StabilizedTrajectory(
+        trajectory_id="t1",
+        frame_id="F",
+        basin_id="c1",
+        states=(_state(), dataclasses.replace(_state(), step_index=4, time_s=0.6)),
+        centroid=(1.0, 0.0),
+        covariance=((0.1, 0.0), (0.0, 0.1)),
+        dwell_steps=2,
+        dwell_seconds=0.1,
+        provenance=("obs-1", "obs-2"),
+    )
+    payload = trajectory.as_dict()
+    assert payload["states"][0]["step_index"] == 3
+    assert payload["provenance"] == ["obs-1", "obs-2"]
+    restored = StabilizedTrajectory.from_dict(payload)
+    assert restored == trajectory

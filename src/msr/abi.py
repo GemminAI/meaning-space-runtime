@@ -104,6 +104,35 @@ class MeaningState:
     def dimension(self) -> int:
         return len(self.theta)
 
+    def as_dict(self) -> dict[str, Any]:
+        """JSON-serializable form, for deterministic trajectory replay/storage."""
+        return {
+            "frame_id": self.frame_id,
+            "step_index": self.step_index,
+            "time_s": self.time_s,
+            "theta": list(self.theta),
+            "precision": [list(row) for row in self.precision],
+            "speed": self.speed,
+            "potential": self.potential,
+            "basin_id": self.basin_id,
+            "source_observation_id": self.source_observation_id,
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> MeaningState:
+        """Inverse of :meth:`as_dict`. Round-trips bit-for-bit: no numpy touched."""
+        return cls(
+            frame_id=payload["frame_id"],
+            step_index=payload["step_index"],
+            time_s=payload["time_s"],
+            theta=tuple(payload["theta"]),
+            precision=tuple(tuple(row) for row in payload["precision"]),
+            speed=payload["speed"],
+            potential=payload["potential"],
+            basin_id=payload["basin_id"],
+            source_observation_id=payload["source_observation_id"],
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class KernelView:
@@ -176,6 +205,41 @@ class StabilizedTrajectory:
         not already contain.
         """
         return self.basin_id is None
+
+    def as_dict(self) -> dict[str, Any]:
+        """JSON-serializable form: EXP-Ubuntu004's replay/evaluation boundary.
+
+        Every field is a plain scalar/list, matching :meth:`KernelView.as_dict`
+        and :meth:`MeaningState.as_dict` — no numpy touched, so a recorded
+        trajectory can be reloaded and re-evaluated in a separate process
+        without re-running the runtime that produced it.
+        """
+        return {
+            "trajectory_id": self.trajectory_id,
+            "frame_id": self.frame_id,
+            "basin_id": self.basin_id,
+            "states": [state.as_dict() for state in self.states],
+            "centroid": list(self.centroid),
+            "covariance": [list(row) for row in self.covariance],
+            "dwell_steps": self.dwell_steps,
+            "dwell_seconds": self.dwell_seconds,
+            "provenance": list(self.provenance),
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> StabilizedTrajectory:
+        """Inverse of :meth:`as_dict`. Round-trips bit-for-bit: no numpy touched."""
+        return cls(
+            trajectory_id=payload["trajectory_id"],
+            frame_id=payload["frame_id"],
+            basin_id=payload["basin_id"],
+            states=tuple(MeaningState.from_dict(state) for state in payload["states"]),
+            centroid=tuple(payload["centroid"]),
+            covariance=tuple(tuple(row) for row in payload["covariance"]),
+            dwell_steps=payload["dwell_steps"],
+            dwell_seconds=payload["dwell_seconds"],
+            provenance=tuple(payload["provenance"]),
+        )
 
 
 __all__ = [
