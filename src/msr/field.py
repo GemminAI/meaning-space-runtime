@@ -155,6 +155,25 @@ class FieldPrior:
             gradient += response * (well.precision @ (theta - well.mean))
         return gradient
 
+    def hessian(self, theta: Array) -> Array:
+        """∇²Φ(θ). Analytic curvature of the field, evaluated exactly at θ.
+
+        ``∇²Φ = Σᵢ dᵢ·e^{-½Qᵢ}·(Pᵢ - (PᵢΔᵢ)(PᵢΔᵢ)ᵀ)`` — the same expansion
+        :attr:`stiffness` bounds the norm of over the *whole* space; this
+        evaluates it exactly at one point instead. Used by
+        :mod:`msr.lyapunov` as the Jacobian of the deterministic drift
+        ``θ̇ = -mobility · ∇Φ(θ)``, i.e. ``J(θ) = -mobility · ∇²Φ(θ)``.
+        """
+        hess = np.zeros((self.dimension, self.dimension), dtype=np.float64)
+        if self.is_empty:
+            return hess
+        responses = self._weights(theta)
+        for response, well in zip(responses, self.wells, strict=True):
+            delta = theta - well.mean
+            p_delta = well.precision @ delta
+            hess += response * (well.precision - np.outer(p_delta, p_delta))
+        return hess
+
     def basin_of(self, theta: Array) -> str | None:
         """Which basin ``theta`` currently belongs to, or ``None`` if outside all.
 

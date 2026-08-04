@@ -53,6 +53,39 @@ def test_gradient_matches_finite_differences() -> None:
     assert np.allclose(prior.gradient(theta), numeric, atol=1e-6)
 
 
+def test_hessian_is_zero_for_empty_field() -> None:
+    prior = FieldPrior.empty("F", 2)
+    assert np.allclose(prior.hessian(np.array([1.0, -1.0])), np.zeros((2, 2)))
+
+
+def test_hessian_matches_finite_differences_of_the_gradient() -> None:
+    wells = (
+        GaussianWell.isotropic("c1", [1.0, 0.0], width=0.7, depth=1.5),
+        GaussianWell.isotropic("c2", [-1.0, 0.5], width=1.3, depth=0.8),
+    )
+    prior = FieldPrior("F", 2, wells)
+    theta = np.array([0.3, -0.2])
+    epsilon = 1e-6
+    numeric = np.array(
+        [
+            (
+                prior.gradient(theta + epsilon * unit)
+                - prior.gradient(theta - epsilon * unit)
+            )
+            / (2 * epsilon)
+            for unit in np.eye(2)
+        ]
+    ).T
+    assert np.allclose(prior.hessian(theta), numeric, atol=1e-5)
+
+
+def test_hessian_is_symmetric() -> None:
+    well = GaussianWell.isotropic("c1", [0.2, -0.4], width=0.9, depth=1.1)
+    prior = FieldPrior("F", 2, (well,))
+    hess = prior.hessian(np.array([0.5, 0.5]))
+    assert np.allclose(hess, hess.T)
+
+
 def test_basin_membership_uses_mahalanobis_radius() -> None:
     prior = FieldPrior(
         "F", 1, (GaussianWell.isotropic("c1", [0.0], width=1.0),), basin_radius=2.0
