@@ -147,3 +147,47 @@ and the EXP-Ubuntu004 surface described here.
 If EXP-Ubuntu004's metrics prove durable, `msr.metrics` and `msr.lyapunov`
 are candidates for RFC-MSR01 §2's ABI or a new §9 — this document does not
 claim that promotion, only that the gap exists.
+
+## Phase 3 — NVS-Kernel basin recovery (`experiments/exp_msr_004_recovery.py`)
+
+The first experiment in this repository to connect a *real* neighbour
+(closing the "No real CLE, HEKB, or NVS-Kernel is connected" gap RFC-MSR01
+§8 states, for NVS-Kernel specifically). `experiments/_nvs_bridge.py`
+converts an MSR `FieldPrior` into NVS-Kernel's `WellCache` shape — the two
+are structurally the same Gaussian-well model under different field names,
+confirmed (not assumed) by a parity check in the experiment itself:
+NVS-Kernel's independently-implemented `PotentialField.gradient` is
+compared against MSR's own `FieldPrior.gradient` on the same converted
+field, at the settled point, before any recovery trial runs. Both `msr` and
+`nvs-kernel` remain unmodified; NVS-Kernel is used strictly as a read-only
+decision oracle (its field/geometry math), and the experiment applies every
+correction itself — see the experiment's own module docstring for why this
+uses NVS-Kernel's unconditional field math rather than its risk-tiered
+`ControlEngine` (which requires a safe-set/anchor model this synthetic
+scenario has no honest way to construct).
+
+**A design mistake made and corrected during this work, recorded rather
+than hidden:** the first version of this experiment stopped each recovery
+trial as soon as the trajectory re-entered its basin, then reused that same
+short, still-transient segment to evaluate Drift Convergence and the
+Lyapunov invariant — both of which are asymptotic/settled-state claims. The
+result: `drift_converged=False`, `lyapunov_is_contracting=False`, driven
+entirely by measuring transient dynamics against thresholds that only make
+sense for a genuinely settled dwell. The fix was to let MSR's own
+`StabilizationDetector` (already tested, already the ecosystem's definition
+of "stabilized") confirm a real quiescent dwell before those three metrics
+are evaluated, while still reporting the earlier basin-re-entry step
+separately for Basin Recovery Rate (which the spec defines as a bounded
+recovery-*time* claim, not a settled-state one). After the fix, all five
+EXP-Ubuntu004 metrics pass on all four fixed perturbation trials.
+
+### Gate dependency: nvs-kernel
+
+Running `mypy` or `experiments/exp_msr_004_recovery.py` in this repository
+now requires the sibling `nvs-kernel` repository installed into the same
+venv (`pip install -e ../nvs-kernel`). This is *not* declared in
+`[project.optional-dependencies]` because nvs-kernel is not published to
+PyPI and cannot actually be installed that way. `ruff`, `pytest`, and
+`mypy` over `src`/`tests` alone (i.e. the 1.0.0 and 1.1.0 surface) do not
+need it — only the one new experiment file does. This is a real,
+new-as-of-this-experiment environment-setup step, not hidden here.

@@ -35,6 +35,22 @@ strict = true
 files = ["src", "tests", "experiments"]
 plugins = []
 
+# nvs_kernel (EXP-Ubuntu004's experiments/exp_msr_004_recovery.py only) ships no
+# py.typed marker. It is not this project's dependency -- MSR imports no neighbour
+# code (RFC-MSR01 Section 1) -- this override only lets the one experiment file
+# that deliberately crosses that boundary type-check, without fabricating types
+# for a package this repo does not own.
+#
+# Running `mypy` (it is in `files` above) or `python experiments/exp_msr_004_recovery.py`
+# requires the sibling nvs-kernel repository installed into this venv first --
+# it is not a PyPI package and is deliberately not listed under
+# [project.optional-dependencies], since it cannot actually be installed from
+# there. See docs/RFC_ALIGNMENT.md ("Gate dependency: nvs-kernel").
+#     pip install -e ../nvs-kernel
+[[tool.mypy.overrides]]
+module = ["nvs_kernel.*"]
+ignore_missing_imports = true
+
 [tool.ruff]
 line-length = 88
 target-version = "py311"

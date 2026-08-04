@@ -1,0 +1,195 @@
+{
+  "experiment": "EXP-Ubuntu004",
+  "field_adapter_parity_error": 0.0,
+  "quarantine_count": 0,
+  "quarantine_free": true,
+  "trials": [
+    {
+      "offset": [
+        1.5,
+        0.0
+      ],
+      "recovered_within_budget": true,
+      "basin_reentry_step": 21,
+      "stabilized": true,
+      "steps_recorded": 37
+    },
+    {
+      "offset": [
+        -1.5,
+        0.0
+      ],
+      "recovered_within_budget": true,
+      "basin_reentry_step": 21,
+      "stabilized": true,
+      "steps_recorded": 37
+    },
+    {
+      "offset": [
+        0.0,
+        1.5
+      ],
+      "recovered_within_budget": true,
+      "basin_reentry_step": 21,
+      "stabilized": true,
+      "steps_recorded": 37
+    },
+    {
+      "offset": [
+        1.0606601717798212,
+        -1.0606601717798212
+      ],
+      "recovered_within_budget": true,
+      "basin_reentry_step": 21,
+      "stabilized": true,
+      "steps_recorded": 37
+    }
+  ],
+  "basin_recovery_rate": 1.0,
+  "stabilized_trajectory_yield_rate": 1.0,
+  "runtime_stability_rate": -0.19999787475213196,
+  "drift_final_distance": 9.97667131263924e-06,
+  "drift_converged": true,
+  "lyapunov_exponent": -9.162904608437147,
+  "lyapunov_is_contracting": true,
+  "recovered_trajectory": {
+    "trajectory_id": "traj-exp-msr-004-000033",
+    "frame_id": "exp-msr-004",
+    "basin_id": "c1",
+    "states": [
+      {
+        "frame_id": "exp-msr-004",
+        "step_index": 33,
+        "time_s": 3.75,
+        "theta": [
+          1.0003897135119049,
+          -0.5
+        ],
+        "precision": [
+          [
+            97.97331578392298,
+            0.0
+          ],
+          [
+            0.0,
+            97.97331578392298
+          ]
+        ],
+        "speed": 0.005845674934288336,
+        "potential": -1.4999995443702052,
+        "basin_id": "c1",
+        "source_observation_id": null
+      },
+      {
+        "frame_id": "exp-msr-004",
+        "step_index": 34,
+        "time_s": 3.8500000000000005,
+        "theta": [
+          1.000155885475788,
+          -0.5
+        ],
+        "precision": [
+          [
+            96.03333395219178,
+            0.0
+          ],
+          [
+            0.0,
+            96.03333395219178
+          ]
+        ],
+        "speed": 0.0023382803611693426,
+        "potential": -1.499999927099157,
+        "basin_id": "c1",
+        "source_observation_id": null
+      },
+      {
+        "frame_id": "exp-msr-004",
+        "step_index": 35,
+        "time_s": 3.95,
+        "theta": [
+          1.0000623541948608,
+          -0.5
+        ],
+        "precision": [
+          [
+            94.13176633448964,
+            0.0
+          ],
+          [
+            0.0,
+            94.13176633448964
+          ]
+        ],
+        "speed": 0.0009353128092715046,
+        "potential": -1.4999999883358632,
+        "basin_id": "c1",
+        "source_observation_id": null
+      },
+      {
+        "frame_id": "exp-msr-004",
+        "step_index": 36,
+        "time_s": 4.05,
+        "theta": [
+          1.0000249416782352,
+          -0.5
+        ],
+        "precision": [
+          [
+            92.26785227841492,
+            0.0
+          ],
+          [
+            0.0,
+            92.26785227841492
+          ]
+        ],
+        "speed": 0.00037412516625590087,
+        "potential": -1.499999998133738,
+        "basin_id": "c1",
+        "source_observation_id": null
+      },
+      {
+        "frame_id": "exp-msr-004",
+        "step_index": 37,
+        "time_s": 4.15,
+        "theta": [
+          1.0000099766713126,
+          -0.5
+        ],
+        "precision": [
+          [
+            90.44084619349266,
+            0.0
+          ],
+          [
+            0.0,
+            90.44084619349266
+          ]
+        ],
+        "speed": 0.00014965006922551538,
+        "potential": -1.499999999701398,
+        "basin_id": "c1",
+        "source_observation_id": null
+      }
+    ],
+    "centroid": [
+      1.0001285743064205,
+      -0.5
+    ],
+    "covariance": [
+      [
+        1.9625961693195145e-08,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "dwell_steps": 5,
+    "dwell_seconds": 0.40000000000000036,
+    "provenance": []
+  },
+  "pass": true
+}

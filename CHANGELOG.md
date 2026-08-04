@@ -67,10 +67,30 @@ still verified as of 1.0.0.
   100%-coverage convention already achieved but not previously enforced by
   config.
 
+### Added — Phase 3: NVS-Kernel basin recovery experiment
+
+`experiments/exp_msr_004_recovery.py` and `experiments/_nvs_bridge.py`:
+this repository's first experiment connecting a *real* neighbour (RFC-MSR01
+§8's "No real CLE, HEKB, or NVS-Kernel is connected" gap, closed for
+NVS-Kernel). NVS-Kernel is used strictly as a read-only decision oracle
+(field/geometry math only, not its risk-tiered `ControlEngine`); this
+experiment applies every correction and owns every recorded state itself.
+Neither `msr` nor `nvs-kernel` source changed. Field-adapter parity between
+the two repos' independent Gaussian-field implementations verified to
+`1e-9`; all four fixed perturbation trials recover, re-stabilize (MSR's own
+`StabilizationDetector`), converge to within `1e-5` of origin, and land
+Lyapunov-contracting; zero quarantines. See `docs/RFC_ALIGNMENT.md` for a
+design mistake made and corrected during this work (conflating
+transient basin-re-entry with settled-dwell convergence), and for the new
+nvs-kernel install step this one experiment — not the core package — now
+requires.
+
 ### Verified
 
-- TEST_COUNT_PLACEHOLDER tests, 100% line and branch coverage, mypy strict
-  clean, ruff clean.
+- TEST_COUNT_PLACEHOLDER `pytest` tests, 100% line and branch coverage,
+  mypy strict clean, ruff clean — `src`/`tests` only.
+- `experiments/exp_msr_004_recovery.py`: all five EXP-Ubuntu004 metrics
+  pass (`"pass": true` in `experiments/results/exp_msr_004.json`).
 - Every RFC-MSR01 1.0.0 test still passes unmodified; no existing behavior
   changed.
 
