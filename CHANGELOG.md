@@ -87,7 +87,7 @@ requires.
 
 ### Verified
 
-- TEST_COUNT_PLACEHOLDER `pytest` tests, 100% line and branch coverage,
+- 131 `pytest` tests (95 original + 36 new), 100% line and branch coverage,
   mypy strict clean, ruff clean — `src`/`tests` only.
 - `experiments/exp_msr_004_recovery.py`: all five EXP-Ubuntu004 metrics
   pass (`"pass": true` in `experiments/results/exp_msr_004.json`).
