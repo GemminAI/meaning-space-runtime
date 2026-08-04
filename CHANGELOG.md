@@ -4,8 +4,9 @@
 
 Implements Phase 0 (documentation) and Phase 1 (core reliability) of the
 MSR Strategic Realignment Plan, itself a response to an architecture audit
-of `src/msr` against the canonical `RFC-MSR00`–`06` series. Full disposition
-of every audit finding: [docs/RFC_ALIGNMENT.md](docs/RFC_ALIGNMENT.md).
+of `src/msr` against the canonical `RFC-MSR00`–`06` series, and adds the
+EXP-Ubuntu004 verification surface. Full disposition of every audit finding
+and the EXP-Ubuntu004 gap analysis: [docs/RFC_ALIGNMENT.md](docs/RFC_ALIGNMENT.md).
 
 ### Phase 0 — Documentation realignment
 
@@ -34,10 +35,44 @@ of every audit finding: [docs/RFC_ALIGNMENT.md](docs/RFC_ALIGNMENT.md).
   assimilation, then field-only Langevin flow); no Policy Boundary
   mechanism added; no Fisher-Rao metric added (both deferred to Phase 2).
 
+### Added — EXP-Ubuntu004 verification surface
+
+Additions needed to compute EXP-Ubuntu004's five verification metrics over
+an already-realized trajectory. None of this is normative RFC-MSR01 behavior
+— see `docs/RFC_ALIGNMENT.md` for the gap this intentionally leaves open,
+and `docs/VERIFICATION.md`/`RFC-MSR01.md` for what remains unchanged and
+still verified as of 1.0.0.
+
+- `FieldPrior.hessian` (`msr.field`): analytic ∇²Φ(θ), the closed form
+  already documented (but unimplemented) in the `stiffness` docstring.
+  Verified against finite differences of the existing `gradient()`.
+- `MeaningState.as_dict`/`from_dict`, `StabilizedTrajectory.as_dict`/
+  `from_dict` (`msr.abi`): deterministic, numpy-free round-trip
+  serialization, extending the existing `KernelView.as_dict` pattern.
+- `msr.metrics` (new): `runtime_stability_rate` (finite-time Runtime
+  Stability λ = -1/T·ln(‖Σ(T)‖_F/‖Σ(0)‖_F), Frobenius norm chosen and
+  documented explicitly) and `drift_distance`/`drift_converged` (pointwise
+  distance and windowed-threshold check against an experiment-supplied
+  reference trajectory).
+- `msr.lyapunov` (new): `largest_lyapunov_exponent`, a Benettin-method
+  finite-time largest Lyapunov exponent over the deterministic drift's
+  tangent map. Three approximations are documented in the module
+  docstring, not hidden: deterministic-backbone-only, single-step Euler per
+  *recorded* interval (coarser than the primal flow's own adaptive
+  substepping on a stiff field), and a fixed (non-random) initial
+  perturbation direction.
+- `InsufficientHistory` added to the `MSRError` taxonomy, for "not enough
+  samples/elapsed time to measure a rate," distinct from a shape defect.
+- `fail_under = 100` added to `[tool.coverage.report]`, matching the
+  100%-coverage convention already achieved but not previously enforced by
+  config.
+
 ### Verified
 
-- 106 tests (up from 95), 100% line and branch coverage, mypy strict clean,
-  ruff clean.
+- TEST_COUNT_PLACEHOLDER tests, 100% line and branch coverage, mypy strict
+  clean, ruff clean.
+- Every RFC-MSR01 1.0.0 test still passes unmodified; no existing behavior
+  changed.
 
 ## 1.0.0 — 2026-08-02
 

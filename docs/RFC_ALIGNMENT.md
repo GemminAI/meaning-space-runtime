@@ -2,10 +2,12 @@
 
 This document records how this repository's specification (`RFC-MSR01.md`,
 at the repo root) relates to the canonical `RFC-MSR00`–`06` series in
-`RFCv3_draft/rfc/MSR/`, and how each finding from the 2026-08-04 architecture
+`RFCv3_draft/rfc/MSR/`, how each finding from the 2026-08-04 architecture
 audit of `src/msr` against that series was disposed of by the **MSR
-Strategic Realignment Plan**. It is a record of decisions already made, not
-a design proposal — see `RFC-MSR01.md` for what `src/msr` actually does.
+Strategic Realignment Plan**, and — in the final section — what EXP-Ubuntu004
+needed that RFC-MSR01 does not specify. It is a record of decisions already
+made, not a design proposal — see `RFC-MSR01.md` for what `src/msr` actually
+does.
 
 ## Doc identity
 
@@ -108,3 +110,40 @@ happened to each:
 | C-1 — RFC-MSR02's C-ABI/FFI has no counterpart | **Open, not scheduled.** Scope question for a future binding layer, not `src/msr` itself. |
 | C-2 — RFC-MSR05 §3's actuator-domain smoothing algorithm | **Open, not scheduled.** Self-flagged by `RFC-MSR05`'s own header as a likely misplaced concept; no MSR-side action needed. |
 | C-3 — Cosmetic ABI field renames | **Resolved, Phase 0.** See terminology table above. |
+
+## EXP-Ubuntu004 additions
+
+`RFC-MSR01.md` is **Verified** and documents the implementation as it stood
+at 1.0.0 (2026-08-02): the fast/slow loop, the four ABI types, and the three
+verified experiments. Everything in this section was added afterward
+(concurrently with the Phase 0+1 work above), for EXP-Ubuntu004 ("OSS Runtime
+Validation"), and is **not** part of RFC-MSR01's normative text. Following
+this workspace's convention (see `categorical-lift-engine/docs/RFC_ALIGNMENT.md`
+for the precedent): a gap between an RFC and its implementation is recorded
+here, not silently folded into the RFC or hidden.
+
+### What EXP-Ubuntu004 needed that RFC-MSR01 does not specify
+
+| Addition | Module | Why it's new, not a reinterpretation of RFC-MSR01 |
+|---|---|---|
+| `FieldPrior.hessian` | `msr.field` | RFC-MSR01 §3.1 only bounds `‖∇²Φ‖` (`stiffness`, for the integrator's step-size guard). The exact `∇²Φ(θ)` at a point was never needed by the verified implementation and is new surface area. |
+| `MeaningState.as_dict`/`from_dict`, `StabilizedTrajectory.as_dict`/`from_dict` | `msr.abi` | RFC-MSR01 §2 requires the ABI types to be plain-scalar and serializable "without touching numpy" but never specifies a serialization method — `KernelView.as_dict` was the only precedent. This extends the same pattern to the other two boundary-crossing types. |
+| `runtime_stability_rate`, `drift_distance`, `drift_converged` | `msr.metrics` (new) | Neither quantity is mentioned anywhere in RFC-MSR01. Both are EXP-Ubuntu004-specific verification metrics computed *from* the ABI, not new runtime behavior. |
+| `largest_lyapunov_exponent` | `msr.lyapunov` (new) | Same: a dynamical-systems Lyapunov exponent is not part of RFC-MSR01's specified behavior. §7/§8 of RFC-MSR01 do not anticipate it. See the module's own docstring for the three approximations this estimate makes (deterministic-drift-only, single-step-Euler-per-recorded-interval, fixed initial perturbation direction) — those are EXP-Ubuntu004-specific measurement-method choices, not claims about the runtime's own behavior. |
+
+### What did not change
+
+`MeaningSpaceRuntime`, `MSRHost`, `InformationAssimilator`, `LangevinFlow`,
+`StabilizationDetector`, and the three ports (`msr.ports`) are byte-for-byte
+unmodified. Every EXP-Ubuntu004 addition is a pure function or a new method
+that *reads* already-computed state (`FieldPrior`, `MeaningState` history) —
+none of it participates in `ingest`/`advance`'s step loop, and no existing
+test's behavior changed. RFC-MSR01's 95 original 1.0.0 tests still pass
+unmodified, now alongside additional tests for both the Phase 0+1 work above
+and the EXP-Ubuntu004 surface described here.
+
+### Open question for a future RFC-MSR02 (or an RFC-MSR01 errata)
+
+If EXP-Ubuntu004's metrics prove durable, `msr.metrics` and `msr.lyapunov`
+are candidates for RFC-MSR01 §2's ABI or a new §9 — this document does not
+claim that promotion, only that the gap exists.
