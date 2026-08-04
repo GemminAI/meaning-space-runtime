@@ -69,8 +69,8 @@ runtime = MeaningSpaceRuntime(frame_id="F", dimension=8)
 host = MSRHost(runtime=runtime, kernel=my_kernel, cle=my_cle, hekb=my_hekb)
 
 result = host.ingest(MeaningMeasurement.isotropic("obs-1", "F", theta, 0.1, ts))
-result.kernel_view      # went to NVS-Kernel
-result.stabilized       # went to CLE, if this step stabilized
+result.kernel_view  # went to NVS-Kernel
+result.stabilized  # went to CLE, if this step stabilized
 ```
 
 ## Verification
@@ -79,7 +79,7 @@ result.stabilized       # went to CLE, if this step stabilized
 .venv/bin/python -m pytest tests -q --cov=msr --cov-report=term-missing
 ```
 
-Current: **95 tests pass, 100% line and branch coverage, mypy strict clean,
+Current: **106 tests pass, 100% line and branch coverage, mypy strict clean,
 ruff clean.**
 
 ## Experiments
@@ -93,6 +93,16 @@ deterministic (temperature 0; every noise stream is seeded). See
 [docs/VERIFICATION.md](docs/VERIFICATION.md) for measured numbers and the two
 defects the experiments exposed, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 for the module-level architecture as built.
+
+## RFC alignment
+
+This repository's [RFC-MSR01.md](RFC-MSR01.md) is authoritative for what
+`src/msr` does. It relates to the broader canonical `RFC-MSR00`–`06` series
+(theory/architecture/ABI, in `RFCv3_draft/rfc/MSR/`) — see
+[docs/RFC_ALIGNMENT.md](docs/RFC_ALIGNMENT.md) for the terminology mapping
+and how every open question between the two was disposed of, and
+[docs/BOUNDARIES.md](docs/BOUNDARIES.md) for why Policy Boundary enforcement
+belongs to NVS-Kernel, not MSR.
 
 ## License
 

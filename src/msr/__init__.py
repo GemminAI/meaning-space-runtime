@@ -18,6 +18,7 @@ from msr.abi import (
 )
 from msr.dynamics import InformationAssimilator, LangevinFlow
 from msr.errors import (
+    CFLViolation,
     DimensionMismatch,
     FrameMismatch,
     MSRError,
@@ -31,6 +32,7 @@ from msr.stability import StabilizationCriteria, StabilizationDetector
 from msr.version import __version__
 
 __all__ = [
+    "CFLViolation",
     "DimensionMismatch",
     "FieldPrior",
     "FieldPriorSource",

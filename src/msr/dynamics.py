@@ -22,7 +22,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from msr.errors import DimensionMismatch
+from msr.errors import CFLViolation, DimensionMismatch
 from msr.field import FieldPrior
 from msr.linalg import Array
 
@@ -99,6 +99,11 @@ class LangevinFlow:
     covers the far-field case where the gradient is large but the curvature
     bound is loose. Without this, a legitimately-committed concept can blow up
     the runtime that committed it.
+
+    **Fail closed.** ``max_substeps`` is a hard ceiling, not a cap: a field
+    stiff enough to need more substeps than that raises :class:`CFLViolation`
+    rather than integrating an under-resolved (and therefore no-longer-stable)
+    step under the appearance of a stable one.
     """
 
     mobility: float = 1.0
@@ -121,13 +126,24 @@ class LangevinFlow:
             raise DimensionMismatch("max_substeps must be >= 1")
 
     def substep_count(self, theta: Array, prior: FieldPrior, dt: float) -> int:
-        """How many substeps this ``dt`` needs at ``theta`` to stay stable."""
+        """How many substeps this ``dt`` needs at ``theta`` to stay stable.
+
+        Raises :class:`CFLViolation` if that count exceeds ``max_substeps``
+        instead of silently truncating to it — a truncated count no longer
+        satisfies the stability condition it was computed for.
+        """
         curvature = self.mobility * prior.stiffness * dt / self.stability_factor
         drift = float(np.linalg.norm(prior.gradient(theta))) * self.mobility * dt
         needed = max(curvature, drift / self.max_displacement)
         if needed <= 1.0:
             return 1
-        return min(int(np.ceil(needed)), self.max_substeps)
+        substeps = int(np.ceil(needed))
+        if substeps > self.max_substeps:
+            raise CFLViolation(
+                f"field curvature/drift requires {substeps} substeps for "
+                f"dt={dt}, exceeding max_substeps={self.max_substeps}"
+            )
+        return substeps
 
     def make_rng(self) -> np.random.Generator:
         """A fresh generator for one runtime instance's whole lifetime."""

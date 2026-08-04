@@ -290,6 +290,7 @@ class MeaningSpaceRuntime:
             theta=state.theta,
             speed=state.speed,
             potential=state.potential,
+            gradient=to_tuple(prior.gradient(theta)),
             basin_id=state.basin_id,
             precision_trace=float(np.trace(precision)),
             stabilized=self.detector.is_stable,

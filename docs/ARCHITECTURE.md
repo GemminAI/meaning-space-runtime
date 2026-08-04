@@ -84,6 +84,11 @@ far-field case where the gradient is large but curvature is loose. Total
 injected noise variance (`2·T·dt`) is preserved regardless of how many
 substeps are taken.
 
+The guard fails closed: if the required substep count exceeds
+`max_substeps`, `substep_count` raises `CFLViolation` instead of silently
+capping to it — a capped count no longer satisfies the stability condition
+it was derived from.
+
 ## Stabilization latch policy
 
 `MeaningSpaceRuntime.set_field_prior` drops the `StabilizationDetector`'s
@@ -98,4 +103,8 @@ statement. This is load-bearing for the slow loop: see
 - **Measure** — that is Meaning Mapper's arrow, L1→L2.
 - **Lift or persist knowledge** — that is CLE's and HEKB's.
 - **Control** — that is NVS-Kernel's; MSR only reports `KernelView`.
+- **Enforce policy boundaries** — geometry (`potential`, `gradient`,
+  `basin_id`) is reported; deciding what to do about a trajectory
+  approaching a forbidden region is NVS-Kernel's. See
+  [BOUNDARIES.md](BOUNDARIES.md).
 - **Import neighbour code** — every neighbour is a structural `Protocol`.

@@ -13,7 +13,7 @@ import pytest
 
 from msr.abi import MeaningMeasurement
 from msr.dynamics import LangevinFlow
-from msr.errors import DimensionMismatch
+from msr.errors import CFLViolation, DimensionMismatch
 from msr.field import FieldPrior, GaussianWell
 from msr.host import MSRHost
 from msr.reference import ReferenceCLE, ReferenceHEKB
@@ -81,9 +81,18 @@ def test_far_field_uses_the_displacement_bound() -> None:
     assert flow.substep_count(np.array([1.0]), prior, 0.05) > 1
 
 
-def test_substeps_are_capped() -> None:
+def test_substeps_exceeding_the_cap_fail_closed() -> None:
+    """A field this stiff cannot be resolved in 3 substeps: raise, don't truncate."""
     flow = LangevinFlow(max_substeps=3)
-    assert flow.substep_count(np.array([0.01]), sharp_field(1e6), 0.05) == 3
+    with pytest.raises(CFLViolation):
+        flow.substep_count(np.array([0.01]), sharp_field(1e6), 0.05)
+
+
+def test_step_itself_fails_closed_on_cfl_violation() -> None:
+    """The guard must stop ``step`` from running an under-resolved integration."""
+    flow = LangevinFlow(max_substeps=3)
+    with pytest.raises(CFLViolation):
+        flow.step(np.array([0.01]), sharp_field(1e6), 0.05, flow.make_rng())
 
 
 def test_flow_validates_the_new_parameters() -> None:

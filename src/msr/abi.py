@@ -110,8 +110,11 @@ class KernelView:
     """Fast-loop payload handed to NVS-Kernel on every step.
 
     Deliberately flat and small: the kernel is a controller, so it receives the
-    control-relevant reduction of the state (where, how fast, how deep, how
-    certain, which basin) rather than the runtime's internals.
+    control-relevant reduction of the state (where, how fast, which direction
+    the field pulls, how deep, how certain, which basin) rather than the
+    runtime's internals. ``gradient`` is ∇Φ(θ) at the reported position — the
+    same quantity the flow step just descended — so a kernel that needs the
+    pull direction does not have to recompute it against its own copy of Φ.
     """
 
     frame_id: str
@@ -120,6 +123,7 @@ class KernelView:
     theta: Vector
     speed: float
     potential: float
+    gradient: Vector
     basin_id: str | None
     precision_trace: float
     stabilized: bool
@@ -133,6 +137,7 @@ class KernelView:
             "theta": list(self.theta),
             "speed": self.speed,
             "potential": self.potential,
+            "gradient": list(self.gradient),
             "basin_id": self.basin_id,
             "precision_trace": self.precision_trace,
             "stabilized": self.stabilized,

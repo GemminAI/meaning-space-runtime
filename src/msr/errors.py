@@ -34,7 +34,18 @@ class NotPositiveDefinite(MSRError):
     """
 
 
+class CFLViolation(MSRError):
+    """A field's curvature demands more substeps than ``max_substeps`` allows.
+
+    Raised instead of silently capping the substep count. A capped step no
+    longer satisfies the CFL-style stability condition it was computed for,
+    so continuing would integrate an unstable step under the appearance of a
+    stable one — the guard must fail closed, not degrade quietly.
+    """
+
+
 __all__ = [
+    "CFLViolation",
     "DimensionMismatch",
     "FrameMismatch",
     "MSRError",

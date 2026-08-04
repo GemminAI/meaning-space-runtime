@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | RFC ID | RFC-MSR01 |
-| Version | 1.0.0 |
+| Version | 1.1.0 |
 | Status | Verified — documents a validated implementation |
 | Topic | Meaning Space Runtime (MSR): fast-loop state evolution and slow-loop knowledge closure |
 | Repository | [`GemminAI/meaning-space-runtime`](https://github.com/GemminAI/meaning-space-runtime) |
@@ -16,6 +16,14 @@ It specifies what this repository already does, not what a future version
 should do.
 
 **Normative keywords** follow RFC 2119 (`MUST` / `SHOULD` / `MAY`).
+
+**Doc-identity note.** The `RFCv3_draft` workspace's `rfc/MSR/RFC-MSR01.md`
+shares this document's ID and (pre-1.1.0) version number but is a separate,
+independently-authored document with materially different content — see
+`docs/RFC_ALIGNMENT.md` for the reconciliation. **This document is
+authoritative for what `src/msr` actually does**; the `RFCv3_draft` copy is
+the series' theoretical overview, reconciled with this one only as far as
+`docs/RFC_ALIGNMENT.md` records.
 
 ## 1. Purpose
 
@@ -53,7 +61,7 @@ are plain Python scalars/tuples — no numpy types leak across the boundary.
 |---|---|---|
 | `MeaningMeasurement` | Meaning Mapper → MSR | `observation_id`, `frame_id`, `theta` (θ), `sigma` (Σ, SPD), `timestamp_ns`, `provenance` |
 | `MeaningState` | Internal / observable | `frame_id`, `step_index`, `time_s`, `theta`, `precision`, `speed`, `potential`, `basin_id`, `source_observation_id` |
-| `KernelView` | MSR → NVS-Kernel, every step | `frame_id`, `step_index`, `time_s`, `theta`, `speed`, `potential`, `basin_id`, `precision_trace`, `stabilized` |
+| `KernelView` | MSR → NVS-Kernel, every step | `frame_id`, `step_index`, `time_s`, `theta`, `speed`, `potential`, `gradient`, `basin_id`, `precision_trace`, `stabilized` |
 | `StabilizedTrajectory` | MSR → CLE, on stabilization | `trajectory_id`, `frame_id`, `basin_id`, `states`, `centroid`, `covariance`, `dwell_steps`, `dwell_seconds`, `provenance` |
 
 A `MeaningMeasurement` **MUST** carry a declared `frame_id` and a symmetric
@@ -96,6 +104,15 @@ integration step therefore **MUST** be subdivided so that, for each substep,
 the far field. Total injected noise variance **MUST** be preserved regardless
 of substep count. Without this guard, a legitimately committed concept can
 make the runtime that committed it diverge (§7, defect 1).
+
+The guard **MUST** fail closed: if the substep count a field's curvature
+requires exceeds `max_substeps`, `LangevinFlow.substep_count` (and therefore
+`.step`, and therefore `ingest`/`advance`) **MUST** raise `CFLViolation`
+rather than silently truncating to `max_substeps`. A truncated count no
+longer satisfies the stability condition it was derived from, so continuing
+would integrate an unstable step under the appearance of a stable one. Prior
+to v1.1.0 this guard silently clamped instead of raising — see §9, Priority
+A‑2 of the architecture audit this revision resolves.
 
 ### 3.2 Stabilization
 
@@ -174,3 +191,38 @@ Both have dedicated regression tests in `tests/test_stiffness_and_latch.py`.
 - Only `dimension ∈ {1, 2}` has been exercised experimentally.
 - What defines a frame in Bootstrap Mode (before any measurement) is an open
   question upstream, in Meaning Mapper, not resolved here.
+
+## 9. Revision History
+
+### 1.1.0 (2026-08-04) — Strategic Realignment Plan, Phase 0 + Phase 1
+
+Implements the Phase 0 (documentation) and Phase 1 (core reliability) items
+of the MSR Strategic Realignment Plan, itself a response to an architecture
+audit of `src/msr` against `RFC-MSR00`–`06` (`RFCv3_draft/rfc/MSR/`). See
+`docs/RFC_ALIGNMENT.md` for the full disposition of every audit finding.
+
+- **Breaking.** The stiffness guard (§3.1) now fails closed:
+  `CFLViolation` is raised instead of silently clamping to `max_substeps`.
+- **Breaking.** `KernelView` (§2) gained a required `gradient` field —
+  ∇Φ(θ) at the reported position — so NVS-Kernel does not have to
+  recompute the field's pull direction against its own copy of Φ.
+- Added a doc-identity note (above) resolving the collision with
+  `RFCv3_draft/rfc/MSR/RFC-MSR01.md`: this document is authoritative for
+  `src/msr`'s verified behavior.
+- 106 tests (95 → 106; new: property-based tests via Hypothesis covering
+  determinism/replay, SPD/information-fusion invariants, the analytic
+  gradient against finite differences, and CFL bound satisfaction / fail-
+  closed behavior), 100% line and branch coverage maintained, mypy strict
+  clean, ruff clean.
+- Explicitly **not** changed: the two-half-step architecture (§3) is
+  preserved as-is; no Policy Boundary ($V_{\text{policy}}$) mechanism was
+  added to MSR (see `docs/BOUNDARIES.md` — that responsibility is assigned
+  to NVS-Kernel, not MSR); no Fisher-Rao metric was added (deferred to
+  Phase 2, pending an experimental comparison against the current flat
+  metric). These are open items, not oversights — see
+  `docs/RFC_ALIGNMENT.md`.
+
+### 1.0.0 (2026-08-02)
+
+Initial specification of the validated implementation (§1–§8 as originally
+published).

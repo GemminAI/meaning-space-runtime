@@ -158,8 +158,19 @@ def test_kernel_view_matches_state() -> None:
     assert view.theta == result.state.theta
     assert view.speed == result.state.speed
     assert view.potential == result.state.potential
+    assert view.gradient == (0.0, 0.0)  # empty (Bootstrap) field: ∇Φ ≡ 0
     assert view.precision_trace == pytest.approx(2.0 / 0.1)
     assert view.stabilized is False
+
+
+def test_kernel_view_gradient_matches_the_field() -> None:
+    prior = FieldPrior(
+        FRAME, 2, (GaussianWell.isotropic("c1", [0.0, 0.0], width=1.0, depth=5.0),)
+    )
+    engine = MeaningSpaceRuntime(frame_id=FRAME, dimension=2, prior=prior)
+    result = engine.ingest(measure(0, [0.6, 0.0], variance=10.0))
+    expected = prior.gradient(np.array(result.state.theta))
+    assert result.kernel_view.gradient == pytest.approx(tuple(expected))
 
 
 def test_snapshot_reports_runtime_status() -> None:

@@ -68,12 +68,14 @@ def test_kernel_view_serializes() -> None:
         theta=(1.0, 0.0),
         speed=0.0,
         potential=-1.0,
+        gradient=(0.5, -0.5),
         basin_id=None,
         precision_trace=2.0,
         stabilized=False,
     )
     payload = view.as_dict()
     assert payload["theta"] == [1.0, 0.0]
+    assert payload["gradient"] == [0.5, -0.5]
     assert payload["basin_id"] is None
     assert payload["stabilized"] is False
 
