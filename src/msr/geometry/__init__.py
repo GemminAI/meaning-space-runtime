@@ -14,6 +14,7 @@ from msr.geometry.analyze import (
 )
 from msr.geometry.calibration import (
     Calibration,
+    LoadedCalibration,
     build_calibration,
     evaluate_shift,
     load_calibration,
@@ -31,6 +32,7 @@ __all__ = [
     "CalibrationError",
     "CrossSpaceComparison",
     "InvalidTrajectory",
+    "LoadedCalibration",
     "Policy",
     "TrajectoryInput",
     "analyze_trajectory",

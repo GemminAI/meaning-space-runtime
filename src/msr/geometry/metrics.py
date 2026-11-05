@@ -32,6 +32,7 @@ from msr.geometry.errors import InvalidTrajectory
 
 Array = NDArray[np.float64]
 Series = list[float | None]
+DEFAULT_BLOCK_SIZE = 256
 
 
 def _check_points(points: Array) -> None:
@@ -121,9 +122,33 @@ def displacement_metrics(
     return summary, series
 
 
+def _distance_row(points: Array, row: int, cols: int, chunk: int) -> Array:
+    """``||x_row - x_c||`` for ``c < cols``, computed ``chunk`` columns at a time.
+
+    Same per-element arithmetic as :func:`pairwise_distances`, so values are
+    bit-identical to the corresponding matrix entries.
+    """
+    out = np.empty(cols, dtype=np.float64)
+    for start in range(0, cols, chunk):
+        diff = points[start : min(cols, start + chunk)] - points[row]
+        out[start : start + len(diff)] = np.sqrt(np.sum(diff * diff, axis=-1))
+    return out
+
+
 def recurrence_metrics(
-    points: Array, epsilon: float | None, w_min: int | None
+    points: Array,
+    epsilon: float | None,
+    w_min: int | None,
+    *,
+    block_size: int = DEFAULT_BLOCK_SIZE,
 ) -> tuple[dict[str, object], dict[str, Series]]:
+    """Recurrence without materialising the T x T matrix.
+
+    Rows are processed in blocks of ``block_size``; at most ``block_size + 1``
+    distance rows (each <= T long) are alive at once, so memory is
+    O(T * block_size) plus an O(block_size * D) scratch chunk. The result does
+    not depend on ``block_size``.
+    """
     length = points.shape[0]
     empty: Series = [None] * length
     if epsilon is None or w_min is None:
@@ -139,22 +164,36 @@ def recurrence_metrics(
         }
     if epsilon <= 0.0 or w_min < 0:
         raise InvalidTrajectory("epsilon must be > 0 and w_min >= 0")
-    dist = pairwise_distances(points)
+    if block_size < 1:
+        raise InvalidTrajectory("block_size must be >= 1")
     cum_pairs = cum_hits = cum_returns = 0
     frac_s: Series = []
     count_s: Series = []
     rate_s: Series = []
-    for j in range(length):
-        eligible = max(0, j - w_min)  # i in [0, eligible): j - i > w_min
-        if eligible:
-            close = dist[j, :eligible] < epsilon
-            cum_pairs += eligible
-            cum_hits += int(np.sum(close))
-            if j >= 1 and bool(np.any(close & (dist[j - 1, :eligible] >= epsilon))):
-                cum_returns += 1
-        frac_s.append(cum_hits / cum_pairs if cum_pairs else None)
-        count_s.append(cum_returns)
-        rate_s.append(cum_returns / (j + 1))
+    carry: Array | None = None  # distance row of the last point of the previous block
+    for start in range(0, length, block_size):
+        stop = min(length, start + block_size)
+        # row r needs columns < max(0, r + 1 - w_min): its own eligible range
+        # (r - w_min) plus the one extra column row r+1's return test reads.
+        rows = [
+            _distance_row(points, r, max(0, r + 1 - w_min), block_size)
+            for r in range(start, stop)
+        ]
+        for offset, j in enumerate(range(start, stop)):
+            eligible = max(0, j - w_min)  # i in [0, eligible): j - i > w_min
+            if eligible:
+                close = rows[offset][:eligible] < epsilon
+                cum_pairs += eligible
+                cum_hits += int(np.sum(close))
+                # eligible > 0 implies j >= 1, so a previous row exists
+                previous = carry if offset == 0 else rows[offset - 1]
+                assert previous is not None
+                if bool(np.any(close & (previous[:eligible] >= epsilon))):
+                    cum_returns += 1
+            frac_s.append(cum_hits / cum_pairs if cum_pairs else None)
+            count_s.append(cum_returns)
+            rate_s.append(cum_returns / (j + 1))
+        carry = rows[-1]
     summary = {
         "pair_fraction": frac_s[-1],
         "return_count": cum_returns,
@@ -246,6 +285,7 @@ def mean_step_distance(left: Array, right: Array) -> float:
 
 
 __all__ = [
+    "DEFAULT_BLOCK_SIZE",
     "assign_cells",
     "displacement_metrics",
     "diversity_metrics",

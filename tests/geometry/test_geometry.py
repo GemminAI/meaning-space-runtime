@@ -10,6 +10,7 @@ import numpy as np
 import pytest
 
 import msr.geometry as g
+from msr.geometry.analyze import VERDICT_REASON
 from msr.geometry.calibration import Calibration
 from msr.geometry.errors import (
     CalibrationError,
@@ -20,6 +21,7 @@ from msr.geometry.metrics import (
     assign_cells,
     displacement_metrics,
     mean_step_distance,
+    pairwise_distances,
     persistence_metrics,
     recurrence_metrics,
 )
@@ -232,22 +234,36 @@ NULLS = [traj(walk(40, 3, seed=s) * 0.1) for s in range(5)]
 
 def test_uncalibrated_without_file(tmp_path: Path) -> None:
     res = g.analyze_trajectory(traj(walk(20)), data_dir=tmp_path)
-    assert res["verdict"]["state"] == "UNCALIBRATED"
+    assert res["verdict"] == {"state": None, "reason": VERDICT_REASON}
     assert res["calibration"] == {"model_build_id": None, "sha256": None}
+    assert res["thresholds"]["source"] == {
+        "epsilon": None,
+        "delta": None,
+        "w_min": None,
+    }
     assert res["metrics"]["displacement"]["mean"] is not None
 
 
-@pytest.mark.parametrize(
-    ("d", "expected"),
-    [
-        (1.99, "STAGNANT"),
-        (2.0, "NOISE_FLOOR_INTERNAL"),
-        (5.0, "NOISE_FLOOR_INTERNAL"),
-        (5.01, "STRUCTURAL_SHIFT_DETECTED"),
-    ],
-)
+# SPEC-MSR-001 v2 section 3.2, floor 2.0 / ceiling 5.0 -- a fixed table that
+# does not depend on any neighbour repository being present.
+VERDICT_TABLE = [
+    (0.0, "STAGNANT"),
+    (1.999999, "STAGNANT"),  # below the lower bound
+    (2.0, "NOISE_FLOOR_INTERNAL"),  # exactly the lower bound
+    (3.5, "NOISE_FLOOR_INTERNAL"),
+    (5.0, "NOISE_FLOOR_INTERNAL"),  # exactly the upper bound
+    (5.000001, "STRUCTURAL_SHIFT_DETECTED"),  # above the upper bound
+    (100.0, "STRUCTURAL_SHIFT_DETECTED"),
+]
+
+
+@pytest.mark.parametrize(("d", "expected"), VERDICT_TABLE)
 def test_verdict_boundaries(d: float, expected: str) -> None:
     assert g.evaluate_shift(d, calib()) == expected
+
+
+@pytest.mark.parametrize("d", [0.0, 3.5, 100.0])
+def test_verdict_without_calibration(d: float) -> None:
     assert g.evaluate_shift(d, None) == "UNCALIBRATED"
 
 
@@ -270,7 +286,7 @@ def test_verdict_matches_sensos_core() -> None:
         background_mean=3.0,
         sample_config={},
     )
-    for d in (0.0, 1.999, 2.0, 3.5, 5.0, 5.0001, 100.0):
+    for d, _ in VERDICT_TABLE:
         assert g.evaluate_shift(d, calib()) == mod.evaluate_manifold_shift(d, ref)
     assert g.evaluate_shift(1.0, None) == mod.evaluate_manifold_shift(1.0, None)
 
@@ -295,20 +311,33 @@ def test_build_write_load_roundtrip_and_analyze(tmp_path: Path) -> None:
     assert res["calibration"]["model_build_id"] == "build-1"
     assert res["calibration"]["sha256"] == loaded.sha256
     assert res["thresholds"]["epsilon"] == c.epsilon
-    assert res["verdict"]["state"] in {
-        "STAGNANT",
-        "NOISE_FLOOR_INTERNAL",
-        "STRUCTURAL_SHIFT_DETECTED",
+    assert res["verdict"]["state"] is None  # analyze never emits a shift state
+    assert res["thresholds"]["source"] == {
+        "epsilon": "calibration",
+        "delta": "calibration",
+        "w_min": "calibration",
     }
-    big = g.analyze_trajectory(traj(walk(40, 3) * 50.0), data_dir=tmp_path)
+    big = g.compare_trajectories(
+        NULLS[0], traj(NULLS[0].points + 50.0), calibration=loaded
+    )
     assert big["verdict"]["state"] == "STRUCTURAL_SHIFT_DETECTED"
+    assert big["calibration"] == {"model_build_id": "build-1", "sha256": loaded.sha256}
+    with pytest.raises(CalibrationError):  # calibration is for another space
+        g.compare_trajectories(
+            traj(walk(40, 3), space="S2"),
+            traj(walk(40, 3), space="S2"),
+            calibration=loaded,
+        )
     # explicit thresholds override the file
     over = g.analyze_trajectory(
         NULLS[0], data_dir=tmp_path, epsilon=9.0, delta=9.0, w_min=0
     )
-    assert over["thresholds"] == {"epsilon": 9.0, "delta": 9.0, "w_min": 0}
-    one = g.analyze_trajectory(traj(np.zeros((1, 3))), data_dir=tmp_path)
-    assert one["verdict"]["state"] is None
+    assert over["thresholds"] == {
+        "epsilon": 9.0,
+        "delta": 9.0,
+        "w_min": 0,
+        "source": {"epsilon": "explicit", "delta": "explicit", "w_min": "explicit"},
+    }
 
 
 def test_build_calibration_defaults_and_errors() -> None:
@@ -360,15 +389,72 @@ def test_cross_space_comparison_refused() -> None:
     with pytest.raises(CrossSpaceComparison):
         g.compare_trajectories(a, b)
     res = g.compare_trajectories(a, b, allow_cross_space=True)
-    assert res["verdict"] == "UNCALIBRATED"
-    same = g.compare_trajectories(a, traj(walk(10, seed=3)), calib=calib())
-    assert same["distance"] > 0
-    assert same["verdict"] in {
-        "STAGNANT",
-        "NOISE_FLOOR_INTERNAL",
-        "STRUCTURAL_SHIFT_DETECTED",
-    }
-    assert g.compare_trajectories(a, a)["distance"] == 0.0
+    assert res["verdict"]["state"] == "UNCALIBRATED"
+    assert res["calibration"] == {"model_build_id": None, "sha256": None}
+
+
+def test_compare_output_and_alignment() -> None:
+    a, b = traj(walk(10)), traj(walk(10, seed=3))
+    loaded = g.LoadedCalibration(calib(), "f" * 64)
+    same = g.compare_trajectories(a, b, calibration=loaded)
+    assert same["distance"]["definition"] == "mean_step_l2"
+    assert same["distance"]["value"] == pytest.approx(
+        float(np.mean(np.linalg.norm(a.points - b.points, axis=1)))
+    )
+    assert same["alignment"] == {"mode": "equal_only", "points_used": 10}
+    assert same["producer"]["name"] == "meaning-space-runtime"
+    assert same["inputs"]["left"]["sha256"] == a.sha256()
+    assert same["inputs"]["right"]["policy"] == {"name": "last-token", "sha256": SHA}
+    assert same["inputs"]["right"]["model_build_id"] == "build-1"
+    assert same["calibration"] == {"model_build_id": "build-1", "sha256": "f" * 64}
+    assert g.compare_trajectories(a, a)["distance"]["value"] == 0.0
+    short = traj(walk(6, seed=3))
+    with pytest.raises(InvalidTrajectory):
+        g.compare_trajectories(a, short)
+    with pytest.raises(InvalidTrajectory):
+        g.compare_trajectories(a, short, alignment="bogus")  # type: ignore[arg-type]
+    prefix = g.compare_trajectories(a, short, alignment="common_prefix")
+    assert prefix["alignment"] == {"mode": "common_prefix", "points_used": 6}
+    assert prefix["distance"]["value"] == pytest.approx(
+        float(np.mean(np.linalg.norm(a.points[:6] - short.points, axis=1)))
+    )
+
+
+# ------------------------------------------------------------ block-wise
+
+
+@pytest.mark.parametrize("w_min", [0, 1, 7])
+def test_recurrence_is_block_size_invariant_and_matches_full_matrix(
+    w_min: int,
+) -> None:
+    pts = np.random.default_rng(11).normal(size=(103, 5))
+    eps = 3.0
+    dist = pairwise_distances(pts)
+    pairs = hits = ret = 0
+    fracs: list[float | None] = []
+    for j in range(len(pts)):
+        k = max(0, j - w_min)
+        if k:
+            close = dist[j, :k] < eps
+            pairs += k
+            hits += int(close.sum())
+            if j and (close & (dist[j - 1, :k] >= eps)).any():
+                ret += 1
+        fracs.append(hits / pairs if pairs else None)
+    base = recurrence_metrics(pts, eps, w_min, block_size=1000)
+    assert base[0]["return_count"] == ret
+    assert base[1]["recurrence_pair_fraction"] == fracs
+    for block in (1, 2, 7, 64, 102, 103, 104):
+        assert recurrence_metrics(pts, eps, w_min, block_size=block) == base
+    with pytest.raises(InvalidTrajectory):
+        recurrence_metrics(pts, eps, w_min, block_size=0)
+
+
+def test_analyze_passes_block_size() -> None:
+    t = traj(walk(40, 3))
+    a = g.analyze_trajectory(t, epsilon=3.0, delta=1.0, w_min=1, block_size=5)
+    b = g.analyze_trajectory(t, epsilon=3.0, delta=1.0, w_min=1)
+    assert g.to_json_bytes(a) == g.to_json_bytes(b)
 
 
 def test_deterministic_bytes_and_no_meaning_words(tmp_path: Path) -> None:
