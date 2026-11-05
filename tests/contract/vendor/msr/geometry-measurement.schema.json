@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "sensos:contracts/msr/geometry-measurement/0.7.0",
+  "$id": "sensos:contracts/msr/geometry-measurement/0.7.1",
   "title": "IC-02 msr.geometry-measurement (payload)",
   "type": "object",
   "required": [
@@ -628,8 +628,14 @@
                           "const": 1
                         }
                       }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
                     }
-                  }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
                 }
               ]
             },
@@ -665,8 +671,14 @@
                           "const": 1
                         }
                       }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
                     }
-                  }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
                 }
               ]
             },
@@ -690,8 +702,14 @@
                     },
                     "quantization": {
                       "type": "null"
+                    },
+                    "undefined": {
+                      "const": "int64_min"
                     }
-                  }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
                 }
               ]
             },
@@ -727,8 +745,14 @@
                           "const": 1
                         }
                       }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
                     }
-                  }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
                 }
               ]
             },
@@ -752,8 +776,14 @@
                     },
                     "quantization": {
                       "type": "null"
+                    },
+                    "undefined": {
+                      "const": "int64_min"
                     }
-                  }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
                 }
               ]
             },
@@ -789,8 +819,14 @@
                           "const": 1
                         }
                       }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
                     }
-                  }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
                 }
               ]
             },
@@ -826,8 +862,14 @@
                           "const": 1
                         }
                       }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
                     }
-                  }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
                 }
               ]
             },
@@ -863,8 +905,14 @@
                           "const": 1
                         }
                       }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
                     }
-                  }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
                 }
               ]
             },
@@ -888,8 +936,14 @@
                     },
                     "quantization": {
                       "type": "null"
+                    },
+                    "undefined": {
+                      "const": "int64_min"
                     }
-                  }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
                 }
               ]
             },
@@ -925,13 +979,19 @@
                           "const": 1
                         }
                       }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
                     }
-                  }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
                 }
               ]
             }
           },
-          "description": "系列の名前をキーにした整数の Blob（§3.3.2）。各 Blob は 1 次元 shape [T]（T = input_ref.length、S35）。実数の系列は 2^-30 で量子化、個数の系列は quantization: null"
+          "description": "系列の名前をキーにした整数の Blob（§3.3.2）。各 Blob は 1 次元 shape [T]（T = input_ref.length、S35）。実数の系列は 2^-30 で量子化、個数の系列は quantization: null。どの系列も値なしを持ちうるので、`undefined: \"int64_min\"` を常に宣言する（0.7.1。値なしが実際に無い計測でも宣言する）"
         },
         "verdict": {
           "type": "object",

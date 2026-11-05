@@ -11,8 +11,9 @@ payload's integers.
 ``series`` is an object keyed by series name; every value is a 1-D int64 Blob
 (``shape [T]``, little-endian, no header). Real series are quantized at 2**-30;
 the three count series are stored as they are (``quantization: null``). "No
-value" is ``-2**63`` and the Blob then declares ``undefined: "int64_min"``; the
-positions are those of ``msr/README.md`` (contract 0.7.0, §3.3.2, §7.1).
+value" is ``-2**63``; every series always declares ``undefined: "int64_min"``
+(contract 0.7.1, whether or not a value is missing). The positions are those of
+``msr/README.md`` (§3.3.2, §7.1).
 """
 
 from __future__ import annotations
@@ -60,7 +61,7 @@ from msr.geometry.wire import (
     quantize,
 )
 
-PAYLOAD_SCHEMA = ("msr.geometry-measurement", "0.7.0")
+PAYLOAD_SCHEMA = ("msr.geometry-measurement", "0.7.1")
 UNDEFINED = INT64_RANGE[
     0
 ]  # the Blob's "no value" mark; -2**63 is never a measured value
@@ -146,9 +147,9 @@ def _series_blobs(
                 else None
             ),
             "unit": unit,
+            # 0.7.1: every series can hold "no value" by contract, so it always says so
+            "undefined": "int64_min",
         }
-        if UNDEFINED in values:
-            ref["undefined"] = "int64_min"
         refs[name] = ref
         blobs.append(blob)
     return refs, tuple(blobs)

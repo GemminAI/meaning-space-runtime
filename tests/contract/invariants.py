@@ -231,6 +231,8 @@ def _series(
         ref = payload["series"][name]
         data = blobs.get(ref["uri"])
         out |= blob_violations(ref, data)
+        if ref.get("undefined") != "int64_min":
+            out.add("S36")  # 0.7.1: every series declares it, always
         if ref["shape"] != [length]:
             out.add("S35")
         if data is None or len(data) != 8 * length:
@@ -275,3 +277,17 @@ def _calibration_payload(
         out.add("calibration_self_reference")
     if payload["between_alignment"] == "x-common_prefix" and not _approved(envelope):
         out.add("S17")
+
+
+def series_payload_violations(
+    payload: Mapping[str, Any],
+    parents: list[dict[str, Any]],
+    blobs: Mapping[str, bytes],
+) -> set[str]:
+    """Schema (msr/geometry-measurement) then the series checks, as the frozen
+    ``series.json`` vectors state them: ``schema`` alone, else S34-S37."""
+    if list(validator("msr/geometry-measurement").iter_errors(payload)):
+        return {"schema"}
+    out: set[str] = set()
+    _series({"parents": parents}, payload, blobs, out)
+    return out

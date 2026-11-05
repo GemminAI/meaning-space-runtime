@@ -144,7 +144,7 @@ def test_series_are_one_int64_blob_per_name() -> None:
             assert s["quantization"] is None  # counts are stored as they are
             expect = [UNDEFINED if v is None else v for v in ref_series[name]]
         assert got == expect, name
-        assert ("undefined" in s) == (UNDEFINED in got)
+        assert s["undefined"] == "int64_min"  # always, 0.7.1
     counts = {n for n, (k, _) in SERIES.items() if k == "count"}
     assert counts == {
         "displacement_longest_sub_delta_run",

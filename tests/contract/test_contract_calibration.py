@@ -183,34 +183,24 @@ def test_load_authority_is_parse_shape_and_recomputed_ids(tmp_path: Path) -> Non
         g.load_calibration(tmp_path, aid, parent_contents=contents)
     sidecar.unlink()
     # tampered content with no .sha256 to notice: the ids no longer recompute
-    path.write_bytes(good.replace(b'"S1"', b'"S2"', 1))
+    path.write_bytes(good.replace(b'"build-1"', b'"build-9"', 1))
     with pytest.raises(g.CalibrationError, match="do not recompute"):
         g.load_calibration(tmp_path, aid, parent_contents=contents)
     path.write_bytes(good)
     # parents' content_ids are needed; a wrong one does not recompute either
-    with pytest.raises(g.CalibrationError, match="not a valid calibration"):
-        g.load_calibration(tmp_path, aid, parent_contents={})
+    with pytest.raises(g.CalibrationError, match="does not match the contract"):
+        g.load_calibration(tmp_path, aid, parent_contents={})  # parents unknown
     wrong = {k: ref(999).content_id for k in contents}
     with pytest.raises(g.CalibrationError, match="do not recompute"):
         g.load_calibration(tmp_path, aid, parent_contents=wrong)
     # not strict JSON / not the named artifact / not the contract's shape
     other = {**art.envelope, "artifact_id": "art:" + "0" * 64}
     extra = {**art.envelope, "unexpected": 1}
-    for body in (b'{"a":1,"a":2}', b"[1]", jcs(other), jcs(extra)):
+    broken = {**art.envelope, "producer": None}  # a reader must not crash on it
+    for body in (b'{"a":1,"a":2}', b"[1]", jcs(other), jcs(extra), jcs(broken)):
         path.write_bytes(body)
         with pytest.raises(g.CalibrationError):
             g.load_calibration(tmp_path, aid, parent_contents=contents)
-    for mutate in muts(
-        lambda e: e["payload"]["values"].__setitem__("epsilon", 1.5),
-        lambda e: e["payload"]["values"].__setitem__("w_min", True),
-        lambda e: e.__setitem__("calibration_ref", ref(1).to_dict()),
-        lambda e: e["contract"].__setitem__("version", "0.6.2"),
-        lambda e: e["payload"].__setitem__("between_alignment", "other"),
-    ):
-        env = deepcopy(art.envelope)
-        mutate(env)
-        with pytest.raises(g.CalibrationError):
-            calibration_module._check_shape(env)  # shape check on its own
 
 
 def test_lookup_is_by_artifact_id_only(tmp_path: Path) -> None:
@@ -316,3 +306,129 @@ def test_a_different_quantum_is_refused_not_converted() -> None:
     )
     with pytest.raises(g.CalibrationError, match="no conversion"):
         g.evaluate_shift_quantized(5, art, distance_exponent=-31)
+
+
+def _mut(path: tuple[Any, ...], value: Any) -> Any:
+    def apply(e: dict[str, Any]) -> object:
+        node = e
+        for key in path[:-1]:
+            node = node[key]
+        node[path[-1]] = value
+        return None
+
+    return apply
+
+
+def _drop(path: tuple[Any, ...]) -> Any:
+    def apply(e: dict[str, Any]) -> object:
+        node = e
+        for key in path[:-1]:
+            node = node[key]
+        del node[path[-1]]
+        return None
+
+    return apply
+
+
+A = "art:" + "7" * 64
+CONTRACT_BREAKS = {
+    "contract-version": _mut(("contract", "version"), "0.6.2"),
+    "kind": _mut(("kind",), "evidence"),
+    "payload-schema-0.7.1": _mut(("payload_schema", "version"), "0.7.1"),
+    "payload-schema-id": _mut(("payload_schema", "id"), "msr.geometry-measurement"),
+    "producer": _mut(("producer", "name"), "meaning-mapper"),
+    "calibration-ref": _mut(("calibration_ref",), {"artifact_id": A}),
+    "artifact-id": _mut(("artifact_id",), "nope"),
+    "content-id": _mut(("content_id",), "cnt:x"),
+    "extra-envelope-key": _mut(("unexpected",), 1),
+    "extra-payload-key": _mut(("payload", "file_sha256"), "0" * 64),
+    "empty-model-build": _mut(("payload", "model_build_id"), ""),
+    "space-mismatch": _mut(("space_id",), "S9"),
+    "floor-above-ceiling": _mut(("payload", "values", "noise_floor_lower"), 2**50),
+    "negative-lower": _mut(("payload", "values", "noise_floor_lower"), -1),
+    "epsilon-zero": _mut(("payload", "values", "epsilon"), 0),
+    "epsilon-float": _mut(("payload", "values", "epsilon"), 1.5),
+    "delta-negative": _mut(("payload", "values", "delta"), -1),
+    "w-min-bool": _mut(("payload", "values", "w_min"), True),
+    "background-too-big": _mut(("payload", "values", "background_mean"), 2**53),
+    "alignment-unknown": _mut(("payload", "between_alignment"), "other"),
+    "method-name": _mut(("payload", "method", "name"), "other"),
+    "method-extra": _mut(("payload", "method", "extra"), 1),
+    "quantile-zero": _mut(("payload", "method", "quantiles", "epsilon"), 0),
+    "quantile-one": _mut(("payload", "method", "quantiles", "delta"), 2**30),
+    "floor-equal": _mut(("payload", "method", "quantiles", "floor"), [5, 5]),
+    "floor-length": _mut(("payload", "method", "quantiles", "floor"), [5]),
+    "floor-not-list": _mut(("payload", "method", "quantiles", "floor"), 5),
+    "null-set-short": _mut(("payload", "null_set"), [A]),
+    "null-set-not-id": _mut(("payload", "null_set"), ["x", "y"]),
+    "null-set-duplicate": _mut(("payload", "null_set"), [A, A]),
+    "null-set-unsorted": _mut(("payload", "null_set"), ["art:" + "9" * 64, A]),
+    "trajectory-count": _mut(("payload", "sample_config", "trajectories"), 9),
+    "points-zero": _mut(("payload", "sample_config", "points"), 0),
+    "sample-config-key": _drop(("payload", "sample_config", "dims")),
+    "parent-ordered": _mut(("parents", 0, "ordered"), True),
+    "parent-role-extra": _mut(("parents", 0, "role"), "history"),
+    "null-set-role-differs": _mut(("parents", 0, "artifact_ids"), [A]),
+    "codebook-role-without-ref": lambda e: e["parents"].append(
+        {"role": "codebook", "ordered": False, "artifact_ids": [A]}
+    ),
+    "role-twice": lambda e: e["parents"].append(deepcopy(e["parents"][0])),
+    "common-prefix-without-approval": _mut(
+        ("payload", "between_alignment"), "x-common_prefix"
+    ),
+}
+
+
+@pytest.mark.parametrize("name", list(CONTRACT_BREAKS))
+def test_reader_refuses_a_calibration_that_breaks_the_contract(name: str) -> None:
+    art = make_calibration()
+    env = deepcopy(art.envelope)
+    CONTRACT_BREAKS[name](env)
+    with pytest.raises((g.CalibrationError, KeyError, TypeError)):
+        try:
+            calibration_module._check_contract(env, parent_contents())
+        except (KeyError, TypeError, AttributeError) as exc:
+            raise g.CalibrationError(str(exc)) from exc
+
+
+def test_reader_checks_the_codebook_parent_and_the_approval() -> None:
+    cb = make_calibration(codebook_ref=ref(70))
+    contents = parent_contents(ref(70))
+    calibration_module._check_contract(cb.envelope, contents)  # the good case
+    for bad in (
+        {**contents, ref(70).artifact_id: ref(71).content_id},  # content_id differs
+        parent_contents(),  # codebook not among the parents
+    ):
+        with pytest.raises(g.CalibrationError):
+            calibration_module._check_contract(cb.envelope, bad)
+    env = deepcopy(cb.envelope)
+    env["payload"]["values"]["codebook_ref"] = None  # role present, ref gone
+    with pytest.raises(g.CalibrationError):
+        calibration_module._check_contract(env, contents)
+    env = deepcopy(cb.envelope)
+    env["parents"] = [p for p in env["parents"] if p["role"] != "codebook"]
+    with pytest.raises(g.CalibrationError):  # ref present, role gone
+        calibration_module._check_contract(env, contents)
+    mixed = [g.NullMember(traj(i, n=30 + 5 * (i % 2)), ref(i)) for i in range(4)]
+    cp = g.build_calibration(
+        mixed, ctx(alignment_approval=APPROVAL), alignment="common_prefix"
+    )
+    contents = {m.ref.artifact_id: m.ref.content_id for m in mixed}
+    calibration_module._check_contract(cp.envelope, contents)
+    for approval in (
+        {},
+        {"reason": "", "approved_by": "t"},
+        {"reason": "r", "approved_by": ""},
+    ):
+        env = deepcopy(cp.envelope)
+        env["extensions"] = {"x-meaning-space-runtime-alignment": approval}
+        with pytest.raises(g.CalibrationError):
+            calibration_module._check_contract(env, contents)
+    env = deepcopy(cp.envelope)
+    env["extensions"] = {}
+    with pytest.raises(g.CalibrationError):
+        calibration_module._check_contract(env, contents)
+    env = deepcopy(cp.envelope)
+    env["extensions"] = {"x-meaning-space-runtime-alignment": "approved"}
+    with pytest.raises(g.CalibrationError):
+        calibration_module._check_contract(env, contents)

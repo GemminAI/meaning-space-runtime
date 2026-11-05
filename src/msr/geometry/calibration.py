@@ -27,7 +27,9 @@ import numpy as np
 
 from msr.geometry import ids
 from msr.geometry.envelope import (
+    ALIGNMENT_EXTENSION,
     CONTRACT,
+    PRODUCER_NAME,
     ArtifactRef,
     EmitContext,
     alignment_extensions,
@@ -231,28 +233,133 @@ _VALUE_KEYS = frozenset(
 )
 
 
-def _check_shape(envelope: Mapping[str, Any]) -> None:
-    """The structural part of the contract that this loader can verify without
-    a JSON-Schema engine (the vendored schema is applied in the tests)."""
+_ART = re.compile(r"^art:[0-9a-f]{64}$")
+_CNT = re.compile(r"^cnt:[0-9a-f]{64}$")
+_CAL_ROLES = frozenset({"null_set", "codebook"})
+
+
+def _is_int(value: object, lo: int, hi: int = MAX_SAFE) -> bool:
+    return type(value) is int and lo <= value <= hi
+
+
+def _is_id(pattern: re.Pattern[str], value: object) -> bool:
+    return isinstance(value, str) and pattern.match(value) is not None
+
+
+def _check_contract(
+    envelope: Mapping[str, Any], parent_contents: Mapping[str, str]
+) -> None:
+    """What a *reader* verifies about a calibration without trusting the Gate:
+    the contract version, the fields it uses (type and range), the invariants
+    S17/S19/S21, and that every parent the envelope names has a content_id in
+    ``parent_contents`` (the full JSON-Schema check is the Gate's job)."""
     payload = envelope.get("payload")
     values = payload.get("values") if isinstance(payload, dict) else None
     ok = (
         set(envelope) == _ENVELOPE_KEYS
         and envelope["contract"] == CONTRACT
         and envelope["kind"] == "interpretation"
+        and envelope["payload_schema"]
+        == {"id": PAYLOAD_SCHEMA[0], "version": PAYLOAD_SCHEMA[1]}
+        and envelope["producer"]["name"] == PRODUCER_NAME
         and envelope["calibration_ref"] is None
+        and _is_id(_ART, envelope["artifact_id"])
+        and _is_id(_CNT, envelope["content_id"])
         and isinstance(payload, dict)
         and set(payload) == _PAYLOAD_KEYS
         and isinstance(values, dict)
         and set(values) == _VALUE_KEYS
-        and all(
-            type(values[k]) is int and 0 <= values[k] <= MAX_SAFE
-            for k in _VALUE_KEYS - {"codebook_ref"}
-        )
+        and all(isinstance(payload[k], str) and payload[k] for k in _TEXT_KEYS)
+        and envelope["space_id"] == payload["space_id"]
+        and _is_int(values["noise_floor_lower"], 0)
+        and _is_int(values["noise_floor_upper"], values["noise_floor_lower"])
+        and _is_int(values["background_mean"], 0)
+        and _is_int(values["epsilon"], 1)
+        and _is_int(values["delta"], 0)
+        and _is_int(values["w_min"], 0)
         and payload["between_alignment"] in ("equal_only", "x-common_prefix")
+        and _quantiles_ok(payload["method"])
+        and _null_set_ok(payload)
+        and _parents_ok(envelope, payload, parent_contents)
+        and (
+            payload["between_alignment"] == "equal_only"
+            or _approved(envelope["extensions"])
+        )
     )
     if not ok:
         raise CalibrationError("calibration envelope does not match the contract")
+
+
+_TEXT_KEYS = ("space_id", "model_build_id")
+
+
+def _approved(extensions: Mapping[str, Any]) -> bool:
+    ext = extensions.get(ALIGNMENT_EXTENSION)
+    return (
+        isinstance(ext, dict)
+        and isinstance(ext.get("reason"), str)
+        and bool(ext["reason"])
+        and isinstance(ext.get("approved_by"), str)
+        and bool(ext["approved_by"])
+    )
+
+
+def _quantiles_ok(method: Any) -> bool:
+    q = method["quantiles"]
+    floor = q["floor"]
+    return (
+        set(method) == {"name", "version", "quantiles"}
+        and method["name"] == METHOD_NAME
+        and isinstance(method["version"], str)
+        and set(q) == {"epsilon", "delta", "floor"}
+        and _is_int(q["epsilon"], 1, _ONE - 1)
+        and _is_int(q["delta"], 1, _ONE - 1)
+        and isinstance(floor, list)
+        and len(floor) == 2
+        and _is_int(floor[0], 1, _ONE - 1)
+        and _is_int(floor[1], floor[0] + 1, _ONE - 1)
+    )
+
+
+def _null_set_ok(payload: Mapping[str, Any]) -> bool:
+    null_set = payload["null_set"]
+    config = payload["sample_config"]
+    return (
+        isinstance(null_set, list)
+        and len(null_set) >= 2
+        and all(_is_id(_ART, a) for a in null_set)
+        and null_set == sorted(set(null_set), key=lambda a: a.encode())
+        and isinstance(config, dict)
+        and set(config) == {"trajectories", "points", "dims"}
+        and config["trajectories"] == len(null_set)
+        and _is_int(config["points"], 1)
+        and _is_int(config["dims"], 1)
+    )
+
+
+def _parents_ok(
+    envelope: Mapping[str, Any],
+    payload: Mapping[str, Any],
+    parent_contents: Mapping[str, str],
+) -> bool:
+    roles = {p["role"]: p for p in envelope["parents"]}
+    codebook = payload["values"]["codebook_ref"]
+    cb_ids = [] if "codebook" not in roles else roles["codebook"]["artifact_ids"]
+    named = [a for p in envelope["parents"] for a in p["artifact_ids"]]
+    return (
+        len(roles) == len(envelope["parents"])
+        and set(roles) <= _CAL_ROLES
+        and "null_set" in roles
+        and all(p["ordered"] is False for p in roles.values())
+        and roles["null_set"]["artifact_ids"] == payload["null_set"]
+        and (
+            cb_ids == []
+            if codebook is None
+            else cb_ids == [codebook["artifact_id"]]
+            and parent_contents.get(codebook["artifact_id"]) == codebook["content_id"]
+        )
+        and all(_is_id(_CNT, parent_contents.get(a)) for a in named)
+    )
 
 
 def load_calibration(
@@ -260,12 +367,17 @@ def load_calibration(
 ) -> CalibrationArtifact:
     """Read a stored calibration by ``artifact_id`` and verify it (design §3.3.1).
 
-    The authority is: strict parse, contract shape, then ``content_id`` and
-    ``artifact_id`` recomputed. The recomputation needs the ``content_id`` of every
-    parent artifact (``null_set`` members, the codebook), which the file does not
-    hold: the caller passes them in ``parent_contents`` (artifact_id -> content_id).
+    ``parent_contents`` (artifact_id -> content_id of every parent: the
+    ``null_set`` members and the codebook) must be what **nvs-runtime fetched
+    from HEKB and verified**; MSR does not call HEKB and does not trust a caller's
+    arbitrary parent information beyond this contract's own cross-checks (every
+    named parent must be present, the codebook's content_id must equal
+    ``codebook_ref``). A calibration that was not stored through the Gate is not
+    trusted: strict parse, contract version, field types and ranges, parent
+    consistency (S17/S19/S21), then ``content_id`` and ``artifact_id`` are
+    recomputed from those parents. The file alone is never self-sufficient.
     A ``.json.sha256`` file is optional; if present and different the file is
-    refused, if absent nothing is refused.
+    refused.
     """
     path = calibration_path(data_dir, artifact_id)
     if not path.exists():
@@ -282,7 +394,7 @@ def load_calibration(
     if not isinstance(envelope, dict) or envelope.get("artifact_id") != artifact_id:
         raise CalibrationError(f"{path} does not hold artifact {artifact_id}")
     try:
-        _check_shape(envelope)
+        _check_contract(envelope, parent_contents)
         recomputed = (
             ids.content_id(envelope, parent_contents),
             ids.artifact_id(envelope, parent_contents),

@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — IC-02 0.7.1 (branch feature/msr-ic02-v071)
+
+- Contract pinned to sensos `1bf0182` (IC-00 1.0.0, blob 0.7.0, msr/geometry-measurement
+  0.7.1, msr/calibration 0.7.0); vendored `msr/vectors/series.json`.
+- Every series always declares `undefined: "int64_min"`; payload_schema 0.7.1.
+- Calibration reader: contract version, field types/ranges, S17/S19/S21 and parent
+  consistency are checked before the ids are recomputed; `parent_contents` is what
+  nvs-runtime fetched from HEKB and verified (MSR calls no HEKB).
+
 ## Unreleased — aligned to IC-00 1.0.0 / IC-02 0.7.0 (branch feature/msr-ic02-v070)
 
 - Contract pinned to sensos `c82918f` (tag `contracts/ic00-v1.0.0`): lock + vendor

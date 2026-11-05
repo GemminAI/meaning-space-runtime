@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "source": {
     "repository": "sensos",
-    "branch": "feature/contracts-ic00-v1",
-    "commit": "c82918f37038679001b445bd3cd1e7ef1cf85abd",
-    "tag": "contracts/ic00-v1.0.0",
+    "branch": "feature/contracts-ic02-v071",
+    "commit": "1bf0182c369f43582959c909c05bf1da0c99c17d",
+    "tag": null,
+    "tag_note": "IC-00 files (common/artifact, provenance, uncertainty, FREEZE.md, the five frozen vectors) are byte-identical to tag contracts/ic00-v1.0.0 (c82918f); the tag is not on this commit",
     "root": "docs/architecture/contracts/"
   },
   "contracts": {
     "IC-00": "1.0.0",
     "common/blob": "0.7.0",
-    "msr/geometry-measurement": "0.7.0",
+    "msr/geometry-measurement": "0.7.1",
     "msr/calibration": "0.7.0"
   },
   "note": "Verbatim copies under tests/contract/vendor/ (same relative paths). Never edit; update only by an explicit, reviewed contract change from sensos. IC-00/1.0.0/FREEZE.md is vendored so the frozen files' sha256 can be checked against its own table. common/provenance is vendored because artifact $refs it; msr/README.md defines the series and the pair-verdict formula.",
@@ -38,7 +39,7 @@
     },
     {
       "path": "msr/geometry-measurement.schema.json",
-      "sha256": "ce96a21095fae83603b73eb0933a7605535455eb335c20fdd0882178e8c1339a"
+      "sha256": "d9aa7ea59237c4c6f19d33bbac6506ce0983b10ce46a3ee3a94b076b9bd05f6e"
     },
     {
       "path": "msr/calibration.schema.json",
@@ -46,7 +47,7 @@
     },
     {
       "path": "msr/README.md",
-      "sha256": "b997b7cdf7bd35861482f539b05a35cc815d3a3ae7aa0c6baf32b915ae31b92c"
+      "sha256": "0c902f46996e0791e1e89db55c73eb47c1561a371615fa8ead6eb2191442542a"
     },
     {
       "path": "common/vectors/canonicalize.json",
@@ -75,6 +76,10 @@
     {
       "path": "common/vectors/README.md",
       "sha256": "364ea50f90fd5a776faf390b76c52abb16d2c2ca5c434d8a42e6b8673ab4e9be"
+    },
+    {
+      "path": "msr/vectors/series.json",
+      "sha256": "de25c3ddab5c8632a63a8006bf3b0ea8b2ad7a958a2639a5a0dfde964a4f01e9"
     }
   ]
 }
