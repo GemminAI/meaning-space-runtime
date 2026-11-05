@@ -358,7 +358,8 @@ def _parents_ok(
             else cb_ids == [codebook["artifact_id"]]
             and parent_contents.get(codebook["artifact_id"]) == codebook["content_id"]
         )
-        and all(_is_id(_CNT, parent_contents.get(a)) for a in named)
+        and all(a in parent_contents for a in named)
+        and all(_is_id(_CNT, v) for v in parent_contents.values())  # every entry
     )
 
 

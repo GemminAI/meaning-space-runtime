@@ -4,7 +4,7 @@
   "source": {
     "repository": "sensos",
     "branch": "feature/contracts-ic02-v071",
-    "commit": "83e8f0d768a568286ea15c38fe702af9e8447c70",
+    "commit": "5473c5c6ae6953e98c8526dfdcee69e01021302e",
     "tag": null,
     "tag_note": "IC-00 files (common/artifact, provenance, uncertainty, FREEZE.md, the five frozen vectors) are byte-identical to tag contracts/ic00-v1.0.0 (c82918f); the tag is not on this commit",
     "root": "docs/architecture/contracts/"
@@ -83,7 +83,7 @@
     },
     {
       "path": "msr/vectors/calibration-parents.json",
-      "sha256": "92aecd62b720689afc0d028c2cbf1e019e2d6b5a8d7faba4f2f8dae57203b71b"
+      "sha256": "6ffd5cbc2ab683640d278ea7ca1e3f818508f39cc02785b8f192144d40024035"
     }
   ]
 }
