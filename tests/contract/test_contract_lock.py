@@ -17,7 +17,7 @@ LOCK: dict[str, Any] = json.loads((HERE / "contract.lock").read_text("utf-8"))
 
 def test_lock_shape_and_commit() -> None:
     assert LOCK["contract_id"] == "IC-00" and LOCK["version"] == "1.0.0"
-    assert LOCK["source"]["commit"] == "1bf0182c369f43582959c909c05bf1da0c99c17d"
+    assert LOCK["source"]["commit"] == "bce0d95e3ba46df27769b0366ac263379225f65c"
     assert LOCK["source"]["branch"] == "feature/contracts-ic02-v071"
     assert LOCK["source"]["tag"] is None
     assert "contracts/ic00-v1.0.0" in LOCK["source"]["tag_note"]
@@ -36,6 +36,7 @@ def test_lock_shape_and_commit() -> None:
         "msr/calibration.schema.json",
         "msr/README.md",
         "msr/vectors/series.json",
+        "msr/vectors/calibration-parents.json",
         "common/vectors/canonicalize.json",
         "common/vectors/quantize.json",
         "common/vectors/ids.json",
@@ -120,7 +121,8 @@ def test_vendor_equals_sensos_commit_when_available() -> None:
 
 
 PINNED = {
-    "msr/README.md": "0c902f46996e0791e1e89db55c73eb47c1561a371615fa8ead6eb2191442542a",
+    "msr/README.md": "f6a32747debd470b3df35e11cfe629c19b6dbfe6ddc3b32f1021b188931f7310",
+    "msr/vectors/calibration-parents.json": "17197ea637d498d92b522aa54ad8a4015825ebf6db4d6660079636f61bf7a68f",
     "msr/geometry-measurement.schema.json": "d9aa7ea59237c4c6f19d33bbac6506ce0983b10ce46a3ee3a94b076b9bd05f6e",
     "msr/vectors/series.json": "de25c3ddab5c8632a63a8006bf3b0ea8b2ad7a958a2639a5a0dfde964a4f01e9",
     "msr/calibration.schema.json": "7a702f1ff8305ed808885a46b9b200d75380f66fd45276888867ad1eb93d8c72",
