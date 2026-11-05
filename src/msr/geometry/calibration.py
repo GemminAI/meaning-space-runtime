@@ -25,7 +25,9 @@ from typing import Any, Literal
 
 import numpy as np
 
+from msr.geometry import ids
 from msr.geometry.envelope import (
+    CONTRACT,
     ArtifactRef,
     EmitContext,
     alignment_extensions,
@@ -41,6 +43,7 @@ from msr.geometry.metrics import (
 )
 from msr.geometry.trajectory import TrajectoryInput
 from msr.geometry.wire import (
+    MAX_SAFE,
     ContractError,
     dequantize,
     jcs,
@@ -54,7 +57,7 @@ ShiftVerdict = Literal[
 Alignment = Literal["equal_only", "common_prefix"]
 METHOD_NAME = "msr-geometry-calibration"
 METHOD_VERSION = "msr-geometry-calibration/1"
-PAYLOAD_SCHEMA = ("msr.calibration", "0.6.1")
+PAYLOAD_SCHEMA = ("msr.calibration", "0.7.0")
 EXPONENT = -30  # every real value in the contract is a multiple of 2**-30
 DEFAULT_MAX_POOLED_PAIRS = 50_000_000  # ~400 MB of float64
 
@@ -97,6 +100,7 @@ class CalibrationArtifact:
     envelope: dict[str, Any]
     calibration: Calibration
     file_sha256: str | None = None
+    exponent: int = EXPONENT  # the declared quantum of ``values`` (contract 0.7.0)
 
     @property
     def ref(self) -> ArtifactRef:
@@ -180,38 +184,147 @@ def write_calibration(data_dir: Path, artifact: CalibrationArtifact) -> Path:
     return path
 
 
-def load_calibration(data_dir: Path, artifact_id: str) -> CalibrationArtifact:
-    """Read a stored calibration by ``artifact_id`` and verify it is intact."""
+_ENVELOPE_KEYS = frozenset(
+    [
+        "contract",
+        "content_id",
+        "artifact_id",
+        "kind",
+        "payload_schema",
+        "payload",
+        "producer",
+        "session_id",
+        "observation_id",
+        "event_span",
+        "space_id",
+        "parents",
+        "policy_refs",
+        "calibration_ref",
+        "rule_refs",
+        "observed_at",
+        "seq",
+        "produced_at",
+        "extensions",
+    ]
+)
+_PAYLOAD_KEYS = frozenset(
+    [
+        "space_id",
+        "model_build_id",
+        "method",
+        "null_set",
+        "between_alignment",
+        "values",
+        "sample_config",
+    ]
+)
+_VALUE_KEYS = frozenset(
+    [
+        "noise_floor_lower",
+        "noise_floor_upper",
+        "background_mean",
+        "epsilon",
+        "delta",
+        "w_min",
+        "codebook_ref",
+    ]
+)
+
+
+def _check_shape(envelope: Mapping[str, Any]) -> None:
+    """The structural part of the contract that this loader can verify without
+    a JSON-Schema engine (the vendored schema is applied in the tests)."""
+    payload = envelope.get("payload")
+    values = payload.get("values") if isinstance(payload, dict) else None
+    ok = (
+        set(envelope) == _ENVELOPE_KEYS
+        and envelope["contract"] == CONTRACT
+        and envelope["kind"] == "interpretation"
+        and envelope["calibration_ref"] is None
+        and isinstance(payload, dict)
+        and set(payload) == _PAYLOAD_KEYS
+        and isinstance(values, dict)
+        and set(values) == _VALUE_KEYS
+        and all(
+            type(values[k]) is int and 0 <= values[k] <= MAX_SAFE
+            for k in _VALUE_KEYS - {"codebook_ref"}
+        )
+        and payload["between_alignment"] in ("equal_only", "x-common_prefix")
+    )
+    if not ok:
+        raise CalibrationError("calibration envelope does not match the contract")
+
+
+def load_calibration(
+    data_dir: Path, artifact_id: str, *, parent_contents: Mapping[str, str]
+) -> CalibrationArtifact:
+    """Read a stored calibration by ``artifact_id`` and verify it (design §3.3.1).
+
+    The authority is: strict parse, contract shape, then ``content_id`` and
+    ``artifact_id`` recomputed. The recomputation needs the ``content_id`` of every
+    parent artifact (``null_set`` members, the codebook), which the file does not
+    hold: the caller passes them in ``parent_contents`` (artifact_id -> content_id).
+    A ``.json.sha256`` file is optional; if present and different the file is
+    refused, if absent nothing is refused.
+    """
     path = calibration_path(data_dir, artifact_id)
     if not path.exists():
         raise CalibrationError(f"no calibration {artifact_id} under {data_dir}")
     raw = path.read_bytes()
     digest = hashlib.sha256(raw).hexdigest()
     sidecar = _path(data_dir, artifact_id, ".json.sha256")
-    if not sidecar.exists() or sidecar.read_text(encoding="ascii").strip() != digest:
-        raise CalibrationError(f"{path} failed its integrity check (file sha256)")
+    if sidecar.exists() and sidecar.read_text(encoding="ascii").strip() != digest:
+        raise CalibrationError(f"{path} does not match its .sha256 file")
     try:
         envelope = strict_load(raw)
     except ContractError as exc:
         raise CalibrationError(f"{path} is not strict JSON: {exc}") from exc
     if not isinstance(envelope, dict) or envelope.get("artifact_id") != artifact_id:
         raise CalibrationError(f"{path} does not hold artifact {artifact_id}")
+    try:
+        _check_shape(envelope)
+        recomputed = (
+            ids.content_id(envelope, parent_contents),
+            ids.artifact_id(envelope, parent_contents),
+        )
+    except (KeyError, TypeError, AttributeError, ContractError) as exc:
+        raise CalibrationError(f"{path} is not a valid calibration: {exc!r}") from exc
+    if recomputed != (envelope["content_id"], artifact_id):
+        raise CalibrationError(f"{path}: content_id / artifact_id do not recompute")
     return calibration_from_envelope(envelope, file_sha256=digest)
 
 
 def evaluate_shift(d: float, calib: Calibration | None) -> ShiftVerdict:
-    """SPEC §3.2: UNCALIBRATED / STAGNANT / NOISE_FLOOR_INTERNAL / STRUCTURAL."""
+    """SPEC §3.2 on floats. **Non-normative**: never used for a payload's verdict.
+
+    The payload's ``verdict.state`` is :func:`evaluate_shift_quantized` (design
+    §3.3.3); this float form only serves the in-memory measurement layer.
+    """
     if calib is None:
         return "UNCALIBRATED"
     return _verdict(d, calib.noise_floor_lower, calib.noise_floor_upper)
 
 
 def evaluate_shift_quantized(
-    distance_q: int, artifact: CalibrationArtifact | None
+    distance_q: int,
+    artifact: CalibrationArtifact | None,
+    *,
+    distance_exponent: int = EXPONENT,
 ) -> ShiftVerdict:
-    """The same rule on the payload's integers, so it can be re-derived from them."""
+    """The pair verdict (design §3.3.3), decided on the payload's integers.
+
+    ``d < lo`` STAGNANT; ``lo <= d <= hi`` NOISE_FLOOR_INTERNAL (the boundaries
+    belong to the noise band); ``d > hi`` STRUCTURAL_SHIFT_DETECTED; no
+    calibration UNCALIBRATED. A distance and a calibration declared with
+    different quanta are refused, never converted.
+    """
     if artifact is None:
         return "UNCALIBRATED"
+    if artifact.exponent != distance_exponent:
+        raise CalibrationError(
+            f"quantum differs: distance 2**{distance_exponent}, "
+            f"calibration 2**{artifact.exponent} (no conversion)"
+        )
     values = artifact.values
     return _verdict(
         distance_q, values["noise_floor_lower"], values["noise_floor_upper"]

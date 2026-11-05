@@ -19,7 +19,7 @@ from msr.geometry.calibration import (
     load_calibration,
     write_calibration,
 )
-from msr.geometry.emit import SERIES_ORDER, emit_pair, emit_single
+from msr.geometry.emit import SERIES, emit_pair, emit_single
 from msr.geometry.envelope import (
     ArtifactRef,
     Blob,
@@ -37,7 +37,7 @@ from msr.geometry.trajectory import Policy, TrajectoryInput
 from msr.geometry.wire import ContractError
 
 __all__ = [
-    "SERIES_ORDER",
+    "SERIES",
     "ArtifactRef",
     "Blob",
     "Calibration",

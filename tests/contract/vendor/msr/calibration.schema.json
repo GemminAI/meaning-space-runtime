@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "sensos:contracts/msr/calibration/0.6.1",
+  "$id": "sensos:contracts/msr/calibration/0.7.0",
   "title": "IC-02 msr.calibration (payload)",
   "type": "object",
   "additionalProperties": false,

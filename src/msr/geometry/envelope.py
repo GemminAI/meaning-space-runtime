@@ -25,7 +25,7 @@ from msr.geometry.wire import E_INVARIANT, MAX_SAFE, ContractError, jcs
 from msr.version import __version__
 
 PRODUCER_NAME = "meaning-space-runtime"
-CONTRACT = {"id": "IC-00", "version": "0.6.2"}
+CONTRACT = {"id": "IC-00", "version": "1.0.0"}
 ALIGNMENT_EXTENSION = "x-meaning-space-runtime-alignment"
 BLOB_MEDIA_TYPE = "application/vnd.sensos.ndarray-raw"
 
@@ -151,10 +151,10 @@ class Emission:
         return jcs(self.envelope)
 
 
-def int64_blob(values: Sequence[Sequence[int]]) -> Blob:
-    """A rows x cols int64 array as little-endian C-order bytes."""
+def int64_blob(values: Sequence[int]) -> Blob:
+    """A 1-D int64 array as little-endian bytes (no header)."""
     array = np.asarray(values, dtype="<i8")
-    return Blob(array.tobytes(order="C"), (int(array.shape[0]), int(array.shape[1])))
+    return Blob(array.tobytes(), (int(array.shape[0]),))
 
 
 def write_blob(directory: Path, blob: Blob) -> Path:

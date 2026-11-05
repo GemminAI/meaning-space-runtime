@@ -8,10 +8,11 @@ quantized *before* they are used, so the payload's thresholds are exactly the
 ones the numbers were computed with, and the pair verdict is decided on the
 payload's integers.
 
-Series Blob layout (``unit`` = ``"msr-geometry-series/1"``): shape ``[10, T]``,
-row ``k`` = :data:`SERIES_ORDER` ``[k]``, column ``t`` = the value from points
-``0..t`` as ``round_ties_to_even(value * 2**30)`` (counts too), little-endian
-int64, C order, no header; ``-2**63`` marks "undefined".
+``series`` is an object keyed by series name; every value is a 1-D int64 Blob
+(``shape [T]``, little-endian, no header). Real series are quantized at 2**-30;
+the three count series are stored as they are (``quantization: null``). "No
+value" is ``-2**63`` and the Blob then declares ``undefined: "int64_min"``; the
+positions are those of ``msr/README.md`` (contract 0.7.0, §3.3.2, §7.1).
 """
 
 from __future__ import annotations
@@ -39,6 +40,7 @@ from msr.geometry.envelope import (
     BLOB_MEDIA_TYPE,
     E_CONTEXT,
     ArtifactRef,
+    Blob,
     Emission,
     EmitContext,
     alignment_extensions,
@@ -49,6 +51,8 @@ from msr.geometry.errors import CalibrationError, InvalidTrajectory
 from msr.geometry.metrics import DEFAULT_BLOCK_SIZE
 from msr.geometry.trajectory import TrajectoryInput
 from msr.geometry.wire import (
+    BLOB_RANGE,
+    E_QUANT_RANGE,
     INT64_RANGE,
     MAX_SAFE,
     ContractError,
@@ -56,21 +60,23 @@ from msr.geometry.wire import (
     quantize,
 )
 
-PAYLOAD_SCHEMA = ("msr.geometry-measurement", "0.6.2")
-SERIES_UNIT = "msr-geometry-series/1"
-UNDEFINED = INT64_RANGE[0]  # the Blob's "no value" marker
-SERIES_ORDER: tuple[str, ...] = (
-    "displacement_mean",
-    "displacement_median",
-    "displacement_longest_sub_delta_run",
-    "recurrence_pair_fraction",
-    "recurrence_return_count",
-    "recurrence_return_rate",
-    "diversity_cell_entropy",
-    "diversity_participation_ratio",
-    "persistence_longest_stay",
-    "persistence_dominant_cell_share",
-)
+PAYLOAD_SCHEMA = ("msr.geometry-measurement", "0.7.0")
+UNDEFINED = INT64_RANGE[
+    0
+]  # the Blob's "no value" mark; -2**63 is never a measured value
+# series name -> (kind, unit), the contract's table (msr/README.md)
+SERIES: dict[str, tuple[str, str]] = {
+    "displacement_mean": ("real", "distance"),
+    "displacement_median": ("real", "distance"),
+    "displacement_longest_sub_delta_run": ("count", "steps"),
+    "recurrence_pair_fraction": ("real", "fraction"),
+    "recurrence_return_count": ("count", "returns"),
+    "recurrence_return_rate": ("real", "returns_per_point"),
+    "diversity_cell_entropy": ("real", "nats"),
+    "diversity_participation_ratio": ("real", "dimensionless"),
+    "persistence_longest_stay": ("count", "points"),
+    "persistence_dominant_cell_share": ("real", "fraction"),
+}
 
 
 def _q(value: float | None) -> int | None:
@@ -107,33 +113,51 @@ def _threshold_w_min(
     return None, None
 
 
-def _series_blob_ref(
+def _series_blobs(
     series: dict[str, list[Any]], length: int
-) -> tuple[Any, dict[str, Any]]:
-    rows = [
-        [
-            UNDEFINED if v is None else quantize(v, EXPONENT, int_range=INT64_RANGE)
-            for v in series[name]
-        ]
-        for name in SERIES_ORDER
-    ]
-    blob = int64_blob(rows)
-    ref = {
-        "uri": blob.uri,
-        "sha256": blob.sha256,
-        "media_type": BLOB_MEDIA_TYPE,
-        "dtype": "int64",
-        "shape": [len(SERIES_ORDER), length],
-        "byte_order": "little",
-        "order": "C",
-        "quantization": {
-            "quantum": {"base": 2, "exponent": EXPONENT},
-            "rounding": "ties-to-even",
-            "tolerance_quanta": 1,
-        },
-        "unit": SERIES_UNIT,
-    }
-    return blob, ref
+) -> tuple[dict[str, dict[str, Any]], tuple[Blob, ...]]:
+    refs: dict[str, dict[str, Any]] = {}
+    blobs: list[Blob] = []
+    for name, (kind, unit) in SERIES.items():
+        values: list[int] = []
+        for v in series[name]:
+            if v is None:
+                values.append(UNDEFINED)
+            elif kind == "real":
+                values.append(quantize(v, EXPONENT, int_range=BLOB_RANGE))
+            else:
+                values.append(_count_value(v))
+        blob = int64_blob(values)
+        ref: dict[str, Any] = {
+            "uri": blob.uri,
+            "sha256": blob.sha256,
+            "media_type": BLOB_MEDIA_TYPE,
+            "dtype": "int64",
+            "shape": [length],
+            "byte_order": "little",
+            "order": "C",
+            "quantization": (
+                {
+                    "quantum": {"base": 2, "exponent": EXPONENT},
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1,
+                }
+                if kind == "real"
+                else None
+            ),
+            "unit": unit,
+        }
+        if UNDEFINED in values:
+            ref["undefined"] = "int64_min"
+        refs[name] = ref
+        blobs.append(blob)
+    return refs, tuple(blobs)
+
+
+def _count_value(value: int) -> int:
+    if not 0 <= value <= BLOB_RANGE[1]:
+        raise ContractError(E_QUANT_RANGE, f"count {value} outside [0, 2^63-1]")
+    return int(value)
 
 
 def emit_single(
@@ -178,7 +202,7 @@ def emit_single(
     metrics = measured["metrics"]
     disp, rec = metrics["displacement"], metrics["recurrence"]
     div, per = metrics["diversity"], metrics["persistence"]
-    blob, series_ref = _series_blob_ref(measured["series"], traj.length)
+    series_refs, blobs = _series_blobs(measured["series"], traj.length)
     payload = {
         "mode": "single",
         "space_id": traj.space_id,
@@ -213,7 +237,7 @@ def emit_single(
                 "dominant_cell_share": _q(_real(per["dominant_cell_share"])),
             },
         },
-        "series": series_ref,
+        "series": series_refs,
         "verdict": {"state": None, "reason": VERDICT_REASON},
     }
     parents: list[tuple[str, Sequence[ArtifactRef]]] = [
@@ -232,7 +256,7 @@ def emit_single(
         calibration_ref=None if calibration is None else calibration.ref,
         extensions={},
     )
-    return Emission(envelope, (blob,))
+    return Emission(envelope, blobs)
 
 
 def emit_pair(
@@ -269,7 +293,11 @@ def emit_pair(
             "points_used": measured["alignment"]["points_used"],
         },
         "distance": {"definition": "mean_step_l2", "value": distance_q},
-        "verdict": {"state": evaluate_shift_quantized(distance_q, calibration)},
+        "verdict": {
+            "state": evaluate_shift_quantized(
+                distance_q, calibration, distance_exponent=EXPONENT
+            )
+        },
     }
     parents: list[tuple[str, Sequence[ArtifactRef]]] = [
         ("left", [left_ref]),
@@ -291,8 +319,7 @@ def emit_pair(
 
 __all__ = [
     "PAYLOAD_SCHEMA",
-    "SERIES_ORDER",
-    "SERIES_UNIT",
+    "SERIES",
     "UNDEFINED",
     "emit_pair",
     "emit_single",

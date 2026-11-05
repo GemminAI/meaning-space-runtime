@@ -11,10 +11,94 @@ from __future__ import annotations
 
 import hashlib
 import math
+import struct
 from collections.abc import Mapping
 from typing import Any
 
+from contract_support import validator
+
 ALIGN_EXT = "x-meaning-space-runtime-alignment"
+INT64_MIN = -(2**63)
+# series name -> (metrics group, metrics key); the contract's table (msr/README.md)
+SERIES = {
+    "displacement_mean": ("displacement", "mean"),
+    "displacement_median": ("displacement", "median"),
+    "displacement_longest_sub_delta_run": ("displacement", "longest_sub_delta_run"),
+    "recurrence_pair_fraction": ("recurrence", "pair_fraction"),
+    "recurrence_return_count": ("recurrence", "return_count"),
+    "recurrence_return_rate": ("recurrence", "return_rate"),
+    "diversity_cell_entropy": ("diversity", "cell_entropy"),
+    "diversity_participation_ratio": ("diversity", "participation_ratio"),
+    "persistence_longest_stay": ("persistence", "longest_stay"),
+    "persistence_dominant_cell_share": ("persistence", "dominant_cell_share"),
+}
+ITEMSIZE = {"int64": 8, "float32": 4, "float64": 8}
+
+
+def ints(data: bytes) -> list[int]:
+    return list(struct.unpack(f"<{len(data) // 8}q", data))
+
+
+def blob_violations(ref: Mapping[str, Any], data: bytes | None) -> set[str]:
+    """Blob reference checks of design §7.1 (S34, S24/S25, S36 declaration, counts)."""
+    if list(validator("common/blob").iter_errors(ref)):
+        return {"schema"}
+    out: set[str] = set()
+    if ref["uri"] != "blob:sha256:" + ref["sha256"]:
+        out.add("S34")
+    if data is None:
+        return out
+    code = "S24" if ref["dtype"] == "int64" else "S25"
+    if hashlib.sha256(data).hexdigest() != ref["sha256"]:
+        out.add(code)
+    if len(data) != math.prod(ref["shape"]) * ITEMSIZE[ref["dtype"]]:
+        out.add(code)
+        return out
+    if ref["dtype"] == "int64":
+        values = ints(data)
+        declared = ref.get("undefined") == "int64_min"
+        if INT64_MIN in values and not declared:
+            out.add("S36")
+        if ref["quantization"] is None and any(
+            v < 0 for v in values if v != INT64_MIN or not declared
+        ):
+            out.add("count_negative")
+    return out
+
+
+def expected_undefined(
+    name: str, length: int, th: Mapping[str, Any], has_codebook: bool
+) -> set[int]:
+    """Positions with no value, by msr/README.md."""
+    everything = set(range(length))
+    eps, delta, w_min = th["epsilon"], th["delta"], th["w_min"]
+    if name in (
+        "displacement_mean",
+        "displacement_median",
+        "diversity_participation_ratio",
+    ):
+        return {0}
+    if name == "displacement_longest_sub_delta_run":
+        return everything if delta is None else {0}
+    if name == "recurrence_pair_fraction":
+        if eps is None or w_min is None:
+            return everything
+        return set(range(min(length, w_min + 1)))
+    if name in ("recurrence_return_count", "recurrence_return_rate"):
+        return everything if eps is None or w_min is None else set()
+    if name == "diversity_cell_entropy":
+        return set() if has_codebook else everything
+    return set() if has_codebook or eps is not None else everything
+
+
+def verdict(d: int, calibration_payload: Mapping[str, Any] | None) -> str:
+    if calibration_payload is None:
+        return "UNCALIBRATED"
+    lo = calibration_payload["values"]["noise_floor_lower"]
+    hi = calibration_payload["values"]["noise_floor_upper"]
+    if d < lo:
+        return "STAGNANT"
+    return "NOISE_FLOOR_INTERNAL" if d <= hi else "STRUCTURAL_SHIFT_DETECTED"
 
 
 def _role_ids(envelope: Mapping[str, Any], role: str) -> list[str] | None:
@@ -83,7 +167,11 @@ def violations(
             ):
                 out.add("S23")
     if single:
-        _s24(payload["series"], blobs, out)
+        _series(envelope, payload, blobs, out)
+    else:
+        want = verdict(payload["distance"]["value"], cal_payload)
+        if payload["verdict"]["state"] != want:
+            out.add("S38")
     return out
 
 
@@ -128,17 +216,34 @@ def _s20(
         out.add("S20")
 
 
-def _s24(series: Mapping[str, Any], blobs: Mapping[str, bytes], out: set[str]) -> None:
-    if series["dtype"] != "int64":
+def _series(
+    envelope: Mapping[str, Any],
+    payload: Mapping[str, Any],
+    blobs: Mapping[str, bytes],
+    out: set[str],
+) -> None:
+    length = payload["input_ref"]["length"]
+    has_codebook = any(p["role"] == "codebook" for p in envelope["parents"])
+    if set(payload["series"]) != set(SERIES):
+        out.add("S35")
         return
-    data = blobs.get(series["uri"])
-    if data is None:
-        out.add("S24")
-        return
-    if hashlib.sha256(data).hexdigest() != series["sha256"]:
-        out.add("S24")
-    if len(data) != math.prod(series["shape"]) * 8:
-        out.add("S24")
+    for name, (group, key) in SERIES.items():
+        ref = payload["series"][name]
+        data = blobs.get(ref["uri"])
+        out |= blob_violations(ref, data)
+        if ref["shape"] != [length]:
+            out.add("S35")
+        if data is None or len(data) != 8 * length:
+            continue
+        values = ints(data)
+        undefined = {t for t, v in enumerate(values) if v == INT64_MIN}
+        if undefined != expected_undefined(
+            name, length, payload["thresholds"], has_codebook
+        ):
+            out.add("S36")
+        metric = payload["metrics"][group][key]
+        if (INT64_MIN if metric is None else metric) != values[-1]:
+            out.add("S37")
 
 
 def _calibration_payload(

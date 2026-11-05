@@ -18,9 +18,10 @@ from contract_support import (
 from contract_support import calibration as make_calibration
 
 import msr.geometry as g
+from msr.geometry import emit as emit_module
 from msr.geometry import ids
 from msr.geometry.analyze import VERDICT_REASON
-from msr.geometry.emit import SERIES_ORDER, UNDEFINED
+from msr.geometry.emit import SERIES, UNDEFINED
 from msr.geometry.wire import ContractError, jcs, strict_load
 
 
@@ -111,30 +112,59 @@ def test_single_without_calibration_uses_explicit_thresholds_quantized() -> None
     assert bare.envelope["payload"]["thresholds"]["w_min"] is None
 
 
-def test_series_blob_is_the_canonical_int64_array() -> None:
+def test_series_are_one_int64_blob_per_name() -> None:
     t = traj(9, n=30)
     em = g.emit_single(
         t, ctx(), trajectory_ref=ref(50), epsilon=2.0, delta=0.5, w_min=1
     )
-    blob = em.blobs[0]
-    s = em.envelope["payload"]["series"]
-    assert (s["media_type"], s["dtype"], s["byte_order"], s["order"]) == (
-        "application/vnd.sensos.ndarray-raw",
-        "int64",
-        "little",
-        "C",
-    )
-    assert s["shape"] == [len(SERIES_ORDER), 30] == list(blob.shape)
-    assert s["sha256"] == blob.sha256 and s["uri"] == blob.uri
-    assert len(blob.data) == len(SERIES_ORDER) * 30 * 8  # no header
-    rows = decode_blob(blob.data, (len(SERIES_ORDER), 30))
+    series = em.envelope["payload"]["series"]
+    assert set(series) == set(SERIES) and len(em.blobs) == 10
+    by_uri = {b.uri: b for b in em.blobs}
     ref_series = g.analyze_trajectory(t, epsilon=2.0, delta=0.5, w_min=1)["series"]
-    for k, name in enumerate(SERIES_ORDER):
-        expect = [
-            UNDEFINED if v is None else round(v * 2**30) for v in ref_series[name]
-        ]
-        assert rows[k].tolist() == expect, name
-    assert rows[0, 0] == UNDEFINED  # displacement_mean has no value at t=0
+    for name, (kind, unit) in SERIES.items():
+        s = series[name]
+        blob = by_uri[s["uri"]]
+        assert (s["media_type"], s["dtype"], s["byte_order"], s["order"]) == (
+            "application/vnd.sensos.ndarray-raw",
+            "int64",
+            "little",
+            "C",
+        )
+        assert s["shape"] == [30] == list(blob.shape)
+        assert s["sha256"] == blob.sha256 and s["uri"] == "blob:sha256:" + blob.sha256
+        assert s["unit"] == unit
+        assert len(blob.data) == 30 * 8  # no header
+        got = decode_blob(blob.data, (30,)).tolist()
+        if kind == "real":
+            assert s["quantization"]["quantum"] == {"base": 2, "exponent": -30}
+            expect = [
+                UNDEFINED if v is None else round(v * 2**30) for v in ref_series[name]
+            ]
+        else:
+            assert s["quantization"] is None  # counts are stored as they are
+            expect = [UNDEFINED if v is None else v for v in ref_series[name]]
+        assert got == expect, name
+        assert ("undefined" in s) == (UNDEFINED in got)
+    counts = {n for n, (k, _) in SERIES.items() if k == "count"}
+    assert counts == {
+        "displacement_longest_sub_delta_run",
+        "recurrence_return_count",
+        "persistence_longest_stay",
+    }
+
+
+def test_values_outside_the_blob_range_are_refused_not_clipped() -> None:
+    far = g.TrajectoryInput(
+        "S1", "T-hid", np.array([[0.0], [1e12]]), (0, 1), traj(1).policy, "b", layer=1
+    )
+    with pytest.raises(ContractError) as info:
+        g.emit_single(far, ctx(), trajectory_ref=ref(50))
+    assert info.value.code == "E_QUANT_RANGE"
+    assert emit_module._count_value(5) == 5
+    with pytest.raises(ContractError):
+        emit_module._count_value(-1)
+    with pytest.raises(ContractError):
+        emit_module._count_value(2**63)
 
 
 def test_pair_with_and_without_calibration() -> None:

@@ -3,6 +3,8 @@ and each one is actually detected when the output is tampered with."""
 
 from __future__ import annotations
 
+import hashlib
+import struct
 from typing import Any
 
 import pytest
@@ -192,16 +194,111 @@ def test_s23_thresholds_follow_the_calibration(world: dict[str, Any]) -> None:
     assert check(mutated, world) == set()
 
 
+def swap_series(
+    world: dict[str, Any], name: str, values: list[int], **ref_over: Any
+) -> tuple[dict[str, Any], dict[str, bytes]]:
+    """The single measurement with one series replaced (hash kept consistent)."""
+    env = deepcopy(world["single"].envelope)
+    blobs = dict(world["blobs"])
+    old = env["payload"]["series"][name]
+    blobs.pop(old["uri"])
+    data = struct.pack(f"<{len(values)}q", *values)
+    digest = hashlib.sha256(data).hexdigest()
+    new = {**old, "uri": "blob:sha256:" + digest, "sha256": digest, **ref_over}
+    new["shape"] = [len(values)]
+    if "undefined" in new and U not in values:
+        del new["undefined"]
+    env["payload"]["series"][name] = new
+    blobs[new["uri"]] = data
+    return env, blobs
+
+
+def series_values(world: dict[str, Any], name: str) -> list[int]:
+    ref_ = world["single"].envelope["payload"]["series"][name]
+    return list(struct.unpack(f"<{ref_['shape'][0]}q", world["blobs"][ref_["uri"]]))
+
+
+U = -(2**63)
+
+
+def test_the_output_satisfies_s34_to_s38(world: dict[str, Any]) -> None:
+    assert len(world["single"].blobs) == 10
+    assert check(world["single"].envelope, world) == set()
+    assert check(world["pair"].envelope, world) == set()
+
+
 def test_s24_blob_hash_and_length(world: dict[str, Any]) -> None:
-    env, uri = world["single"].envelope, world["single"].blobs[0].uri
-    assert check(env, world) == set()
+    env = world["single"].envelope
+    uri = env["payload"]["series"]["displacement_mean"]["uri"]
     for data in (
         world["blobs"][uri][:-8],
         world["blobs"][uri] + b"\0" * 8,
         b"x" * len(world["blobs"][uri]),
     ):
-        assert "S24" in violations(env, {uri: data}, world["stored"])
-    assert "S24" in violations(env, {}, world["stored"])
-    fl = deepcopy(env)
-    fl["payload"]["series"]["dtype"] = "float64"  # S24 applies to int Blobs only
-    assert "S24" not in violations(fl, {}, world["stored"])
+        assert "S24" in violations(env, {**world["blobs"], uri: data}, world["stored"])
+    missing = {k: v for k, v in world["blobs"].items() if k != uri}
+    assert violations(env, missing, world["stored"]) == set()  # bytes not at hand
+
+
+def test_s34_uri_is_the_content_address(world: dict[str, Any]) -> None:
+    env = deepcopy(world["single"].envelope)
+    env["payload"]["series"]["displacement_mean"]["uri"] = "blob:sha256:" + "0" * 64
+    assert "S34" in check(env, world)
+    env["payload"]["series"]["displacement_mean"]["uri"] = "file:///tmp/x"
+    assert "schema" in check(env, world)
+
+
+def test_s35_shape_and_names(world: dict[str, Any]) -> None:
+    values = series_values(world, "displacement_mean")
+    env, blobs = swap_series(world, "displacement_mean", values[:-1])
+    assert "S35" in violations(env, blobs, world["stored"])
+    env = deepcopy(world["single"].envelope)
+    del env["payload"]["series"]["recurrence_return_rate"]
+    assert "S35" in check(env, world)
+
+
+def test_s36_undefined_only_where_the_contract_says(world: dict[str, Any]) -> None:
+    values = series_values(world, "displacement_mean")
+    assert values[0] == U and U not in values[1:]
+    extra = list(values)
+    extra[3] = U  # a value that exists, marked missing
+    env, blobs = swap_series(world, "displacement_mean", extra)
+    assert "S36" in violations(env, blobs, world["stored"])
+    shown = [1, *values[1:]]  # t=0 has no value by contract
+    env, blobs = swap_series(world, "displacement_mean", shown)
+    assert "S36" in violations(env, blobs, world["stored"])
+    env = deepcopy(world["single"].envelope)
+    del env["payload"]["series"]["displacement_mean"]["undefined"]
+    assert "S36" in check(env, world)  # -2^63 without the declaration
+
+
+def test_count_series_are_stored_as_they_are(world: dict[str, Any]) -> None:
+    counts = series_values(world, "recurrence_return_count")
+    assert (
+        world["single"].envelope["payload"]["series"]["recurrence_return_count"][
+            "quantization"
+        ]
+        is None
+    )
+    assert max(counts) < 2**20  # not multiplied by 2**30
+    bad = list(counts)
+    bad[2] = -1
+    env, blobs = swap_series(world, "recurrence_return_count", bad)
+    assert "count_negative" in violations(env, blobs, world["stored"])
+
+
+def test_s37_last_element_equals_metrics(world: dict[str, Any]) -> None:
+    for group, key in (("displacement", "mean"), ("recurrence", "return_count")):
+        env = deepcopy(world["single"].envelope)
+        env["payload"]["metrics"][group][key] = 12345
+        assert "S37" in check(env, world)
+    env = deepcopy(world["single"].envelope)
+    env["payload"]["metrics"]["recurrence"]["return_count"] = None
+    assert "S37" in check(env, world)
+
+
+def test_s38_pair_verdict_is_recomputed(world: dict[str, Any]) -> None:
+    env = deepcopy(world["pair"].envelope)
+    assert env["payload"]["verdict"]["state"] != "UNCALIBRATED"
+    env["payload"]["verdict"]["state"] = "UNCALIBRATED"
+    assert "S38" in check(env, world)

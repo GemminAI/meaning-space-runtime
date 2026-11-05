@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased — aligned to IC-00 1.0.0 / IC-02 0.7.0 (branch feature/msr-ic02-v070)
+
+- Contract pinned to sensos `c82918f` (tag `contracts/ic00-v1.0.0`): lock + vendor
+  updated (IC-00 1.0.0 frozen, blob 0.7.0, msr 0.7.0, all frozen vectors + blob vectors).
+- Envelope `contract.version` 1.0.0; payload schemas `msr.geometry-measurement` /
+  `msr.calibration` 0.7.0.
+- `series` = one 1-D int64 Blob per series name; count series unquantized;
+  `undefined: "int64_min"` where a value does not exist (msr/README.md); values
+  outside the Blob range raise. `SERIES_ORDER`/`SERIES_UNIT` removed (`SERIES`).
+- `load_calibration` no longer needs a `.sha256` file: strict parse -> shape ->
+  ids recomputed (needs `parent_contents`). Pair verdict only via
+  `evaluate_shift_quantized`; differing quanta are refused.
+- `displacement.longest_sub_delta_run` is `None` for a one-point trajectory (no step).
+
 ## Unreleased — msr.geometry IC-00/IC-02 envelopes (branch feature/msr-ic02)
 
 - `msr.geometry` now emits IC-00 envelopes (design v0.6.2): `emit_single` /

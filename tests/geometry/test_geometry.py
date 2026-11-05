@@ -238,7 +238,7 @@ def test_metrics_edge_cases() -> None:
     with pytest.raises(InvalidTrajectory):
         mean_step_distance(np.zeros((2, 2)), np.zeros((2, 3)))
     summary, _ = displacement_metrics(np.zeros((1, 2)), 1.0)
-    assert summary["longest_sub_delta_run"] == 0
+    assert summary["longest_sub_delta_run"] is None  # no step, so no run
 
 
 def test_sub_delta_run_resets() -> None:
@@ -322,7 +322,13 @@ def test_build_write_load_roundtrip_and_analyze(tmp_path: Path) -> None:
     assert c.codebook_ref == ref(77)
     path = g.write_calibration(tmp_path, art)
     assert path == tmp_path / "calibration" / f"{art.ref.artifact_id}.json"
-    loaded = g.load_calibration(tmp_path, art.ref.artifact_id)
+    loaded = g.load_calibration(
+        tmp_path,
+        art.ref.artifact_id,
+        parent_contents={
+            r.artifact_id: r.content_id for r in [*(m.ref for m in members), ref(77)]
+        },
+    )
     assert loaded.calibration == c and loaded.envelope == art.envelope
     res = g.analyze_trajectory(NULLS[0], calibration=loaded)
     assert res["calibration"] == art.ref.to_dict()

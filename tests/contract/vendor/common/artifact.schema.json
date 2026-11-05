@@ -1,15 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "sensos:contracts/common/artifact/0.6.2",
+  "$id": "sensos:contracts/common/artifact/1.0.0",
   "title": "IC-00 artifact envelope",
-  "description": "Authoritative design: SensOS 受け渡し契約 設計書 v0.6.2 section 2 (vault: 日報/202611/20261105/). Integers only inside the envelope (section 7).",
+  "description": "Authoritative design: SensOS 受け渡し契約 設計書 v0.7.2 section 2 (vault: 日報/202611/20261106/). Integers only inside the envelope (section 7).",
   "type": "object",
   "required": [
     "contract", "content_id", "artifact_id", "kind", "payload_schema", "payload",
     "session_id", "observation_id", "event_span", "space_id",
     "observed_at", "seq", "produced_at", "extensions"
   ],
-  "allOf": [{ "$ref": "sensos:contracts/common/provenance/0.6.2" }],
+  "allOf": [{ "$ref": "sensos:contracts/common/provenance/1.0.0" }],
   "unevaluatedProperties": false,
   "properties": {
     "contract": {
@@ -18,7 +18,7 @@
       "required": ["id", "version"],
       "properties": {
         "id": { "const": "IC-00" },
-        "version": { "const": "0.6.2" }
+        "version": { "const": "1.0.0" }
       }
     },
     "content_id": { "type": "string", "pattern": "^cnt:[0-9a-f]{64}$" },

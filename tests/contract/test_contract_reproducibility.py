@@ -28,7 +28,7 @@ SCRIPT = textwrap.dedent(
     print(json.dumps({{
         "cal": [cal.envelope["content_id"], cal.envelope["artifact_id"]],
         "single": [single.envelope["content_id"], single.envelope["artifact_id"],
-                   single.blobs[0].sha256],
+                   [b.sha256 for b in single.blobs]],
         "pair": [pair.envelope["content_id"], pair.envelope["artifact_id"]],
         "bytes": single.to_bytes().decode(),
     }}))
@@ -58,7 +58,7 @@ def test_two_processes_agree_on_ids_and_blob_hash() -> None:
     assert first["single"] == [
         single.envelope["content_id"],
         single.envelope["artifact_id"],
-        single.blobs[0].sha256,
+        [b.sha256 for b in single.blobs],
     ]
     assert first["bytes"] == single.to_bytes().decode()
 
@@ -78,7 +78,7 @@ def test_seq_and_produced_at_enter_no_id() -> None:
     )
     assert a.envelope["artifact_id"] == b.envelope["artifact_id"]
     assert a.envelope["seq"] != b.envelope["seq"]
-    assert a.blobs[0].sha256 == b.blobs[0].sha256
+    assert [x.sha256 for x in a.blobs] == [x.sha256 for x in b.blobs]
 
 
 def test_build_enters_artifact_id_but_not_content_id() -> None:

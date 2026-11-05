@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensos:contracts/common/uncertainty/1.0.0",
+  "title": "IC-00 uncertainty ({value, method, meaning, scale}); used inside payloads, never in the envelope",
+  "description": "`method` names the producing component's way of measuring uncertainty and is mandatory. Uncertainties with different `method` are never compared or summed (H4, S7).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["value", "method", "meaning", "scale"],
+  "properties": {
+    "value": {
+      "description": "Number of quanta of size 2^scale.exponent (integer, section 7).",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "method": { "type": "string", "minLength": 1 },
+    "meaning": { "type": "string", "minLength": 1 },
+    "scale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base", "exponent"],
+      "properties": {
+        "base": { "const": 2 },
+        "exponent": { "type": "integer", "minimum": -1074, "maximum": 1023 }
+      }
+    }
+  }
+}

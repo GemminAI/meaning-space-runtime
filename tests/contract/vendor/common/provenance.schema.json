@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "sensos:contracts/common/provenance/0.6.2",
+  "$id": "sensos:contracts/common/provenance/1.0.0",
   "title": "IC-00 provenance (producer, parents, policy_refs, calibration_ref, rule_refs)",
   "type": "object",
   "required": ["producer", "parents", "policy_refs", "calibration_ref", "rule_refs"],

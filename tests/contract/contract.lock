@@ -1,29 +1,52 @@
 {
   "contract_id": "IC-00",
-  "version": "0.6.2",
+  "version": "1.0.0",
   "source": {
     "repository": "sensos",
-    "branch": "feature/contracts-ic00-v062",
-    "commit": "6a34b994dbba9915d040f51d1c9786a1a77deb15",
+    "branch": "feature/contracts-ic00-v1",
+    "commit": "c82918f37038679001b445bd3cd1e7ef1cf85abd",
+    "tag": "contracts/ic00-v1.0.0",
     "root": "docs/architecture/contracts/"
   },
-  "note": "Verbatim copies under tests/contract/vendor/ (same relative paths). Never edit them; change only by an explicit, reviewed contract update from sensos. common/provenance.schema.json is vendored because common/artifact.schema.json $refs it. msr/ schemas carry their own versions (geometry-measurement 0.6.2, calibration 0.6.1).",
+  "contracts": {
+    "IC-00": "1.0.0",
+    "common/blob": "0.7.0",
+    "msr/geometry-measurement": "0.7.0",
+    "msr/calibration": "0.7.0"
+  },
+  "note": "Verbatim copies under tests/contract/vendor/ (same relative paths). Never edit; update only by an explicit, reviewed contract change from sensos. IC-00/1.0.0/FREEZE.md is vendored so the frozen files' sha256 can be checked against its own table. common/provenance is vendored because artifact $refs it; msr/README.md defines the series and the pair-verdict formula.",
   "files": [
     {
+      "path": "IC-00/1.0.0/FREEZE.md",
+      "sha256": "901fe5d13d560f5e8d0f8061260ed5164f6634bee1b42dffda8a46624928c210"
+    },
+    {
       "path": "common/artifact.schema.json",
-      "sha256": "1b560f9a7a0ac9faf781628773aae78d46e96837b282658aee1a978221a33112"
+      "sha256": "16f715bcd8e65e5c07085160c4b91b565f8564eeea00ac8fcd9162d17dabc8e2"
     },
     {
       "path": "common/provenance.schema.json",
-      "sha256": "302ed730b172483bb50ac23badad65271c4ab4fed1090d32dd51befede49fba7"
+      "sha256": "dcde3f691b52241d5e347df94a36b6793d07d779ad5a990a1e3f7ae3a4a4dbea"
+    },
+    {
+      "path": "common/uncertainty.schema.json",
+      "sha256": "8ce4a7a2f52e9913eacf180d07b08a63b7cc574024b39c3aa0323dca1448a517"
+    },
+    {
+      "path": "common/blob.schema.json",
+      "sha256": "f17c53bba3b8df0b7755717dd02951c20285aaaf0e13eceb4877ed8925d6a952"
     },
     {
       "path": "msr/geometry-measurement.schema.json",
-      "sha256": "b5e96c646d3937123e00398f6a479f6823e0f551e5dc6e37f095d92d8d513ca4"
+      "sha256": "ce96a21095fae83603b73eb0933a7605535455eb335c20fdd0882178e8c1339a"
     },
     {
       "path": "msr/calibration.schema.json",
-      "sha256": "47e5bc48e736f774b21a5f61b400ab203bd776cc0db0538024a35fd32cc24d58"
+      "sha256": "7a702f1ff8305ed808885a46b9b200d75380f66fd45276888867ad1eb93d8c72"
+    },
+    {
+      "path": "msr/README.md",
+      "sha256": "b997b7cdf7bd35861482f539b05a35cc815d3a3ae7aa0c6baf32b915ae31b92c"
     },
     {
       "path": "common/vectors/canonicalize.json",
@@ -34,12 +57,24 @@
       "sha256": "a80a217b1841e3c8c49d8a942eafa646de6368b2fe4494c84c2ce8245f15b2ec"
     },
     {
+      "path": "common/vectors/ids.json",
+      "sha256": "b54cc6fe0e049188727f409eeaf5839bdc9c51b7686166849d6f1c553922f180"
+    },
+    {
       "path": "common/vectors/envelope-ids.json",
-      "sha256": "bcbf0879bcf503ac03a83057bec63619ff1688d942a7eda584ffbfc36c548ee5"
+      "sha256": "463f2d235d3df138c1665689f3811a9e84ec113e9233c835e01509e441324a36"
+    },
+    {
+      "path": "common/vectors/check-envelope.json",
+      "sha256": "06002711aebd0c8fcb06e60bf4fdf75768f3b7d7aa9c5ecae3986779c7ba671e"
+    },
+    {
+      "path": "common/vectors/blob/blob-refs.json",
+      "sha256": "29ebd69dc50a8d284c978145df7f03f31d2511d6b0aeb318f80f5ff5de2c5340"
     },
     {
       "path": "common/vectors/README.md",
-      "sha256": "86e47abe1719b472a2276d266d8ee8fcda3306d52c319c138fac6b955119287f"
+      "sha256": "364ea50f90fd5a776faf390b76c52abb16d2c2ca5c434d8a42e6b8673ab4e9be"
     }
   ]
 }

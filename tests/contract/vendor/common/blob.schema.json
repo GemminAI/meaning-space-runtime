@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensos:contracts/common/blob/0.7.0",
+  "title": "SensOS Blob の参照（IC-00 とは別の契約、草案 0.7.0。設計書 v0.7.2 §7.1）",
+  "description": "大きな配列の参照。intBlob（標準）と floatBlob（例外）。Blob の中身の検査（sha256・長さ・−2^63・負の個数）はスキーマの外（S24・S34・S36）。",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/intBlob"
+    },
+    {
+      "$ref": "#/$defs/floatBlob"
+    }
+  ],
+  "$defs": {
+    "sha256hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "intBlob": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uri",
+        "sha256",
+        "media_type",
+        "dtype",
+        "shape",
+        "byte_order",
+        "order",
+        "quantization",
+        "unit"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "pattern": "^blob:sha256:[0-9a-f]{64}$",
+          "description": "場所を含まない内容のアドレス。16 進の部分は同じ参照の sha256 と同じ（S34、スキーマでは検査できない）。file: や https: などは拒否"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256hex",
+          "description": "正規のバイト列（ヘッダなし）の sha256"
+        },
+        "media_type": {
+          "const": "application/vnd.sensos.ndarray-raw",
+          "description": "Blob のファイルが正規のバイト列そのもの（ヘッダ・圧縮なし）であることを示す。sha256 はこのファイルのバイト列と一致する"
+        },
+        "shape": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "x-sensos-ordered": true
+        },
+        "byte_order": {
+          "const": "little"
+        },
+        "order": {
+          "const": "C"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dtype": {
+          "const": "int64"
+        },
+        "undefined": {
+          "const": "int64_min",
+          "description": "宣言すると、−2^63 の要素が値なしを意味する。宣言が無い Blob の −2^63 は拒否（S36）"
+        },
+        "quantization": {
+          "oneOf": [
+            {
+              "type": "null",
+              "description": "個数の Blob（値は 0 以上の整数そのもの。負の値は拒否）"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "quantum",
+                "rounding",
+                "tolerance_quanta"
+              ],
+              "properties": {
+                "quantum": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "base",
+                    "exponent"
+                  ],
+                  "properties": {
+                    "base": {
+                      "const": 2
+                    },
+                    "exponent": {
+                      "type": "integer",
+                      "minimum": -1074,
+                      "maximum": 1023
+                    }
+                  }
+                },
+                "rounding": {
+                  "const": "ties-to-even"
+                },
+                "tolerance_quanta": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "floatBlob": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "例外。封筒の extensions に理由が要る（S25）。S24 は当てない。値なしの印は持たない",
+      "required": [
+        "uri",
+        "sha256",
+        "media_type",
+        "dtype",
+        "shape",
+        "byte_order",
+        "order",
+        "comparison",
+        "unit"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "pattern": "^blob:sha256:[0-9a-f]{64}$",
+          "description": "場所を含まない内容のアドレス。16 進の部分は同じ参照の sha256 と同じ（S34、スキーマでは検査できない）。file: や https: などは拒否"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256hex",
+          "description": "正規のバイト列（ヘッダなし）の sha256"
+        },
+        "media_type": {
+          "const": "application/vnd.sensos.ndarray-raw",
+          "description": "Blob のファイルが正規のバイト列そのもの（ヘッダ・圧縮なし）であることを示す。sha256 はこのファイルのバイト列と一致する"
+        },
+        "shape": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "x-sensos-ordered": true
+        },
+        "byte_order": {
+          "const": "little"
+        },
+        "order": {
+          "const": "C"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dtype": {
+          "enum": [
+            "float32",
+            "float64"
+          ]
+        },
+        "comparison": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "bound"
+          ],
+          "properties": {
+            "rule": {
+              "enum": [
+                "absolute_error",
+                "relative_error"
+              ]
+            },
+            "bound": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "base",
+                "exponent"
+              ],
+              "description": "許容の上限を 2 の冪で（浮動小数を封筒に入れないため）",
+              "properties": {
+                "base": {
+                  "const": 2
+                },
+                "exponent": {
+                  "type": "integer",
+                  "minimum": -1074,
+                  "maximum": 1023
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

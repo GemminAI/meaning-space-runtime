@@ -9,6 +9,8 @@ from typing import Any
 
 import pytest
 from contract_support import VECTORS
+from ic00_gate import check_envelope, observation_id, session_id_experiment
+from invariants import blob_violations
 
 from msr.geometry import ids
 from msr.geometry.wire import (
@@ -94,3 +96,56 @@ def test_vector_counts() -> None:
         17,
         16,
     )
+
+
+IDS = _load("ids.json")["cases"]
+
+
+@pytest.mark.parametrize("case", IDS, ids=[c["id"] for c in IDS])
+def test_id_vectors(case: dict[str, Any]) -> None:
+    def run(i: dict[str, Any]) -> str:
+        if case["op"] == "session_experiment":
+            return session_id_experiment(**i)
+        return observation_id(i["session_id"], i["ordinal"])
+
+    expect = case["expect"]
+    if expect["result"] == "reject":
+        with pytest.raises(ContractError) as info:
+            run(case["input"])
+        assert info.value.code == expect["code"]
+        return
+    assert run(case["input"]) == next(v for k, v in expect.items() if k != "result")
+
+
+CHECK = _load("check-envelope.json")["cases"]
+
+
+@pytest.mark.parametrize("case", CHECK, ids=[c["id"] for c in CHECK])
+def test_check_envelope_vectors(case: dict[str, Any]) -> None:
+    codes = sorted({v.code for v in check_envelope(case["envelope"], case["lookup"])})
+    assert codes == case["expect"]["codes"]
+    assert (not codes) == (case["expect"]["result"] == "accept")
+
+
+def test_frozen_vector_counts() -> None:
+    def accepts(cases: list[dict[str, Any]]) -> int:
+        return sum(1 for c in cases if c["expect"]["result"] == "accept")
+
+    assert (len(IDS), accepts(IDS)) == (10, 5)
+    assert (len(CHECK), accepts(CHECK)) == (37, 7)
+    assert (len(CANON), accepts(CANON)) == (46, 16)
+    assert (len(QUANT), accepts(QUANT)) == (29, 21)
+
+
+BLOB = _load("blob/blob-refs.json")["cases"]
+
+
+@pytest.mark.parametrize("case", BLOB, ids=[c["id"] for c in BLOB])
+def test_blob_vectors(case: dict[str, Any]) -> None:
+    data = bytes.fromhex(case["data_hex"]) if "data_hex" in case else None
+    assert sorted(blob_violations(case["ref"], data)) == case["expect"]["codes"]
+
+
+def test_blob_vector_counts() -> None:
+    accepts = sum(1 for c in BLOB if c["expect"]["result"] == "accept")
+    assert (len(BLOB), accepts) == (32, 8)

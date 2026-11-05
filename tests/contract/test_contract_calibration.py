@@ -2,14 +2,23 @@
 
 from __future__ import annotations
 
-import hashlib
 import inspect
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pytest
-from contract_support import APPROVAL, ctx, envelope_errors, muts, nulls, ref, traj
+from contract_support import (
+    APPROVAL,
+    ctx,
+    deepcopy,
+    envelope_errors,
+    muts,
+    nulls,
+    parent_contents,
+    ref,
+    traj,
+)
 from contract_support import calibration as make_calibration
 
 import msr.geometry as g
@@ -24,7 +33,7 @@ def test_calibration_envelope_validates_and_names_its_parents() -> None:
     assert envelope_errors(art.envelope) == []
     env = art.envelope
     assert env["kind"] == "interpretation" and env["calibration_ref"] is None
-    assert env["payload_schema"] == {"id": "msr.calibration", "version": "0.6.1"}
+    assert env["payload_schema"] == {"id": "msr.calibration", "version": "0.7.0"}
     assert [p["role"] for p in env["parents"]] == ["null_set"]
     assert env["parents"][0]["artifact_ids"] == env["payload"]["null_set"]
     assert env["parents"][0]["ordered"] is False
@@ -124,10 +133,13 @@ def test_store_load_roundtrip_by_artifact_id(tmp_path: Path) -> None:
     path = g.write_calibration(tmp_path, art)
     assert path == tmp_path / "calibration" / f"{art.ref.artifact_id}.json"
     assert path.read_bytes() == jcs(art.envelope)
-    loaded = g.load_calibration(tmp_path, art.ref.artifact_id)
+    loaded = g.load_calibration(
+        tmp_path, art.ref.artifact_id, parent_contents=parent_contents()
+    )
     assert loaded.envelope == art.envelope and loaded.calibration == art.calibration
     assert loaded.file_sha256 and loaded.file_sha256 != art.file_sha256
     assert loaded.ref == art.ref
+    assert envelope_errors(loaded.envelope) == []  # the vendored schema agrees
 
 
 def test_a_stored_calibration_is_never_overwritten(tmp_path: Path) -> None:
@@ -153,33 +165,58 @@ def test_a_stored_calibration_is_never_overwritten(tmp_path: Path) -> None:
     assert path.read_bytes() == before
 
 
-def test_load_checks_integrity_and_identity(tmp_path: Path) -> None:
+def test_load_authority_is_parse_shape_and_recomputed_ids(tmp_path: Path) -> None:
     art = make_calibration()
     aid = art.ref.artifact_id
+    contents = parent_contents()
     with pytest.raises(g.CalibrationError, match="no calibration"):
-        g.load_calibration(tmp_path, aid)
+        g.load_calibration(tmp_path, aid, parent_contents=contents)
     path = g.write_calibration(tmp_path, art)
     sidecar = path.with_name(path.name + ".sha256")
     good = path.read_bytes()
-    path.write_bytes(good.replace(b'"S1"', b'"S2"', 1))
-    with pytest.raises(g.CalibrationError, match="integrity"):
-        g.load_calibration(tmp_path, aid)
-    path.write_bytes(good)
+    # no .sha256 file: still accepted (it is a help, not the authority)
     sidecar.unlink()
-    with pytest.raises(g.CalibrationError, match="integrity"):
-        g.load_calibration(tmp_path, aid)
-    # a file that is intact but not strict JSON / not the named artifact
-    for body in (b'{"a":1,"a":2}', b"[1]", b'{"artifact_id":"art:' + b"0" * 64 + b'"}'):
+    assert g.load_calibration(tmp_path, aid, parent_contents=contents).ref == art.ref
+    # a .sha256 file that disagrees: refused
+    sidecar.write_text("0" * 64 + "\n")
+    with pytest.raises(g.CalibrationError, match=r"\.sha256"):
+        g.load_calibration(tmp_path, aid, parent_contents=contents)
+    sidecar.unlink()
+    # tampered content with no .sha256 to notice: the ids no longer recompute
+    path.write_bytes(good.replace(b'"S1"', b'"S2"', 1))
+    with pytest.raises(g.CalibrationError, match="do not recompute"):
+        g.load_calibration(tmp_path, aid, parent_contents=contents)
+    path.write_bytes(good)
+    # parents' content_ids are needed; a wrong one does not recompute either
+    with pytest.raises(g.CalibrationError, match="not a valid calibration"):
+        g.load_calibration(tmp_path, aid, parent_contents={})
+    wrong = {k: ref(999).content_id for k in contents}
+    with pytest.raises(g.CalibrationError, match="do not recompute"):
+        g.load_calibration(tmp_path, aid, parent_contents=wrong)
+    # not strict JSON / not the named artifact / not the contract's shape
+    other = {**art.envelope, "artifact_id": "art:" + "0" * 64}
+    extra = {**art.envelope, "unexpected": 1}
+    for body in (b'{"a":1,"a":2}', b"[1]", jcs(other), jcs(extra)):
         path.write_bytes(body)
-        sidecar.write_text(hashlib.sha256(body).hexdigest())
         with pytest.raises(g.CalibrationError):
-            g.load_calibration(tmp_path, aid)
+            g.load_calibration(tmp_path, aid, parent_contents=contents)
+    for mutate in muts(
+        lambda e: e["payload"]["values"].__setitem__("epsilon", 1.5),
+        lambda e: e["payload"]["values"].__setitem__("w_min", True),
+        lambda e: e.__setitem__("calibration_ref", ref(1).to_dict()),
+        lambda e: e["contract"].__setitem__("version", "0.6.2"),
+        lambda e: e["payload"].__setitem__("between_alignment", "other"),
+    ):
+        env = deepcopy(art.envelope)
+        mutate(env)
+        with pytest.raises(g.CalibrationError):
+            calibration_module._check_shape(env)  # shape check on its own
 
 
 def test_lookup_is_by_artifact_id_only(tmp_path: Path) -> None:
     for name in ("build-1", "../x", "art:abc", ""):
         with pytest.raises(g.CalibrationError, match="bad artifact_id"):
-            g.load_calibration(tmp_path, name)
+            g.load_calibration(tmp_path, name, parent_contents={})
         with pytest.raises(g.CalibrationError, match="bad artifact_id"):
             calibration_module.calibration_path(tmp_path, name)
     public = [
@@ -195,7 +232,7 @@ def test_lookup_is_by_artifact_id_only(tmp_path: Path) -> None:
             assert "model_build_id" not in inspect.signature(obj).parameters, obj
     assert not any("model_build" in n for n in dir(g) if callable(getattr(g, n)))
     with pytest.raises(TypeError):
-        g.load_calibration(tmp_path, model_build_id="build-1")  # type: ignore[call-arg]
+        g.load_calibration(tmp_path, model_build_id="build-1", parent_contents={})  # type: ignore[call-arg]
 
 
 def test_calibration_from_envelope_rejects_malformed() -> None:
@@ -265,3 +302,17 @@ def test_emit_context_and_refs_validate() -> None:
             right_ref=clash,
             calibration=cal,
         )
+
+
+def test_a_different_quantum_is_refused_not_converted() -> None:
+    art = make_calibration()
+    coarse = g.CalibrationArtifact(art.envelope, art.calibration, exponent=-20)
+    with pytest.raises(g.CalibrationError, match="no conversion"):
+        g.evaluate_shift_quantized(5, coarse)
+    assert g.evaluate_shift_quantized(5, art, distance_exponent=-30) in (
+        "STAGNANT",
+        "NOISE_FLOOR_INTERNAL",
+        "STRUCTURAL_SHIFT_DETECTED",
+    )
+    with pytest.raises(g.CalibrationError, match="no conversion"):
+        g.evaluate_shift_quantized(5, art, distance_exponent=-31)

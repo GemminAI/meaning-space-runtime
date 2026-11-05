@@ -24,6 +24,8 @@ from msr.errors import MSRError
 MAX_SAFE = 2**53 - 1
 ENVELOPE_RANGE = (-MAX_SAFE, MAX_SAFE)
 INT64_RANGE = (-(2**63), 2**63 - 1)
+# Measured values in an int64 Blob: -2**63 is reserved as the "undefined" mark (§7.1).
+BLOB_RANGE = (-(2**63 - 1), 2**63 - 1)
 
 E_UTF8 = "E_UTF8"
 E_SYNTAX = "E_SYNTAX"
@@ -204,6 +206,7 @@ def jcs(value: Any) -> bytes:
 
 
 __all__ = [
+    "BLOB_RANGE",
     "ENVELOPE_RANGE",
     "INT64_RANGE",
     "MAX_SAFE",

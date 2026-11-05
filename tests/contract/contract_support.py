@@ -20,6 +20,7 @@ VECTORS = VENDOR / "common" / "vectors"
 SCHEMAS = (
     "common/artifact",
     "common/provenance",
+    "common/blob",
     "msr/geometry-measurement",
     "msr/calibration",
 )
@@ -86,7 +87,7 @@ def calibration(seq: int = 2, **kw: Any) -> g.CalibrationArtifact:
     return g.build_calibration(nulls(), ctx(seq), **kw)
 
 
-def decode_blob(data: bytes, shape: tuple[int, int]) -> np.ndarray[Any, Any]:
+def decode_blob(data: bytes, shape: tuple[int, ...]) -> np.ndarray[Any, Any]:
     return np.frombuffer(data, dtype="<i8").reshape(shape)
 
 
@@ -100,3 +101,9 @@ Mutation = Callable[[dict[str, Any]], object]
 def muts(*fns: Mutation) -> tuple[Mutation, ...]:
     """Typed container so lambda mutations get their signature from context."""
     return fns
+
+
+def parent_contents(*extra: g.ArtifactRef) -> dict[str, str]:
+    """artifact_id -> content_id of the default null set (and ``extra``)."""
+    refs = [m.ref for m in nulls()] + list(extra)
+    return {r.artifact_id: r.content_id for r in refs}

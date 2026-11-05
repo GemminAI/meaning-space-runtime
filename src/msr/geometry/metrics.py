@@ -112,7 +112,7 @@ def displacement_metrics(
             run_s.append(best)
         else:
             run_s.append(None)
-    if delta is not None:
+    if delta is not None and n:
         summary["longest_sub_delta_run"] = _longest_run([bool(x < delta) for x in d])
     series: dict[str, Series] = {
         "displacement_mean": mean_s,

@@ -9,6 +9,7 @@ Python の参照実装（`tools/contracts/`）を読まずに、ここだけで�
 | `quantize.json` | 量子化 | `value_bits`（IEEE-754 binary64、ビッグエンディアン）を `q = round_ties_to_even(value × 2^(−exponent))`。範囲 `envelope`＝±(2^53−1)、`int64`＝int64 |
 | `ids.json` | `session_id`（実験）・`observation_id` | 入力から id を計算 |
 | `envelope-ids.json` | 封筒の `content_id`・`artifact_id` | `lookup`（artifact_id → `{content_id, observation_id, seq}`）を使い、各 `case.envelope` から計算して `expect` と一致。`relations` は 2 つの case の id が同じか違うか |
+| `blob/blob-refs.json` | Blob の参照（`common/blob.schema.json`、0.7.0。IC-00 の凍結の外） | `ref` を blob.schema に当て（外れたら `schema` のみ）、`data_hex`（あれば）で `check_blob`：S34・S24/S25・S36・`count_negative`。`data_hex` が無い見本は参照だけ |
 | `check-envelope.json` | `check_envelope` | `case.envelope` と `case.lookup` から、違反の符号の集合が `expect.codes`（空なら受理） |
 
 拒否の符号：`E_UTF8`・`E_SYNTAX`・`E_SURROGATE`・`E_FLOAT_TOKEN`（小数点・指数）・`E_CONSTANT`（NaN・Infinity）・`E_DUP_KEY`・`E_INT_RANGE`・
