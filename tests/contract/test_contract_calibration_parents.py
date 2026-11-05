@@ -33,7 +33,7 @@ def test_reader_agrees_with_the_vendored_parent_vectors(case: dict[str, Any]) ->
 
 def test_vector_set_has_the_two_accepts_and_a_reject_for_each_point() -> None:
     accepts = [c for c in CASES if c["expect"]["result"] == "accept"]
-    assert (len(accepts), len(CASES) - len(accepts)) == (2, 6)
+    assert (len(accepts), len(CASES) - len(accepts)) == (2, 9)
     for point in ("point1", "point2", "point3", "point4", "point5"):
         assert any(c["id"].startswith(point) for c in CASES), point
 

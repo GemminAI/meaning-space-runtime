@@ -480,6 +480,199 @@
   },
   {
    "envelope": {
+    "artifact_id": "art:f4f1fa52b2e18766d89ce3b4cafabb5d8a6c2ba2b20c97bb5ad7b50cbee6542a",
+    "calibration_ref": null,
+    "content_id": "cnt:b409b5e464f7e053cd1046a7899af0c3ae4a30543d111b481c658c778eee4f3d",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": null,
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.7.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "parent_content_id_form"
+    ],
+    "result": "reject"
+   },
+   "id": "point1-content-id-is-not-cnt-form",
+   "note": "a retrieved content_id is not cnt: + 64 hex (reported by its own code, not as a hash mismatch)",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "not-a-content-id",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:0000000000000000000000000000000000000000000000000000000000000000",
+    "calibration_ref": null,
+    "content_id": "cnt:0000000000000000000000000000000000000000000000000000000000000000",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     },
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": null,
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.7.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "role_duplicate"
+    ],
+    "result": "reject"
+   },
+   "id": "point3-role-appears-twice",
+   "note": "parents has two null_set roles (not sealed: ids cannot be computed for it)",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
     "artifact_id": "art:3b8265976693e7c345cb0a11b21732efc0ca36d272601cda0bb2b89a91a2451a",
     "calibration_ref": null,
     "content_id": "cnt:ebf3c4b09612bc3b54695ae3ec4cb2c72f999bb93f07d74c505f37dec22326bf",
@@ -661,6 +854,108 @@
     "result": "reject"
    },
    "id": "point4-null-set-is-ordered",
+   "note": "",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:e8cf1662ab1babef496cd5cf9189ed6af4745c2e2eea3f168859116bce22d610",
+    "calibration_ref": null,
+    "content_id": "cnt:df7a184851c4aae0f0ddd17c7d5883ba480c7b1019b2eb993250cd496325652e",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "ordered": true,
+      "role": "codebook"
+     },
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": {
+       "artifact_id": "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "content_id": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.7.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "codebook_ordered"
+    ],
+    "result": "reject"
+   },
+   "id": "point4-codebook-is-ordered",
    "note": "",
    "parent_contents": {
     "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",

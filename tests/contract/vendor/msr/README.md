@@ -72,15 +72,15 @@ calibration を**読む側**が、取得した親（`parent_contents`：親の `
 
 | # | 規範 | 見本の符号 |
 |---|---|---|
-| 1 | 封筒の `parents` の各親（`artifact_ids` のすべて）が、取得・確認済みの親（`parent_contents`）の中にある | `parent_unknown` |
+| 1 | 封筒の `parents` の各親（`artifact_ids` のすべて）が、取得・確認済みの親（`parent_contents`）の中にある。さらに、`parent_contents` の各 `content_id` は `cnt:` ＋ 64 文字の小文字の 16 進の形式である（形式違反はハッシュの不一致としてではなく、専用の符号で拒否する） | `parent_unknown`、`parent_content_id_form` |
 | 2 | codebook の `content_id`（取得した親の）が、payload の `values.codebook_ref.content_id` と一致する。`codebook_ref` が null なら対象外 | `codebook_content_mismatch` |
-| 3 | payload が参照する役割の集合（`null_set` は常に、`codebook` は `values.codebook_ref` が null でないときだけ）と、封筒の `parents` の役割の集合が一致する。役割が足りなくても余っても不一致 | `role_set_mismatch` |
-| 4 | 役割 `null_set` の `ordered` が `false` である | `null_set_ordered` |
+| 3 | payload が参照する役割の集合（`null_set` は常に、`codebook` は `values.codebook_ref` が null でないときだけ）と、封筒の `parents` の役割の集合が一致する。役割が足りなくても余っても不一致。**`parents` の中に同じ役割が 2 つあるものは拒否する** | `role_set_mismatch`、`role_duplicate` |
+| 4 | 役割 `null_set` と役割 `codebook` の `ordered` が、どちらも `false` である | `null_set_ordered`、`codebook_ordered` |
 | 5 | payload の `null_set`（整列済みの `artifact_id` の列）が、役割 `null_set` の `artifact_ids` と一致する（順序も含めて同じ列） | `null_set_mismatch` |
 
 - 違反は検証失敗である。補って読み進めない（推測で親を足さない、役割を直さない）。
 - **取得と確認の主体は nvs-runtime（Gate）**：`parent_contents` は、Gate が HEKB から取得し、保存されている成果物と照合して確かめたものだけを渡す。**MSR は HEKB を呼ばない**。呼び出し側が任意に渡した親の情報は、上の 5 点を満たしても無条件には信頼しない（`content_id`・`artifact_id` の計算し直しが通ることが、さらに要る）。
-- 見本は `vectors/calibration-parents.json`（受理 2・拒否 6。5 点それぞれの拒否を含む）。検査器は `tools/contracts/ic02.py` の `check_calibration_parents`。
+- 見本は `vectors/calibration-parents.json`（受理 2・拒否 9。5 点それぞれの拒否と、`cnt:` 形式・役割の重複・codebook の `ordered` を含む）。検査器は `tools/contracts/ic02.py` の `check_calibration_parents`。
 
 ## 検査器（`tools/contracts`）での扱い
 
