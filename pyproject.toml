@@ -12,7 +12,7 @@ license = { text = "Apache-2.0" }
 dependencies = ["numpy>=1.26"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov>=5", "mypy>=1.10", "ruff>=0.6", "hypothesis>=6.100"]
+dev = ["pytest>=8", "pytest-cov>=5", "mypy>=1.10", "ruff>=0.6", "hypothesis>=6.100", "jsonschema>=4.21"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/msr"]
@@ -48,7 +48,7 @@ plugins = []
 # there. See docs/RFC_ALIGNMENT.md ("Gate dependency: nvs-kernel").
 #     pip install -e ../nvs-kernel
 [[tool.mypy.overrides]]
-module = ["nvs_kernel.*"]
+module = ["nvs_kernel.*", "jsonschema.*"]
 ignore_missing_imports = true
 
 [tool.ruff]

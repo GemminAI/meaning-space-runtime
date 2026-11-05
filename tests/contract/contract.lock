@@ -1,0 +1,45 @@
+{
+  "contract_id": "IC-00",
+  "version": "0.6.2",
+  "source": {
+    "repository": "sensos",
+    "branch": "feature/contracts-ic00-v062",
+    "commit": "6a34b994dbba9915d040f51d1c9786a1a77deb15",
+    "root": "docs/architecture/contracts/"
+  },
+  "note": "Verbatim copies under tests/contract/vendor/ (same relative paths). Never edit them; change only by an explicit, reviewed contract update from sensos. common/provenance.schema.json is vendored because common/artifact.schema.json $refs it. msr/ schemas carry their own versions (geometry-measurement 0.6.2, calibration 0.6.1).",
+  "files": [
+    {
+      "path": "common/artifact.schema.json",
+      "sha256": "1b560f9a7a0ac9faf781628773aae78d46e96837b282658aee1a978221a33112"
+    },
+    {
+      "path": "common/provenance.schema.json",
+      "sha256": "302ed730b172483bb50ac23badad65271c4ab4fed1090d32dd51befede49fba7"
+    },
+    {
+      "path": "msr/geometry-measurement.schema.json",
+      "sha256": "b5e96c646d3937123e00398f6a479f6823e0f551e5dc6e37f095d92d8d513ca4"
+    },
+    {
+      "path": "msr/calibration.schema.json",
+      "sha256": "47e5bc48e736f774b21a5f61b400ab203bd776cc0db0538024a35fd32cc24d58"
+    },
+    {
+      "path": "common/vectors/canonicalize.json",
+      "sha256": "bc31183bc895f61c7a7f4152380f884348058b53236d1c31d3a47c274513131b"
+    },
+    {
+      "path": "common/vectors/quantize.json",
+      "sha256": "a80a217b1841e3c8c49d8a942eafa646de6368b2fe4494c84c2ce8245f15b2ec"
+    },
+    {
+      "path": "common/vectors/envelope-ids.json",
+      "sha256": "bcbf0879bcf503ac03a83057bec63619ff1688d942a7eda584ffbfc36c548ee5"
+    },
+    {
+      "path": "common/vectors/README.md",
+      "sha256": "86e47abe1719b472a2276d266d8ee8fcda3306d52c319c138fac6b955119287f"
+    }
+  ]
+}

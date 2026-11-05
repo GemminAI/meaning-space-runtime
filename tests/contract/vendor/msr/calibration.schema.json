@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensos:contracts/msr/calibration/0.6.1",
+  "title": "IC-02 msr.calibration (payload)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "space_id",
+    "model_build_id",
+    "method",
+    "null_set",
+    "between_alignment",
+    "values",
+    "sample_config"
+  ],
+  "properties": {
+    "space_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_build_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "method": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "quantiles"
+      ],
+      "properties": {
+        "name": {
+          "const": "msr-geometry-calibration"
+        },
+        "version": {
+          "type": "string"
+        },
+        "quantiles": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "epsilon",
+            "delta",
+            "floor"
+          ],
+          "properties": {
+            "epsilon": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1073741824,
+              "x-sensos-quantization": {
+                "quantum": {
+                  "base": 2,
+                  "exponent": -30
+                },
+                "rounding": "ties-to-even",
+                "tolerance_quanta": 0
+              },
+              "x-sensos-unit": "probability"
+            },
+            "delta": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1073741824,
+              "x-sensos-quantization": {
+                "quantum": {
+                  "base": 2,
+                  "exponent": -30
+                },
+                "rounding": "ties-to-even",
+                "tolerance_quanta": 0
+              },
+              "x-sensos-unit": "probability"
+            },
+            "floor": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "exclusiveMaximum": 1073741824,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 0
+                  },
+                  "x-sensos-unit": "probability"
+                },
+                {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "exclusiveMaximum": 1073741824,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 0
+                  },
+                  "x-sensos-unit": "probability"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2,
+              "x-sensos-ordered": true,
+              "description": "分位点の水準（確率）[下, 上]。下 < 上 は S19 で検査"
+            }
+          },
+          "description": "分位点の水準（0〜1 の確率）。values の閾値（距離、上限なし）とは別の概念"
+        }
+      }
+    },
+    "null_set": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "pattern": "^art:[0-9a-f]{64}$"
+      },
+      "x-sensos-ordered": false,
+      "uniqueItems": true,
+      "x-sensos-sort-key": [
+        "$self"
+      ]
+    },
+    "between_alignment": {
+      "enum": [
+        "equal_only",
+        "x-common_prefix"
+      ],
+      "description": "x-common_prefix のときは封筒の extensions に理由と承認者（S17）"
+    },
+    "values": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "noise_floor_lower",
+        "noise_floor_upper",
+        "background_mean",
+        "epsilon",
+        "delta",
+        "w_min",
+        "codebook_ref"
+      ],
+      "properties": {
+        "noise_floor_lower": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "x-sensos-quantization": {
+            "quantum": {
+              "base": 2,
+              "exponent": -30
+            },
+            "rounding": "ties-to-even",
+            "tolerance_quanta": 1
+          },
+          "x-sensos-unit": "distance"
+        },
+        "noise_floor_upper": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "x-sensos-quantization": {
+            "quantum": {
+              "base": 2,
+              "exponent": -30
+            },
+            "rounding": "ties-to-even",
+            "tolerance_quanta": 1
+          },
+          "x-sensos-unit": "distance"
+        },
+        "background_mean": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "x-sensos-quantization": {
+            "quantum": {
+              "base": 2,
+              "exponent": -30
+            },
+            "rounding": "ties-to-even",
+            "tolerance_quanta": 1
+          },
+          "x-sensos-unit": "distance"
+        },
+        "epsilon": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991,
+          "x-sensos-quantization": {
+            "quantum": {
+              "base": 2,
+              "exponent": -30
+            },
+            "rounding": "ties-to-even",
+            "tolerance_quanta": 1
+          },
+          "x-sensos-unit": "distance"
+        },
+        "delta": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "x-sensos-quantization": {
+            "quantum": {
+              "base": 2,
+              "exponent": -30
+            },
+            "rounding": "ties-to-even",
+            "tolerance_quanta": 1
+          },
+          "x-sensos-unit": "distance"
+        },
+        "w_min": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "0 は異なる時刻のすべての組を数える"
+        },
+        "codebook_ref": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "artifact_id",
+                "content_id"
+              ],
+              "properties": {
+                "artifact_id": {
+                  "type": "string",
+                  "pattern": "^art:[0-9a-f]{64}$"
+                },
+                "content_id": {
+                  "type": "string",
+                  "pattern": "^cnt:[0-9a-f]{64}$"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "description": "帰無の分布から得た閾値（距離の単位、上限なし）。noise_floor_lower <= noise_floor_upper は S19 で検査"
+    },
+    "sample_config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trajectories",
+        "points",
+        "dims"
+      ],
+      "properties": {
+        "trajectories": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 9007199254740991
+        },
+        "points": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "dims": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    }
+  }
+}

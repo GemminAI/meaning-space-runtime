@@ -1,158 +1,283 @@
-"""Calibration files and the four-way shift verdict (SPEC-MSR-001 v2 §3).
+"""Calibration as an independent artifact (design v0.6.2 §3.3.1) and the verdict.
 
-No threshold lives in code. ε, δ, w_min and the noise-floor interval come from
-``<data_dir>/calibration/<model_build_id>.json``; without that file every
-threshold judgment is ``UNCALIBRATED``.
+A calibration is an IC-00 envelope whose payload follows
+``msr/calibration.schema.json``. Other artifacts point at it by
+``{artifact_id, content_id}`` (never by ``model_build_id`` and never by the
+file's sha256). It is immutable (H1): a stored calibration is never overwritten,
+and a re-calibration is a new artifact. The file's sha256 is used only to check
+that the file read back is intact.
 
-``evaluate_shift`` follows the same rule as
-``sensos_core.manifold_shift.evaluate_manifold_shift`` but does not import it
-(MSR imports no neighbour code); the tests check the two agree.
+No threshold lives in code: ε, δ, w_min and the noise-floor interval come from a
+calibration; without one every shift verdict is ``UNCALIBRATED``.
+``evaluate_shift`` follows ``sensos_core.manifold_shift.evaluate_manifold_shift``
+without importing it (MSR imports no neighbour code); the tests check they agree.
 """
 
 from __future__ import annotations
 
 import hashlib
 import itertools
-import json
-from collections.abc import Sequence
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
+import re
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
 import numpy as np
 
+from msr.geometry.envelope import (
+    ArtifactRef,
+    EmitContext,
+    alignment_extensions,
+    build_envelope,
+)
 from msr.geometry.errors import CalibrationError
 from msr.geometry.metrics import (
+    DEFAULT_BLOCK_SIZE,
     mean_step_distance,
-    pairwise_distances,
+    pooled_pair_count,
+    pooled_pair_distances,
     step_displacements,
 )
 from msr.geometry.trajectory import TrajectoryInput
+from msr.geometry.wire import (
+    ContractError,
+    dequantize,
+    jcs,
+    quantize,
+    strict_load,
+)
 
 ShiftVerdict = Literal[
     "UNCALIBRATED", "STAGNANT", "NOISE_FLOOR_INTERNAL", "STRUCTURAL_SHIFT_DETECTED"
 ]
+Alignment = Literal["equal_only", "common_prefix"]
+METHOD_NAME = "msr-geometry-calibration"
 METHOD_VERSION = "msr-geometry-calibration/1"
+PAYLOAD_SCHEMA = ("msr.calibration", "0.6.1")
+EXPONENT = -30  # every real value in the contract is a multiple of 2**-30
+DEFAULT_MAX_POOLED_PAIRS = 50_000_000  # ~400 MB of float64
+
+_ARTIFACT = re.compile(r"^art:[0-9a-f]{64}$")
+_ONE = 2**30  # probability 1.0 on the 2**-30 grid
+
+
+def payload_alignment(mode: Alignment) -> str:
+    """Contract spelling: ``common_prefix`` is written ``x-common_prefix``."""
+    if mode == "equal_only":
+        return "equal_only"
+    if mode == "common_prefix":
+        return "x-common_prefix"
+    raise CalibrationError(f"unknown alignment {mode!r}")
 
 
 @dataclass(frozen=True, slots=True)
 class Calibration:
-    """SPEC §3.1 file contents plus space_id, ε, δ, w_min, codebook reference."""
+    """Float view of a calibration's values (each exactly a multiple of 2**-30)."""
 
     model_build_id: str
     space_id: str
-    measured_at: str
     noise_floor_lower: float
     noise_floor_upper: float
     background_mean: float
-    sample_config: dict[str, Any] = field(default_factory=dict)
     epsilon: float | None = None
     delta: float | None = None
     w_min: int | None = None
-    codebook_ref: dict[str, Any] | None = None
-    provenance: dict[str, Any] = field(default_factory=dict)
-
-    def to_json_dict(self) -> dict[str, Any]:
-        return {
-            "model_build_id": self.model_build_id,
-            "space_id": self.space_id,
-            "measured_at": self.measured_at,
-            "noise_floor_lower": self.noise_floor_lower,
-            "noise_floor_upper": self.noise_floor_upper,
-            "background_mean": self.background_mean,
-            "sample_config": self.sample_config,
-            "epsilon": self.epsilon,
-            "delta": self.delta,
-            "w_min": self.w_min,
-            "codebook_ref": self.codebook_ref,
-            "provenance": self.provenance,
-        }
+    between_alignment: str = "equal_only"
+    codebook_ref: ArtifactRef | None = None
 
 
 @dataclass(frozen=True, slots=True)
-class LoadedCalibration:
+class CalibrationArtifact:
+    """A calibration envelope together with its decoded values.
+
+    ``file_sha256`` is set only when the artifact was read back from a file.
+    """
+
+    envelope: dict[str, Any]
     calibration: Calibration
-    sha256: str
+    file_sha256: str | None = None
+
+    @property
+    def ref(self) -> ArtifactRef:
+        return ArtifactRef(self.envelope["artifact_id"], self.envelope["content_id"])
+
+    @property
+    def payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = self.envelope["payload"]
+        return payload
+
+    @property
+    def values(self) -> dict[str, Any]:
+        """The payload's integer values (``noise_floor_lower`` ... ``w_min``)."""
+        values: dict[str, Any] = self.payload["values"]
+        return values
 
 
-def calibration_path(data_dir: Path, model_build_id: str) -> Path:
-    return Path(data_dir) / "calibration" / f"{model_build_id}.json"
-
-
-def load_calibration(data_dir: Path, model_build_id: str) -> LoadedCalibration | None:
-    """``None`` (never a fallback to another build) when the file is absent."""
-    path = calibration_path(data_dir, model_build_id)
-    if not path.exists():
-        return None
-    raw = path.read_bytes()
+def calibration_from_envelope(
+    envelope: Mapping[str, Any], *, file_sha256: str | None = None
+) -> CalibrationArtifact:
+    """Decode a calibration envelope (shape errors become ``CalibrationError``)."""
     try:
-        data = json.loads(raw)
-        calib = Calibration(
-            model_build_id=data["model_build_id"],
-            space_id=data["space_id"],
-            measured_at=data["measured_at"],
-            noise_floor_lower=float(data["noise_floor_lower"]),
-            noise_floor_upper=float(data["noise_floor_upper"]),
-            background_mean=float(data["background_mean"]),
-            sample_config=data.get("sample_config", {}),
-            epsilon=data.get("epsilon"),
-            delta=data.get("delta"),
-            w_min=data.get("w_min"),
-            codebook_ref=data.get("codebook_ref"),
-            provenance=data.get("provenance", {}),
+        if envelope["payload_schema"] != {
+            "id": PAYLOAD_SCHEMA[0],
+            "version": PAYLOAD_SCHEMA[1],
+        }:
+            raise CalibrationError("not an msr.calibration payload")
+        payload = envelope["payload"]
+        values = payload["values"]
+        raw_ref = values["codebook_ref"]
+        calibration = Calibration(
+            model_build_id=payload["model_build_id"],
+            space_id=payload["space_id"],
+            noise_floor_lower=dequantize(values["noise_floor_lower"], EXPONENT),
+            noise_floor_upper=dequantize(values["noise_floor_upper"], EXPONENT),
+            background_mean=dequantize(values["background_mean"], EXPONENT),
+            epsilon=dequantize(values["epsilon"], EXPONENT),
+            delta=dequantize(values["delta"], EXPONENT),
+            w_min=int(values["w_min"]),
+            between_alignment=payload["between_alignment"],
+            codebook_ref=None if raw_ref is None else ArtifactRef(**raw_ref),
         )
-    except (KeyError, TypeError, ValueError) as exc:
-        raise CalibrationError(f"malformed calibration file {path}: {exc!r}") from exc
-    if calib.model_build_id != model_build_id:
-        raise CalibrationError(
-            f"{path} declares model_build_id {calib.model_build_id!r}, "
-            f"expected {model_build_id!r}"
-        )
-    return LoadedCalibration(calib, hashlib.sha256(raw).hexdigest())
+        artifact = CalibrationArtifact(dict(envelope), calibration, file_sha256)
+        artifact.ref  # noqa: B018 - validates artifact_id / content_id
+    except (KeyError, TypeError, ValueError, ContractError) as exc:
+        raise CalibrationError(f"malformed calibration envelope: {exc!r}") from exc
+    return artifact
 
 
-def write_calibration(data_dir: Path, calib: Calibration) -> Path:
-    path = calibration_path(data_dir, calib.model_build_id)
+def _path(data_dir: Path, artifact_id: str, suffix: str) -> Path:
+    if not _ARTIFACT.match(artifact_id):
+        raise CalibrationError(f"bad artifact_id {artifact_id!r}")
+    return Path(data_dir) / "calibration" / f"{artifact_id}{suffix}"
+
+
+def calibration_path(data_dir: Path, artifact_id: str) -> Path:
+    """``<data_dir>/calibration/<artifact_id>.json``."""
+    return _path(data_dir, artifact_id, ".json")
+
+
+def write_calibration(data_dir: Path, artifact: CalibrationArtifact) -> Path:
+    """Store the envelope's canonical bytes; refuse to overwrite (H1).
+
+    A ``<artifact_id>.json.sha256`` file records the file's sha256 for the
+    integrity check on load; it is not part of the artifact.
+    """
+    artifact_id = artifact.ref.artifact_id
+    path = calibration_path(data_dir, artifact_id)
     path.parent.mkdir(parents=True, exist_ok=True)
-    text = json.dumps(calib.to_json_dict(), sort_keys=True, indent=2) + "\n"
-    path.write_text(text, encoding="utf-8")
+    data = jcs(artifact.envelope)
+    try:
+        with path.open("xb") as handle:
+            handle.write(data)
+    except FileExistsError as exc:
+        raise CalibrationError(
+            f"{path} already exists; calibrations are immutable (write a new artifact)"
+        ) from exc
+    _path(data_dir, artifact_id, ".json.sha256").write_text(
+        hashlib.sha256(data).hexdigest() + "\n", encoding="ascii"
+    )
     return path
+
+
+def load_calibration(data_dir: Path, artifact_id: str) -> CalibrationArtifact:
+    """Read a stored calibration by ``artifact_id`` and verify it is intact."""
+    path = calibration_path(data_dir, artifact_id)
+    if not path.exists():
+        raise CalibrationError(f"no calibration {artifact_id} under {data_dir}")
+    raw = path.read_bytes()
+    digest = hashlib.sha256(raw).hexdigest()
+    sidecar = _path(data_dir, artifact_id, ".json.sha256")
+    if not sidecar.exists() or sidecar.read_text(encoding="ascii").strip() != digest:
+        raise CalibrationError(f"{path} failed its integrity check (file sha256)")
+    try:
+        envelope = strict_load(raw)
+    except ContractError as exc:
+        raise CalibrationError(f"{path} is not strict JSON: {exc}") from exc
+    if not isinstance(envelope, dict) or envelope.get("artifact_id") != artifact_id:
+        raise CalibrationError(f"{path} does not hold artifact {artifact_id}")
+    return calibration_from_envelope(envelope, file_sha256=digest)
 
 
 def evaluate_shift(d: float, calib: Calibration | None) -> ShiftVerdict:
     """SPEC §3.2: UNCALIBRATED / STAGNANT / NOISE_FLOOR_INTERNAL / STRUCTURAL."""
     if calib is None:
         return "UNCALIBRATED"
-    if d < calib.noise_floor_lower:
+    return _verdict(d, calib.noise_floor_lower, calib.noise_floor_upper)
+
+
+def evaluate_shift_quantized(
+    distance_q: int, artifact: CalibrationArtifact | None
+) -> ShiftVerdict:
+    """The same rule on the payload's integers, so it can be re-derived from them."""
+    if artifact is None:
+        return "UNCALIBRATED"
+    values = artifact.values
+    return _verdict(
+        distance_q, values["noise_floor_lower"], values["noise_floor_upper"]
+    )
+
+
+def _verdict(d: float, lower: float, upper: float) -> ShiftVerdict:
+    if d < lower:
         return "STAGNANT"
-    if d <= calib.noise_floor_upper:
+    if d <= upper:
         return "NOISE_FLOOR_INTERNAL"
     return "STRUCTURAL_SHIFT_DETECTED"
 
 
+@dataclass(frozen=True, slots=True)
+class NullMember:
+    """A null (noise-only) trajectory and the artifact that stores it."""
+
+    trajectory: TrajectoryInput
+    ref: ArtifactRef
+
+
+def _level(value: float, name: str) -> int:
+    q = quantize(value, EXPONENT)
+    if not 0 < q < _ONE:
+        raise CalibrationError(
+            f"{name} quantile {value} must be strictly inside (0, 1)"
+        )
+    return q
+
+
 def build_calibration(
-    null_trajectories: Sequence[TrajectoryInput],
+    null_set: Sequence[NullMember],
+    ctx: EmitContext,
     *,
     w_min: int = 1,
     epsilon_quantile: float = 0.05,
     delta_quantile: float = 0.10,
     floor_quantiles: tuple[float, float] = (0.05, 0.95),
-    codebook_ref: dict[str, Any] | None = None,
-    measured_at: str | None = None,
-) -> Calibration:
-    """Derive a calibration from a set of null (noise-only) trajectories.
+    codebook_ref: ArtifactRef | None = None,
+    alignment: Alignment = "equal_only",
+    block_size: int = DEFAULT_BLOCK_SIZE,
+    max_pooled_pairs: int = DEFAULT_MAX_POOLED_PAIRS,
+) -> CalibrationArtifact:
+    """Derive a calibration artifact from a set of null trajectories.
 
     ε = ``epsilon_quantile`` of within-trajectory point distances
-    (``|i-j| > w_min``); δ = ``delta_quantile`` of step displacements; the
+    (``j - i > w_min``); δ = ``delta_quantile`` of step displacements; the
     noise-floor interval = ``floor_quantiles`` of the pairwise mean per-step
-    distance between null trajectories (common prefix). Records when, from
-    which inputs (sha256) and by which method version it was made.
+    distance between null trajectories. Quantile levels are snapped to the
+    2**-30 grid first and the snapped level is what is used and recorded.
+    ``alignment`` ("equal_only" by default) governs the between-trajectory
+    distances: unequal lengths are refused unless ``common_prefix`` is chosen,
+    which needs ``ctx.alignment_approval`` (S17).
+
+    Raises ``CalibrationError`` when the pooled within-trajectory pairs exceed
+    ``max_pooled_pairs`` (the exact quantile needs them in memory).
     """
-    if len(null_trajectories) < 2:
+    if len(null_set) < 2:
         raise CalibrationError("need at least 2 null trajectories")
-    first = null_trajectories[0]
-    for traj in null_trajectories:
+    refs = [m.ref for m in null_set]
+    if len({r.artifact_id for r in refs}) != len(refs):
+        raise CalibrationError("null_set refs must be distinct artifacts")
+    trajs = [m.trajectory for m in null_set]
+    first = trajs[0]
+    for traj in trajs:
         if (
             traj.space_id != first.space_id
             or traj.model_build_id != first.model_build_id
@@ -164,56 +289,101 @@ def build_calibration(
             raise CalibrationError("null trajectories must share dimension")
     if w_min < 0:
         raise CalibrationError("w_min must be >= 0")
-    pooled: list[float] = []
-    steps: list[float] = []
-    for traj in null_trajectories:
-        dist = pairwise_distances(traj.points)
-        rows, cols = np.triu_indices(traj.length, k=w_min + 1)
-        pooled.extend(float(x) for x in dist[rows, cols])
-        steps.extend(float(x) for x in step_displacements(traj.points))
-    if not pooled or not steps:
+    mode = payload_alignment(alignment)
+    if alignment == "equal_only" and len({t.length for t in trajs}) != 1:
+        raise CalibrationError(
+            "null trajectories differ in length; equal_only refuses "
+            "(common_prefix needs an approval)"
+        )
+    extensions = alignment_extensions(mode, ctx)
+    q_eps, q_delta = (
+        _level(epsilon_quantile, "epsilon"),
+        _level(delta_quantile, "delta"),
+    )
+    q_lo, q_hi = (
+        _level(floor_quantiles[0], "floor"),
+        _level(floor_quantiles[1], "floor"),
+    )
+    if not q_lo < q_hi:
+        raise CalibrationError("floor quantiles must satisfy lower < upper")
+    pairs = sum(pooled_pair_count(t.length, w_min) for t in trajs)
+    if pairs == 0:
         raise CalibrationError("null trajectories too short for the requested w_min")
+    if pairs > max_pooled_pairs:
+        raise CalibrationError(
+            f"{pairs} pooled pairs exceed max_pooled_pairs={max_pooled_pairs}"
+        )
+    pooled = np.concatenate(
+        [pooled_pair_distances(t.points, w_min, block_size=block_size) for t in trajs]
+    )
+    steps = np.concatenate([step_displacements(t.points) for t in trajs])
     between = [
         mean_step_distance(a.points, b.points)
-        for a, b in itertools.combinations(null_trajectories, 2)
+        for a, b in itertools.combinations(trajs, 2)
     ]
-    lower, upper = (float(np.quantile(between, q)) for q in floor_quantiles)
-    return Calibration(
-        model_build_id=first.model_build_id,
-        space_id=first.space_id,
-        measured_at=measured_at or datetime.now(UTC).isoformat(timespec="seconds"),
-        noise_floor_lower=lower,
-        noise_floor_upper=upper,
-        background_mean=float(np.mean(between)),
-        sample_config={
-            "trajectories": len(null_trajectories),
-            "points": int(min(t.length for t in null_trajectories)),
+    lower, upper = (
+        float(np.quantile(between, dequantize(q, EXPONENT))) for q in (q_lo, q_hi)
+    )
+    epsilon = float(np.quantile(pooled, dequantize(q_eps, EXPONENT)))
+    delta = float(np.quantile(steps, dequantize(q_delta, EXPONENT)))
+    q_epsilon = quantize(epsilon, EXPONENT)
+    if q_epsilon < 1:
+        raise CalibrationError("epsilon is smaller than one quantum (2**-30)")
+    payload = {
+        "space_id": first.space_id,
+        "model_build_id": first.model_build_id,
+        "method": {
+            "name": METHOD_NAME,
+            "version": METHOD_VERSION,
+            "quantiles": {"epsilon": q_eps, "delta": q_delta, "floor": [q_lo, q_hi]},
+        },
+        "null_set": sorted((r.artifact_id for r in refs), key=lambda a: a.encode()),
+        "between_alignment": mode,
+        "values": {
+            "noise_floor_lower": quantize(lower, EXPONENT),
+            "noise_floor_upper": quantize(upper, EXPONENT),
+            "background_mean": quantize(float(np.mean(between)), EXPONENT),
+            "epsilon": q_epsilon,
+            "delta": quantize(delta, EXPONENT),
+            "w_min": w_min,
+            "codebook_ref": None if codebook_ref is None else codebook_ref.to_dict(),
+        },
+        "sample_config": {
+            "trajectories": len(trajs),
+            "points": int(min(t.length for t in trajs)),
             "dims": first.dimension,
         },
-        epsilon=float(np.quantile(pooled, epsilon_quantile)),
-        delta=float(np.quantile(steps, delta_quantile)),
-        w_min=w_min,
-        codebook_ref=codebook_ref,
-        provenance={
-            "method_version": METHOD_VERSION,
-            "input_sha256": [t.sha256() for t in null_trajectories],
-            "quantiles": {
-                "epsilon": epsilon_quantile,
-                "delta": delta_quantile,
-                "floor": list(floor_quantiles),
-            },
-        },
+    }
+    parents: list[tuple[str, Sequence[ArtifactRef]]] = [("null_set", refs)]
+    if codebook_ref is not None:
+        parents.append(("codebook", [codebook_ref]))
+    envelope = build_envelope(
+        ctx,
+        payload_schema=PAYLOAD_SCHEMA,
+        payload=payload,
+        space_id=first.space_id,
+        parents=parents,
+        calibration_ref=None,
+        extensions=extensions,
     )
+    return calibration_from_envelope(envelope)
 
 
 __all__ = [
+    "DEFAULT_MAX_POOLED_PAIRS",
+    "EXPONENT",
     "METHOD_VERSION",
+    "Alignment",
     "Calibration",
-    "LoadedCalibration",
+    "CalibrationArtifact",
+    "NullMember",
     "ShiftVerdict",
     "build_calibration",
+    "calibration_from_envelope",
     "calibration_path",
     "evaluate_shift",
+    "evaluate_shift_quantized",
     "load_calibration",
+    "payload_alignment",
     "write_calibration",
 ]

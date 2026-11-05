@@ -1,0 +1,96 @@
+"""MSR's own wire implementation against the vendored language-neutral vectors."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import struct
+from typing import Any
+
+import pytest
+from contract_support import VECTORS
+
+from msr.geometry import ids
+from msr.geometry.wire import (
+    ENVELOPE_RANGE,
+    INT64_RANGE,
+    ContractError,
+    dequantize,
+    jcs,
+    quantize,
+    strict_load,
+)
+
+
+def _load(name: str) -> dict[str, Any]:
+    data: dict[str, Any] = json.loads((VECTORS / name).read_text("utf-8"))
+    return data
+
+
+CANON = _load("canonicalize.json")["cases"]
+QUANT = _load("quantize.json")["cases"]
+ENV = _load("envelope-ids.json")
+ENV_BY_ID = {c["id"]: c for c in ENV["cases"]}
+PARENT_CONTENTS = {k: v["content_id"] for k, v in ENV["lookup"].items()}
+
+
+def _input_bytes(case: dict[str, Any]) -> bytes:
+    if "input_hex" in case:
+        return bytes.fromhex(case["input_hex"])
+    return str(case["input_utf8"]).encode("utf-8")
+
+
+@pytest.mark.parametrize("case", CANON, ids=[c["id"] for c in CANON])
+def test_canonicalize_vectors(case: dict[str, Any]) -> None:
+    expect = case["expect"]
+    if expect["result"] == "reject":
+        with pytest.raises(ContractError) as info:
+            jcs(strict_load(_input_bytes(case)))
+        assert info.value.code == expect["code"]
+        return
+    out = jcs(strict_load(_input_bytes(case)))
+    assert out == expect["jcs_utf8"].encode("utf-8")
+    assert hashlib.sha256(out).hexdigest() == expect["jcs_sha256"]
+
+
+@pytest.mark.parametrize("case", QUANT, ids=[c["id"] for c in QUANT])
+def test_quantize_vectors(case: dict[str, Any]) -> None:
+    value = struct.unpack(">d", bytes.fromhex(case["value_bits"]))[0]
+    rng = INT64_RANGE if case["range"] == "int64" else ENVELOPE_RANGE
+    expect = case["expect"]
+    if expect["result"] == "reject":
+        with pytest.raises(ContractError) as info:
+            quantize(value, case["exponent"], int_range=rng)
+        assert info.value.code == expect["code"]
+        return
+    q = quantize(value, case["exponent"], int_range=rng)
+    assert q == expect["q"]
+    assert abs(dequantize(q, case["exponent"], int_range=rng) - value) <= 2.0 ** (
+        case["exponent"] - 1
+    )
+
+
+@pytest.mark.parametrize("case", ENV["cases"], ids=[c["id"] for c in ENV["cases"]])
+def test_envelope_id_vectors(case: dict[str, Any]) -> None:
+    env = case["envelope"]
+    assert ids.content_id(env, PARENT_CONTENTS) == case["expect"]["content_id"]
+    assert ids.artifact_id(env, PARENT_CONTENTS) == case["expect"]["artifact_id"]
+    assert hashlib.sha256(jcs(env)).hexdigest() == case["expect"]["envelope_jcs_sha256"]
+
+
+@pytest.mark.parametrize(
+    "rel", ENV["relations"], ids=[r["b"] for r in ENV["relations"]]
+)
+def test_envelope_relations(rel: dict[str, Any]) -> None:
+    a, b = ENV_BY_ID[rel["a"]]["expect"], ENV_BY_ID[rel["b"]]["expect"]
+    assert (a["content_id"] == b["content_id"]) == (rel["content_id"] == "same")
+    assert (a["artifact_id"] == b["artifact_id"]) == (rel["artifact_id"] == "same")
+
+
+def test_vector_counts() -> None:
+    assert (len(CANON), len(QUANT), len(ENV["cases"]), len(ENV["relations"])) == (
+        46,
+        29,
+        17,
+        16,
+    )

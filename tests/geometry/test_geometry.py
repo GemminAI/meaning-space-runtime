@@ -11,7 +11,7 @@ import pytest
 
 import msr.geometry as g
 from msr.geometry.analyze import VERDICT_REASON
-from msr.geometry.calibration import Calibration
+from msr.geometry.calibration import Calibration, CalibrationArtifact
 from msr.geometry.errors import (
     CalibrationError,
     CrossSpaceComparison,
@@ -58,7 +58,6 @@ def calib(**kw: Any) -> Calibration:
     base: dict[str, Any] = {
         "model_build_id": "build-1",
         "space_id": "S1",
-        "measured_at": "2026-11-05",
         "noise_floor_lower": 2.0,
         "noise_floor_upper": 5.0,
         "background_mean": 3.0,
@@ -68,6 +67,28 @@ def calib(**kw: Any) -> Calibration:
     }
     base.update(kw)
     return Calibration(**base)
+
+
+def ref(i: int) -> g.ArtifactRef:
+    return g.ArtifactRef(f"art:{i:064x}", f"cnt:{i + 1000:064x}")
+
+
+def ctx(seq: int = 1, **kw: Any) -> g.EmitContext:
+    return g.EmitContext(
+        "ses:" + "1" * 64,
+        "obs:" + "2" * 64,
+        seq,
+        producer_build="test-build",
+        produced_at="2026-11-06T00:00:00Z",
+        **kw,
+    )
+
+
+def fake_artifact(c: Calibration) -> CalibrationArtifact:
+    """A calibration artifact around given float values (ids are placeholders)."""
+    return CalibrationArtifact(
+        {"artifact_id": ref(900).artifact_id, "content_id": ref(900).content_id}, c
+    )
 
 
 # ------------------------------------------------------------------ input
@@ -232,10 +253,10 @@ def test_sub_delta_run_resets() -> None:
 NULLS = [traj(walk(40, 3, seed=s) * 0.1) for s in range(5)]
 
 
-def test_uncalibrated_without_file(tmp_path: Path) -> None:
-    res = g.analyze_trajectory(traj(walk(20)), data_dir=tmp_path)
+def test_uncalibrated_without_calibration() -> None:
+    res = g.analyze_trajectory(traj(walk(20)))
     assert res["verdict"] == {"state": None, "reason": VERDICT_REASON}
-    assert res["calibration"] == {"model_build_id": None, "sha256": None}
+    assert res["calibration"] is None
     assert res["thresholds"]["source"] == {
         "epsilon": None,
         "delta": None,
@@ -292,24 +313,19 @@ def test_verdict_matches_sensos_core() -> None:
 
 
 def test_build_write_load_roundtrip_and_analyze(tmp_path: Path) -> None:
-    c = g.build_calibration(
-        NULLS,
-        w_min=1,
-        measured_at="2026-11-05T00:00:00+00:00",
-        codebook_ref={"id": "cb", "sha256": None},
-    )
+    members = [g.NullMember(t, ref(i)) for i, t in enumerate(NULLS)]
+    art = g.build_calibration(members, ctx(2), w_min=1, codebook_ref=ref(77))
+    c = art.calibration
     assert c.epsilon is not None and c.epsilon > 0
     assert c.noise_floor_lower <= c.noise_floor_upper
-    assert c.provenance["method_version"]
-    assert len(c.provenance["input_sha256"]) == 5
-    assert c.sample_config == {"trajectories": 5, "points": 40, "dims": 3}
-    path = g.write_calibration(tmp_path, c)
-    assert path == tmp_path / "calibration" / "build-1.json"
-    loaded = g.load_calibration(tmp_path, "build-1")
-    assert loaded is not None and loaded.calibration == c
-    res = g.analyze_trajectory(NULLS[0], data_dir=tmp_path)
-    assert res["calibration"]["model_build_id"] == "build-1"
-    assert res["calibration"]["sha256"] == loaded.sha256
+    assert art.payload["sample_config"] == {"trajectories": 5, "points": 40, "dims": 3}
+    assert c.codebook_ref == ref(77)
+    path = g.write_calibration(tmp_path, art)
+    assert path == tmp_path / "calibration" / f"{art.ref.artifact_id}.json"
+    loaded = g.load_calibration(tmp_path, art.ref.artifact_id)
+    assert loaded.calibration == c and loaded.envelope == art.envelope
+    res = g.analyze_trajectory(NULLS[0], calibration=loaded)
+    assert res["calibration"] == art.ref.to_dict()
     assert res["thresholds"]["epsilon"] == c.epsilon
     assert res["verdict"]["state"] is None  # analyze never emits a shift state
     assert res["thresholds"]["source"] == {
@@ -321,16 +337,18 @@ def test_build_write_load_roundtrip_and_analyze(tmp_path: Path) -> None:
         NULLS[0], traj(NULLS[0].points + 50.0), calibration=loaded
     )
     assert big["verdict"]["state"] == "STRUCTURAL_SHIFT_DETECTED"
-    assert big["calibration"] == {"model_build_id": "build-1", "sha256": loaded.sha256}
+    assert big["calibration"] == art.ref.to_dict()
     with pytest.raises(CalibrationError):  # calibration is for another space
         g.compare_trajectories(
             traj(walk(40, 3), space="S2"),
             traj(walk(40, 3), space="S2"),
             calibration=loaded,
         )
-    # explicit thresholds override the file
+    with pytest.raises(CalibrationError):
+        g.analyze_trajectory(traj(walk(20, 3), space="S2"), calibration=loaded)
+    # explicit thresholds override the calibration
     over = g.analyze_trajectory(
-        NULLS[0], data_dir=tmp_path, epsilon=9.0, delta=9.0, w_min=0
+        NULLS[0], calibration=loaded, epsilon=9.0, delta=9.0, w_min=0
     )
     assert over["thresholds"] == {
         "epsilon": 9.0,
@@ -340,45 +358,24 @@ def test_build_write_load_roundtrip_and_analyze(tmp_path: Path) -> None:
     }
 
 
-def test_build_calibration_defaults_and_errors() -> None:
-    assert g.build_calibration(NULLS).measured_at
-    with pytest.raises(CalibrationError):
-        g.build_calibration(NULLS[:1])
-    with pytest.raises(CalibrationError):
-        g.build_calibration([NULLS[0], traj(walk(40, 3), space="other")])
-    with pytest.raises(CalibrationError):
-        g.build_calibration([NULLS[0], traj(walk(40, 5))])
-    with pytest.raises(CalibrationError):
-        g.build_calibration(NULLS, w_min=-1)
-    with pytest.raises(CalibrationError):
-        g.build_calibration([traj(np.zeros((1, 2))), traj(np.zeros((1, 2)))])
+def test_build_calibration_errors() -> None:
+    def mem(trajs: list[g.TrajectoryInput]) -> list[g.NullMember]:
+        return [g.NullMember(t, ref(i)) for i, t in enumerate(trajs)]
 
-
-def test_calibration_file_errors(tmp_path: Path) -> None:
-    d = tmp_path / "calibration"
-    d.mkdir()
-    (d / "b1.json").write_text("{}")
     with pytest.raises(CalibrationError):
-        g.load_calibration(tmp_path, "b1")
-    (d / "b2.json").write_text(json.dumps(calib(model_build_id="other").to_json_dict()))
+        g.build_calibration(mem(NULLS[:1]), ctx())
     with pytest.raises(CalibrationError):
-        g.load_calibration(tmp_path, "b2")
-    # SPEC section 3.1 file without space_id is rejected (space_id is required)
-    legacy = {k: v for k, v in calib().to_json_dict().items() if k != "space_id"}
-    (d / "build-1.json").write_text(json.dumps(legacy))
+        g.build_calibration(mem([NULLS[0], traj(walk(40, 3), space="other")]), ctx())
     with pytest.raises(CalibrationError):
-        g.analyze_trajectory(traj(walk(10)), data_dir=tmp_path)
-
-
-def test_calibration_space_and_codebook_binding(tmp_path: Path) -> None:
-    cb = np.random.default_rng(2).normal(size=(4, 3))
-    c = calib(codebook_ref={"id": "cb", "sha256": g.codebook_sha256(cb)})
-    g.write_calibration(tmp_path, c)
-    assert g.analyze_trajectory(traj(walk(20, 3)), data_dir=tmp_path, codebook=cb)
+        g.build_calibration(mem([NULLS[0], traj(walk(40, 3), build="b2")]), ctx())
     with pytest.raises(CalibrationError):
-        g.analyze_trajectory(traj(walk(20, 3)), data_dir=tmp_path, codebook=cb + 1)
+        g.build_calibration(mem([NULLS[0], traj(walk(40, 5))]), ctx())
     with pytest.raises(CalibrationError):
-        g.analyze_trajectory(traj(walk(20, 3), space="S2"), data_dir=tmp_path)
+        g.build_calibration(mem(NULLS), ctx(), w_min=-1)
+    with pytest.raises(CalibrationError):
+        g.build_calibration(
+            mem([traj(np.zeros((1, 2))), traj(np.zeros((1, 2)))]), ctx()
+        )
 
 
 # ------------------------------------------------------- space / determinism
@@ -390,23 +387,22 @@ def test_cross_space_comparison_refused() -> None:
         g.compare_trajectories(a, b)
     res = g.compare_trajectories(a, b, allow_cross_space=True)
     assert res["verdict"]["state"] == "UNCALIBRATED"
-    assert res["calibration"] == {"model_build_id": None, "sha256": None}
+    assert res["calibration"] is None
 
 
 def test_compare_output_and_alignment() -> None:
     a, b = traj(walk(10)), traj(walk(10, seed=3))
-    loaded = g.LoadedCalibration(calib(), "f" * 64)
+    loaded = fake_artifact(calib())
     same = g.compare_trajectories(a, b, calibration=loaded)
     assert same["distance"]["definition"] == "mean_step_l2"
     assert same["distance"]["value"] == pytest.approx(
         float(np.mean(np.linalg.norm(a.points - b.points, axis=1)))
     )
     assert same["alignment"] == {"mode": "equal_only", "points_used": 10}
-    assert same["producer"]["name"] == "meaning-space-runtime"
     assert same["inputs"]["left"]["sha256"] == a.sha256()
     assert same["inputs"]["right"]["policy"] == {"name": "last-token", "sha256": SHA}
     assert same["inputs"]["right"]["model_build_id"] == "build-1"
-    assert same["calibration"] == {"model_build_id": "build-1", "sha256": "f" * 64}
+    assert same["calibration"] == loaded.ref.to_dict()
     assert g.compare_trajectories(a, a)["distance"]["value"] == 0.0
     short = traj(walk(6, seed=3))
     with pytest.raises(InvalidTrajectory):
@@ -454,20 +450,17 @@ def test_analyze_passes_block_size() -> None:
     t = traj(walk(40, 3))
     a = g.analyze_trajectory(t, epsilon=3.0, delta=1.0, w_min=1, block_size=5)
     b = g.analyze_trajectory(t, epsilon=3.0, delta=1.0, w_min=1)
-    assert g.to_json_bytes(a) == g.to_json_bytes(b)
+    assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
 
 
-def test_deterministic_bytes_and_no_meaning_words(tmp_path: Path) -> None:
-    g.write_calibration(tmp_path, g.build_calibration(NULLS, measured_at="t"))
+def test_deterministic_and_no_meaning_words() -> None:
     cb = np.random.default_rng(5).normal(size=(6, 3))
     runs = [
-        g.to_json_bytes(g.analyze_trajectory(NULLS[1], data_dir=tmp_path, codebook=cb))
+        json.dumps(g.analyze_trajectory(NULLS[1], codebook=cb), sort_keys=True)
         for _ in range(2)
     ]
     assert runs[0] == runs[1]
-    out = json.loads(runs[0])
-    assert out["producer"]["name"] == "meaning-space-runtime"
-    text = runs[0].decode().lower()
+    text = runs[0].lower()
     for word in ("loop", "anomaly", "hallucination", '"p"', '"l"', '"u"'):
         assert word not in text
 
@@ -483,6 +476,7 @@ FORBIDDEN = (
     "http",
     "socket",
     "aiohttp",
+    "sensos",
     "sensos_core",
 )
 

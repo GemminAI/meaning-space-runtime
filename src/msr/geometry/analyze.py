@@ -1,16 +1,13 @@
-"""Trajectory -> Interpretation-candidate dict (producer: meaning-space-runtime).
+"""Measurement layer: trajectories -> metric values (floats, in memory).
 
 Emits measurement values, series and a calibration verdict only. It never names
 a meaning (loop, anomaly, hallucination), never assigns P/L/U, and never writes
-to HEKB — nvs-runtime mediates that (D-68, D-89, H7).
+to HEKB — nvs-runtime mediates that (D-68, D-89, H7). The IC-00 envelopes built
+from these values are in :mod:`msr.geometry.emit`.
 """
 
 from __future__ import annotations
 
-import hashlib
-import json
-from collections.abc import Mapping
-from pathlib import Path
 from typing import Any, Literal
 
 import numpy as np
@@ -18,9 +15,9 @@ from numpy.typing import NDArray
 
 from msr.geometry.calibration import (
     Calibration,
-    LoadedCalibration,
+    CalibrationArtifact,
     evaluate_shift,
-    load_calibration,
+    payload_alignment,
 )
 from msr.geometry.errors import CalibrationError, InvalidTrajectory
 from msr.geometry.metrics import (
@@ -32,21 +29,13 @@ from msr.geometry.metrics import (
     recurrence_metrics,
 )
 from msr.geometry.trajectory import TrajectoryInput, require_same_space
-from msr.version import __version__
 
-PRODUCER = "meaning-space-runtime"
 DISTANCE_DEFINITION = "mean_step_l2"  # = mlba-core trajectory_distance
 VERDICT_REASON = "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 §3.2)"
 Alignment = Literal["equal_only", "common_prefix"]
 
 
-def codebook_sha256(codebook: NDArray[np.float64]) -> str:
-    return hashlib.sha256(
-        np.ascontiguousarray(codebook, dtype=np.float64).tobytes()
-    ).hexdigest()
-
-
-def _input_ref(traj: TrajectoryInput) -> dict[str, Any]:
+def input_ref(traj: TrajectoryInput) -> dict[str, Any]:
     return {
         "sha256": traj.sha256(),
         "model_build_id": traj.model_build_id,
@@ -56,11 +45,8 @@ def _input_ref(traj: TrajectoryInput) -> dict[str, Any]:
     }
 
 
-def _calibration_ref(loaded: LoadedCalibration | None) -> dict[str, Any]:
-    return {
-        "model_build_id": loaded.calibration.model_build_id if loaded else None,
-        "sha256": loaded.sha256 if loaded else None,
-    }
+def _calibration_ref(artifact: CalibrationArtifact | None) -> dict[str, str] | None:
+    return None if artifact is None else artifact.ref.to_dict()
 
 
 def _require_calibration_space(calib: Calibration, *spaces: str) -> None:
@@ -85,7 +71,7 @@ def _resolve(
 def analyze_trajectory(
     traj: TrajectoryInput,
     *,
-    data_dir: Path | None = None,
+    calibration: CalibrationArtifact | None = None,
     codebook: NDArray[np.float64] | None = None,
     epsilon: float | None = None,
     delta: float | None = None,
@@ -97,16 +83,9 @@ def analyze_trajectory(
     No shift verdict is produced here: it is defined for trajectory pairs
     (SPEC-MSR-001 v2 §3.2) and lives in :func:`compare_trajectories`.
     """
-    loaded = load_calibration(data_dir, traj.model_build_id) if data_dir else None
-    calib: Calibration | None = loaded.calibration if loaded else None
+    calib = calibration.calibration if calibration else None
     if calib is not None:
         _require_calibration_space(calib, traj.space_id)
-        ref = calib.codebook_ref or {}
-        expected = ref.get("sha256")
-        if codebook is not None and expected and codebook_sha256(codebook) != expected:
-            raise CalibrationError(
-                "codebook sha256 does not match calibration codebook_ref"
-            )
     eps, eps_src = _resolve(epsilon, calib.epsilon if calib else None)
     dlt, dlt_src = _resolve(delta, calib.delta if calib else None)
     wm, wm_src = _resolve(w_min, calib.w_min if calib else None)
@@ -118,12 +97,11 @@ def analyze_trajectory(
     per, s4 = persistence_metrics(points, codebook, eps)
     series = {**s1, **s2, **s3, **s4}
     return {
-        "producer": {"name": PRODUCER, "version": __version__},
         "space_id": traj.space_id,
         "source": traj.source,
         "layer": traj.layer,
-        "input_ref": _input_ref(traj),
-        "calibration": _calibration_ref(loaded),
+        "input_ref": input_ref(traj),
+        "calibration": _calibration_ref(calibration),
         "thresholds": {
             "epsilon": eps,
             "delta": dlt,
@@ -145,7 +123,7 @@ def compare_trajectories(
     left: TrajectoryInput,
     right: TrajectoryInput,
     *,
-    calibration: LoadedCalibration | None = None,
+    calibration: CalibrationArtifact | None = None,
     alignment: Alignment = "equal_only",
     allow_cross_space: bool = False,
 ) -> dict[str, Any]:
@@ -161,12 +139,16 @@ def compare_trajectories(
     calib = calibration.calibration if calibration else None
     if calib is not None:
         _require_calibration_space(calib, left.space_id, right.space_id)
+        if calib.between_alignment != payload_alignment(alignment):
+            raise CalibrationError(
+                f"calibration between_alignment {calib.between_alignment!r} "
+                f"!= comparison alignment {payload_alignment(alignment)!r} (S13)"
+            )
     used = min(left.length, right.length)
     distance = mean_step_distance(left.points, right.points)
     return {
-        "producer": {"name": PRODUCER, "version": __version__},
         "space_id": left.space_id,
-        "inputs": {"left": _input_ref(left), "right": _input_ref(right)},
+        "inputs": {"left": input_ref(left), "right": input_ref(right)},
         "calibration": _calibration_ref(calibration),
         "alignment": {"mode": alignment, "points_used": used},
         "distance": {"definition": DISTANCE_DEFINITION, "value": distance},
@@ -174,17 +156,10 @@ def compare_trajectories(
     }
 
 
-def to_json_bytes(result: Mapping[str, Any]) -> bytes:
-    """Canonical bytes: the same input always yields the same bytes."""
-    return json.dumps(
-        result, sort_keys=True, ensure_ascii=True, allow_nan=False
-    ).encode()
-
-
 __all__ = [
-    "PRODUCER",
+    "DISTANCE_DEFINITION",
+    "VERDICT_REASON",
     "analyze_trajectory",
-    "codebook_sha256",
     "compare_trajectories",
-    "to_json_bytes",
+    "input_ref",
 ]

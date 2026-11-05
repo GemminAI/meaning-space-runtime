@@ -122,17 +122,48 @@ def displacement_metrics(
     return summary, series
 
 
-def _distance_row(points: Array, row: int, cols: int, chunk: int) -> Array:
-    """``||x_row - x_c||`` for ``c < cols``, computed ``chunk`` columns at a time.
+def _distance_row(
+    points: Array, row: int, cols: int, chunk: int, start: int = 0
+) -> Array:
+    """``||x_row - x_c||`` for ``start <= c < cols``, ``chunk`` columns at a time.
 
     Same per-element arithmetic as :func:`pairwise_distances`, so values are
     bit-identical to the corresponding matrix entries.
     """
-    out = np.empty(cols, dtype=np.float64)
-    for start in range(0, cols, chunk):
-        diff = points[start : min(cols, start + chunk)] - points[row]
-        out[start : start + len(diff)] = np.sqrt(np.sum(diff * diff, axis=-1))
+    out = np.empty(max(0, cols - start), dtype=np.float64)
+    for lo in range(start, cols, chunk):
+        hi = min(cols, lo + chunk)
+        diff = points[lo:hi] - points[row]
+        out[lo - start : hi - start] = np.sqrt(np.sum(diff * diff, axis=-1))
     return out
+
+
+def pooled_pair_count(length: int, w_min: int) -> int:
+    """Number of pairs ``i < j`` with ``j - i > w_min`` in ``length`` points."""
+    n = length - w_min - 1
+    return n * (n + 1) // 2 if n > 0 else 0
+
+
+def pooled_pair_distances(
+    points: Array, w_min: int, *, block_size: int = DEFAULT_BLOCK_SIZE
+) -> Array:
+    """Distances of all pairs ``i < j``, ``j - i > w_min`` (the calibration pool).
+
+    Computed ``block_size`` rows at a time and never as a T x T matrix; the
+    result holds exactly :func:`pooled_pair_count` values (row-major order).
+    """
+    if w_min < 0 or block_size < 1:
+        raise InvalidTrajectory("w_min must be >= 0 and block_size >= 1")
+    _check_points(points)
+    length = points.shape[0]
+    parts: list[Array] = []
+    for first in range(0, length, block_size):
+        rows = [
+            _distance_row(points, i, length, block_size, start=i + w_min + 1)
+            for i in range(first, min(length, first + block_size))
+        ]
+        parts.append(np.concatenate(rows))
+    return np.concatenate(parts)
 
 
 def recurrence_metrics(
@@ -292,6 +323,8 @@ __all__ = [
     "mean_step_distance",
     "pairwise_distances",
     "persistence_metrics",
+    "pooled_pair_count",
+    "pooled_pair_distances",
     "recurrence_metrics",
     "step_displacements",
 ]

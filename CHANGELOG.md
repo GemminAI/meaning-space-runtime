@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased — msr.geometry IC-00/IC-02 envelopes (branch feature/msr-ic02)
+
+- `msr.geometry` now emits IC-00 envelopes (design v0.6.2): `emit_single` /
+  `emit_pair` (payload `mode: single|pair`, integer-only, series as an int64
+  Blob), own strict-load / quantize (built-in `round()`, ties-to-even) / JCS /
+  `content_id` / `artifact_id` (`wire.py`, `ids.py`, `envelope.py`, `emit.py`).
+  MSR numbers nothing: ids, `seq`, parents come from the caller.
+- Calibration is an independent, immutable artifact (`CalibrationArtifact`),
+  stored as `<data_dir>/calibration/<artifact_id>.json` (+ `.sha256` integrity
+  file), never overwritten, never looked up by `model_build_id`. Null
+  trajectories default to `equal_only`; the pooled distances are block-wise.
+- Removed: `data_dir`/`model_build_id` lookup, `LoadedCalibration`,
+  `codebook_sha256`, `to_json_bytes`, `Calibration.measured_at`.
+- `tests/contract/`: `contract.lock` pins sensos 6a34b99 and the vendored
+  schemas/vectors under `tests/contract/vendor/` (never edited).
+
 ## 1.1.0 — 2026-08-04
 
 Implements Phase 0 (documentation) and Phase 1 (core reliability) of the

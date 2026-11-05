@@ -1,0 +1,956 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensos:contracts/msr/geometry-measurement/0.6.2",
+  "title": "IC-02 msr.geometry-measurement (payload)",
+  "type": "object",
+  "required": [
+    "mode",
+    "space_id",
+    "calibration",
+    "verdict"
+  ],
+  "properties": {
+    "mode": {
+      "enum": [
+        "single",
+        "pair"
+      ]
+    },
+    "space_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/single"
+    },
+    {
+      "$ref": "#/$defs/pair"
+    }
+  ],
+  "$defs": {
+    "sha256hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullableInt": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 9007199254740991,
+      "description": "件数・長さ（null か 0 以上の整数）。量子化しない離散の整数"
+    },
+    "inputRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "model_build_id",
+        "policy",
+        "length",
+        "dimension"
+      ],
+      "properties": {
+        "sha256": {
+          "$ref": "#/$defs/sha256hex"
+        },
+        "model_build_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "sha256"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256hex"
+            }
+          }
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "dimension": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "calibrationRef": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "artifact_id",
+            "content_id"
+          ],
+          "properties": {
+            "artifact_id": {
+              "type": "string",
+              "pattern": "^art:[0-9a-f]{64}$"
+            },
+            "content_id": {
+              "type": "string",
+              "pattern": "^cnt:[0-9a-f]{64}$"
+            }
+          }
+        }
+      ]
+    },
+    "thresholdSource": {
+      "enum": [
+        "calibration",
+        "explicit",
+        null
+      ]
+    },
+    "shiftState": {
+      "enum": [
+        "UNCALIBRATED",
+        "STAGNANT",
+        "NOISE_FLOOR_INTERNAL",
+        "STRUCTURAL_SHIFT_DETECTED"
+      ]
+    },
+    "single": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "space_id",
+        "source",
+        "layer",
+        "input_ref",
+        "calibration",
+        "thresholds",
+        "metrics",
+        "series",
+        "verdict"
+      ],
+      "properties": {
+        "mode": {
+          "const": "single"
+        },
+        "space_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "enum": [
+            "T-tok",
+            "T-hid"
+          ]
+        },
+        "layer": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        },
+        "input_ref": {
+          "$ref": "#/$defs/inputRef"
+        },
+        "calibration": {
+          "$ref": "#/$defs/calibrationRef"
+        },
+        "thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "epsilon",
+            "delta",
+            "w_min",
+            "source"
+          ],
+          "properties": {
+            "epsilon": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "x-sensos-quantization": {
+                "quantum": {
+                  "base": 2,
+                  "exponent": -30
+                },
+                "rounding": "ties-to-even",
+                "tolerance_quanta": 1
+              },
+              "x-sensos-unit": "distance"
+            },
+            "delta": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "x-sensos-quantization": {
+                "quantum": {
+                  "base": 2,
+                  "exponent": -30
+                },
+                "rounding": "ties-to-even",
+                "tolerance_quanta": 1
+              },
+              "x-sensos-unit": "distance"
+            },
+            "w_min": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "description": "0 は異なる時刻のすべての組を数える"
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "epsilon",
+                "delta",
+                "w_min"
+              ],
+              "properties": {
+                "epsilon": {
+                  "$ref": "#/$defs/thresholdSource"
+                },
+                "delta": {
+                  "$ref": "#/$defs/thresholdSource"
+                },
+                "w_min": {
+                  "$ref": "#/$defs/thresholdSource"
+                }
+              }
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "epsilon": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "epsilon": {
+                    "type": "null"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "epsilon": {
+                        "enum": [
+                          "calibration",
+                          "explicit"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "epsilon": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "delta": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "delta": {
+                    "type": "null"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "delta": {
+                        "enum": [
+                          "calibration",
+                          "explicit"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "delta": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "w_min": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "w_min": {
+                    "type": "null"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "w_min": {
+                        "enum": [
+                          "calibration",
+                          "explicit"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "w_min": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "displacement",
+            "recurrence",
+            "diversity",
+            "persistence"
+          ],
+          "properties": {
+            "displacement": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "count",
+                "mean",
+                "median",
+                "longest_sub_delta_run"
+              ],
+              "properties": {
+                "count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "mean": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "distance"
+                },
+                "median": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "distance"
+                },
+                "longest_sub_delta_run": {
+                  "$ref": "#/$defs/nullableInt"
+                }
+              }
+            },
+            "recurrence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "pair_fraction",
+                "return_count",
+                "return_rate"
+              ],
+              "properties": {
+                "pair_fraction": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1073741824,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "fraction"
+                },
+                "return_count": {
+                  "$ref": "#/$defs/nullableInt"
+                },
+                "return_rate": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1073741824,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "returns_per_point (0..1: 1 点につき戻りは高々 1 回)"
+                }
+              }
+            },
+            "diversity": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "cell_entropy",
+                "participation_ratio"
+              ],
+              "properties": {
+                "cell_entropy": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "nats"
+                },
+                "participation_ratio": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "dimensionless"
+                }
+              }
+            },
+            "persistence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "longest_stay",
+                "dominant_cell_share"
+              ],
+              "properties": {
+                "longest_stay": {
+                  "$ref": "#/$defs/nullableInt"
+                },
+                "dominant_cell_share": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1073741824,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "fraction"
+                }
+              }
+            }
+          }
+        },
+        "series": {
+          "$ref": "#/$defs/blobRef"
+        },
+        "verdict": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "reason"
+          ],
+          "properties": {
+            "state": {
+              "type": "null"
+            },
+            "reason": {
+              "const": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 §3.2)"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "calibration": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "thresholds": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "epsilon": {
+                        "not": {
+                          "const": "calibration"
+                        }
+                      },
+                      "delta": {
+                        "not": {
+                          "const": "calibration"
+                        }
+                      },
+                      "w_min": {
+                        "not": {
+                          "const": "calibration"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "pair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "space_id",
+        "inputs",
+        "calibration",
+        "alignment",
+        "distance",
+        "verdict"
+      ],
+      "properties": {
+        "mode": {
+          "const": "pair"
+        },
+        "space_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "left",
+            "right"
+          ],
+          "properties": {
+            "left": {
+              "$ref": "#/$defs/inputRef"
+            },
+            "right": {
+              "$ref": "#/$defs/inputRef"
+            }
+          }
+        },
+        "calibration": {
+          "$ref": "#/$defs/calibrationRef"
+        },
+        "alignment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "points_used"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "equal_only",
+                "x-common_prefix"
+              ]
+            },
+            "points_used": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "distance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "definition",
+            "value"
+          ],
+          "properties": {
+            "definition": {
+              "const": "mean_step_l2"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "x-sensos-quantization": {
+                "quantum": {
+                  "base": 2,
+                  "exponent": -30
+                },
+                "rounding": "ties-to-even",
+                "tolerance_quanta": 1
+              },
+              "x-sensos-unit": "distance"
+            }
+          }
+        },
+        "verdict": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "$ref": "#/$defs/shiftState"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "calibration": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "verdict": {
+                "properties": {
+                  "state": {
+                    "const": "UNCALIBRATED"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "intBlob": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uri",
+        "sha256",
+        "media_type",
+        "dtype",
+        "shape",
+        "byte_order",
+        "order",
+        "quantization",
+        "unit"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256hex",
+          "description": "正規のバイト列（ヘッダなし）の sha256"
+        },
+        "media_type": {
+          "const": "application/vnd.sensos.ndarray-raw",
+          "description": "Blob のファイルが正規のバイト列そのもの（ヘッダ・圧縮なし）であることを示す。sha256 はこのファイルのバイト列と一致する"
+        },
+        "shape": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "x-sensos-ordered": true
+        },
+        "byte_order": {
+          "const": "little"
+        },
+        "order": {
+          "const": "C"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dtype": {
+          "const": "int64"
+        },
+        "quantization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "quantum",
+            "rounding",
+            "tolerance_quanta"
+          ],
+          "properties": {
+            "quantum": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "base",
+                "exponent"
+              ],
+              "properties": {
+                "base": {
+                  "const": 2
+                },
+                "exponent": {
+                  "type": "integer",
+                  "minimum": -1074,
+                  "maximum": 1023
+                }
+              }
+            },
+            "rounding": {
+              "const": "ties-to-even"
+            },
+            "tolerance_quanta": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          }
+        }
+      }
+    },
+    "floatBlob": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "例外。封筒の extensions に理由が要る（S25）。S24 は当てない",
+      "required": [
+        "uri",
+        "sha256",
+        "media_type",
+        "dtype",
+        "shape",
+        "byte_order",
+        "order",
+        "comparison",
+        "unit"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256hex",
+          "description": "正規のバイト列（ヘッダなし）の sha256"
+        },
+        "media_type": {
+          "const": "application/vnd.sensos.ndarray-raw",
+          "description": "Blob のファイルが正規のバイト列そのもの（ヘッダ・圧縮なし）であることを示す。sha256 はこのファイルのバイト列と一致する"
+        },
+        "shape": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "x-sensos-ordered": true
+        },
+        "byte_order": {
+          "const": "little"
+        },
+        "order": {
+          "const": "C"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dtype": {
+          "enum": [
+            "float32",
+            "float64"
+          ]
+        },
+        "comparison": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "bound"
+          ],
+          "properties": {
+            "rule": {
+              "enum": [
+                "absolute_error",
+                "relative_error"
+              ]
+            },
+            "bound": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "base",
+                "exponent"
+              ],
+              "description": "許容の上限を 2 の冪で（浮動小数を封筒に入れないため）",
+              "properties": {
+                "base": {
+                  "const": 2
+                },
+                "exponent": {
+                  "type": "integer",
+                  "minimum": -1074,
+                  "maximum": 1023
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "blobRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/intBlob"
+        },
+        {
+          "$ref": "#/$defs/floatBlob"
+        }
+      ]
+    }
+  }
+}
