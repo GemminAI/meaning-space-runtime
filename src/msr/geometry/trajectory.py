@@ -21,6 +21,7 @@ from msr.geometry.errors import CrossSpaceComparison, InvalidTrajectory
 Source = Literal["T-tok", "T-hid"]
 SOURCES: tuple[str, ...] = ("T-tok", "T-hid")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+_DIGITS_ONLY = re.compile(r"[0-9]+")
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,7 +48,7 @@ class TrajectoryInput:
     token_index: tuple[int, ...]
     policy: Policy
     model_build_id: str
-    layer: int | None = None
+    layer: int | str | None = None
 
     def __post_init__(self) -> None:
         if not self.space_id:
@@ -60,6 +61,20 @@ class TrajectoryInput:
             raise InvalidTrajectory("layer is required when source is 'T-hid'")
         if self.source == "T-tok" and self.layer is not None:
             raise InvalidTrajectory("layer must be None when source is 'T-tok'")
+        if isinstance(self.layer, bool) or not isinstance(
+            self.layer, (int, str, type(None))
+        ):
+            raise InvalidTrajectory("layer must be an int, a str or None")
+        if isinstance(self.layer, str):
+            # IC-02 allows a string layer (e.g. "final_norm"). A digits-only string
+            # is refused so the integer 12 and the string "12" never name the same
+            # layer (hidden-trajectory H6).
+            if not self.layer:
+                raise InvalidTrajectory("layer must not be an empty string")
+            if _DIGITS_ONLY.fullmatch(self.layer):
+                raise InvalidTrajectory(
+                    f"layer {self.layer!r} is digits-only; pass the integer (H6)"
+                )
         points = np.array(self.points, dtype=np.float64)  # private copy
         if points.ndim != 2 or points.shape[0] < 1 or points.shape[1] < 1:
             raise InvalidTrajectory("points must be a non-empty T x D array")
