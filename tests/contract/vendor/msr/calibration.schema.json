@@ -1,10 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "sensos:contracts/msr/calibration/0.7.0",
+  "$id": "sensos:contracts/msr/calibration/0.8.0",
   "title": "IC-02 msr.calibration (payload)",
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "exponent",
     "space_id",
     "model_build_id",
     "method",
@@ -14,6 +15,10 @@
     "sample_config"
   ],
   "properties": {
+    "exponent": {
+      "type": "integer",
+      "description": "values の距離の欄（noise_floor_lower・noise_floor_upper・background_mean・epsilon・delta）の量子化の指数。刻みは 2^exponent。値の範囲はスキーマも Gate も検証しない（有無と整数であることだけ）。読む側は宣言された exponent で解釈し、-30 を前提にしない"
+    },
     "space_id": {
       "type": "string",
       "minLength": 1
@@ -112,7 +117,7 @@
               "description": "分位点の水準（確率）[下, 上]。下 < 上 は S19 で検査"
             }
           },
-          "description": "分位点の水準（0〜1 の確率）。values の閾値（距離、上限なし）とは別の概念"
+          "description": "分位点の水準（0〜1 の確率）。確率の格子は 2^-30 で固定（exponent の対象外）。values の閾値（距離、上限なし）とは別の概念"
         }
       }
     },
@@ -156,7 +161,7 @@
           "x-sensos-quantization": {
             "quantum": {
               "base": 2,
-              "exponent": -30
+              "exponent_from": "/exponent"
             },
             "rounding": "ties-to-even",
             "tolerance_quanta": 1
@@ -170,7 +175,7 @@
           "x-sensos-quantization": {
             "quantum": {
               "base": 2,
-              "exponent": -30
+              "exponent_from": "/exponent"
             },
             "rounding": "ties-to-even",
             "tolerance_quanta": 1
@@ -184,7 +189,7 @@
           "x-sensos-quantization": {
             "quantum": {
               "base": 2,
-              "exponent": -30
+              "exponent_from": "/exponent"
             },
             "rounding": "ties-to-even",
             "tolerance_quanta": 1
@@ -198,7 +203,7 @@
           "x-sensos-quantization": {
             "quantum": {
               "base": 2,
-              "exponent": -30
+              "exponent_from": "/exponent"
             },
             "rounding": "ties-to-even",
             "tolerance_quanta": 1
@@ -212,7 +217,7 @@
           "x-sensos-quantization": {
             "quantum": {
               "base": 2,
-              "exponent": -30
+              "exponent_from": "/exponent"
             },
             "rounding": "ties-to-even",
             "tolerance_quanta": 1

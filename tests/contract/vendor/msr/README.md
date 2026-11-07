@@ -3,11 +3,11 @@
 | ファイル | 版 | 中身 |
 |---|---|---|
 | `geometry-measurement.schema.json` | **0.7.1** | 計測の payload（`mode: single` / `pair`）。`series` は系列の名前をキーにした整数の Blob（§3.3.2）。0.7.1：どの系列も `undefined: "int64_min"` を必ず宣言する |
-| `calibration.schema.json` | **0.7.0**（0.7.1 に上げない：スキーマの中身が変わらないため。下の検証・指数の節は README の規定で、スキーマの欄・制約は同じ） | calibration の payload。0.6.1 からの変更は `$id` の版の文字列だけ（欄・制約は同じ。設計書 §3.3.1 の変更は規範でない細目と、ファイル・添え書きの扱いだけで、スキーマに影響しない） |
-| `archive/0.6.1/`・`archive/0.6.2/`・`archive/0.7.0/` | — | 旧スキーマ（0.6.1 の calibration、0.6.2 と 0.7.0 の計測）。**そのまま残す**（書き換えない。`contract.lock` の `archived` に sha256） |
+| `calibration.schema.json` | **0.8.0** | calibration の payload。0.7.0 からの変更：`exponent`（整数、必須）を足した。`values` の距離の欄の刻みは `2^exponent`（−30 に固定しない）。下の「calibration の量子化の指数」の節 |
+| `archive/0.6.1/`・`archive/0.6.2/`・`archive/0.7.0/`・`archive/0.7.1/` | — | 旧スキーマ（0.6.1 と 0.7.0 の calibration、0.6.2 と 0.7.0 の計測）と、0.7.1 の記録（IC-02/0.7.1/COMPLETION.md）が指す README・見本の写し。**そのまま残す**（書き換えない。スキーマは `contract.lock` の `archived` に sha256）。0.7.0 の calibration は旧版の規則のまま Gate が読む（指数の欄が無く −30 固定。0.8.0 としては読まない） |
 
 Blob の参照の型（`intBlob`・`floatBlob`）は `../common/blob.schema.json`（0.7.0）。`series` の各系列は `intBlob` への `$ref`。
-`payload_schema` の `{id, version}` は `msr.geometry-measurement` `0.7.1`、`msr.calibration` `0.7.0`（`$id` の版。IC-00 の `contract.version` とは別。設計書 §2.6、S39）。
+`payload_schema` の `{id, version}` は `msr.geometry-measurement` `0.7.1`、`msr.calibration` `0.8.0`（`$id` の版。IC-00 の `contract.version` とは別。設計書 §2.6、S39）。
 
 定義の出典：meaning-space-runtime の `feature/msr-ic02`（`13d0a51`）の `src/msr/geometry/metrics.py` の冒頭。この README が**規範**で、コードの冒頭は正本にしない（設計書 §3.3.2）。
 
@@ -59,7 +59,19 @@ Blob の参照の型（`intBlob`・`floatBlob`）は `../common/blob.schema.json
 - calibration の `content_id`・`artifact_id` を計算し直すには、親（`null_set` の各成果物、`codebook`）の `content_id` が要る。**親の `content_id` は HEKB から取得する**（取得の主体は nvs-runtime の Gate）。見つからない、または保存されている `content_id` と食い違うなら、検証は失敗する。
 - 呼び出し側が任意に渡した親の情報（ファイルの写しに添えたもの、引数など）を、**無条件に信頼しない**。取得した親で `content_id`・`artifact_id` を計算し直し、封筒の値と一致することを確かめる。
 - **ファイルだけで自己完結して検証できることは契約しない**。ファイルは写しで、正本は HEKB（設計書 §3.3.1）。
-- 量子化の指数 −30 は `calibration.schema.json`（と計測のスキーマ）の定数。変えるなら `payload_schema` の版を上げる。
+- 量子化の指数は calibration の payload の `exponent` に宣言する（次の節）。計測のスキーマの指数 −30 は定数のまま。
+
+## calibration の量子化の指数（0.8.0 の仮決定、Tomo 11-07 15:29・15:30）
+
+- payload に `exponent`（整数）を足した。**必須**。`values` の距離の欄（`noise_floor_lower`・`noise_floor_upper`・`background_mean`・`epsilon`・`delta`）の刻みは `2^exponent`。実数の値は `q × 2^exponent`（`math.ldexp`）。
+- **−30 に固定しない**。許容範囲はここでは決めない（契約設計で後日）。スキーマにも Gate にも範囲の検査は無い。
+- **Gate が検証するのは指数の有無と形式だけ**：欠落、文字列・小数（`-20.0` のような整数値の小数も）・真偽値・null は拒否（符号 `schema`）。
+- **読む側は宣言された `exponent` で解釈する**（`epsilon` の復元など）。−30 を前提にしない。
+- 分位点の水準（`method.quantiles`、確率）は 2⁻³⁰ の格子のままで、`exponent` の対象外。
+- 計測（`geometry-measurement` 0.7.1）の `thresholds`・`distance` は 2⁻³⁰ のまま。刻みの違う calibration を黙って換算しない（MSR は拒否する）。Gate の `S38` は、整数どうしの比較が同じ刻みであることを前提にしており、刻みの照合は 0.8.0 では Gate に入れていない（指数の有無と形式だけ、という仮決定のため）。
+- **0.7.x（指数の欄が無い）を 0.8.0 として暗黙に解釈しない**。`payload_schema` が 0.8.0 で `exponent` が無ければ拒否。0.7.0 は旧版の規則のまま（欄を足すと拒否）。旧データを 0.8.0 へ移す方法は別の決定で、ここでは実装しない。
+- D-97 (5) の原文は変えていない。置き換える決定は Tomo が別に記録する。
+- 見本は `vectors/calibration-exponent.json`（受理 3・拒否 8）。
 
 ## 検査の責任
 
@@ -80,7 +92,7 @@ calibration を**読む側**が、取得した親（`parent_contents`：親の `
 
 - 違反は検証失敗である。補って読み進めない（推測で親を足さない、役割を直さない）。
 - **取得と確認の主体は nvs-runtime（Gate）**：`parent_contents` は、Gate が HEKB から取得し、保存されている成果物と照合して確かめたものだけを渡す。**MSR は HEKB を呼ばない**。呼び出し側が任意に渡した親の情報は、上の 5 点を満たしても無条件には信頼しない（`content_id`・`artifact_id` の計算し直しが通ることが、さらに要る）。
-- 見本は `vectors/calibration-parents.json`（受理 2・拒否 9。5 点それぞれの拒否と、`cnt:` 形式・役割の重複・codebook の `ordered` を含む）。検査器は `tools/contracts/ic02.py` の `check_calibration_parents`。
+- 見本は `vectors/calibration-parents.json`（0.8.0 の payload。受理 2・拒否 9。5 点それぞれの拒否と、`cnt:` 形式・役割の重複・codebook の `ordered` を含む）。検査器は `tools/contracts/ic02.py` の `check_calibration_parents`。
 
 ## 検査器（`tools/contracts`）での扱い
 

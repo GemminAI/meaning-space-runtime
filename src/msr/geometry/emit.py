@@ -190,6 +190,15 @@ def emit_single(
     values = calibration.values if calibration else {}
     eps_q, eps_src = _threshold_real(epsilon, values.get("epsilon"))
     dlt_q, dlt_src = _threshold_real(delta, values.get("delta"))
+    if (
+        calibration is not None
+        and calibration.exponent != EXPONENT
+        and "calibration" in (eps_src, dlt_src)
+    ):
+        raise CalibrationError(
+            f"quantum differs: thresholds 2**{EXPONENT}, "
+            f"calibration 2**{calibration.exponent} (no conversion)"
+        )
     wm, wm_src = _threshold_w_min(w_min, values.get("w_min"))
     measured = analyze_trajectory(
         traj,

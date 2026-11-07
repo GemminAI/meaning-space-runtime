@@ -2,9 +2,9 @@
  "cases": [
   {
    "envelope": {
-    "artifact_id": "art:f4f1fa52b2e18766d89ce3b4cafabb5d8a6c2ba2b20c97bb5ad7b50cbee6542a",
+    "artifact_id": "art:e4ac5f2b3eb97001118b150ac8454ce7aa7a30e032737796b7e714991cafa507",
     "calibration_ref": null,
-    "content_id": "cnt:b409b5e464f7e053cd1046a7899af0c3ae4a30543d111b481c658c778eee4f3d",
+    "content_id": "cnt:7c62efa7a74068e73902e5190ed92dbdf24b65dbc4f422d72fbdf851a38f79f4",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -27,6 +27,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -63,7 +64,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -92,9 +93,9 @@
   },
   {
    "envelope": {
-    "artifact_id": "art:2ef1b7337833c8c280a2a35f0e14ee3a68ddb106240bccc58c839f01e404d82a",
+    "artifact_id": "art:d746f8b769ca7eedd00d159deaa595b45fa860d5c948bf600f55311bc1d50a40",
     "calibration_ref": null,
-    "content_id": "cnt:e3ed3bcc0cd57df3ae155fb4b312ae2181c30833c7e1d6d8de9ad803c167a1c3",
+    "content_id": "cnt:f25f1575f59a1f5215171ffc55576010cac286433678a105dd48625bfdb11d27",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -124,6 +125,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -163,7 +165,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -192,9 +194,9 @@
   },
   {
    "envelope": {
-    "artifact_id": "art:f4f1fa52b2e18766d89ce3b4cafabb5d8a6c2ba2b20c97bb5ad7b50cbee6542a",
+    "artifact_id": "art:e4ac5f2b3eb97001118b150ac8454ce7aa7a30e032737796b7e714991cafa507",
     "calibration_ref": null,
-    "content_id": "cnt:b409b5e464f7e053cd1046a7899af0c3ae4a30543d111b481c658c778eee4f3d",
+    "content_id": "cnt:7c62efa7a74068e73902e5190ed92dbdf24b65dbc4f422d72fbdf851a38f79f4",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -217,6 +219,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -253,7 +256,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -283,9 +286,9 @@
   },
   {
    "envelope": {
-    "artifact_id": "art:2ef1b7337833c8c280a2a35f0e14ee3a68ddb106240bccc58c839f01e404d82a",
+    "artifact_id": "art:d746f8b769ca7eedd00d159deaa595b45fa860d5c948bf600f55311bc1d50a40",
     "calibration_ref": null,
-    "content_id": "cnt:e3ed3bcc0cd57df3ae155fb4b312ae2181c30833c7e1d6d8de9ad803c167a1c3",
+    "content_id": "cnt:f25f1575f59a1f5215171ffc55576010cac286433678a105dd48625bfdb11d27",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -315,6 +318,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -354,7 +358,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -385,9 +389,9 @@
   },
   {
    "envelope": {
-    "artifact_id": "art:d65ea2c505dba7ba10e0c2ab5899e0f034b66a835d17b5d0d53af8315f41a545",
+    "artifact_id": "art:6feda2bb7448de596702a316c666ad1a39d0ff0c0cb8162d0030d8febfc5f2cf",
     "calibration_ref": null,
-    "content_id": "cnt:24c01207276b854c4bc5d2160f741062c967384f459dbef6184307a967e872de",
+    "content_id": "cnt:317a2df8e18eb5999099e5d8b9d3ca386c2e42459495a91abb7bb70199a97d1a",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -410,6 +414,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -449,7 +454,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -480,9 +485,9 @@
   },
   {
    "envelope": {
-    "artifact_id": "art:f4f1fa52b2e18766d89ce3b4cafabb5d8a6c2ba2b20c97bb5ad7b50cbee6542a",
+    "artifact_id": "art:e4ac5f2b3eb97001118b150ac8454ce7aa7a30e032737796b7e714991cafa507",
     "calibration_ref": null,
-    "content_id": "cnt:b409b5e464f7e053cd1046a7899af0c3ae4a30543d111b481c658c778eee4f3d",
+    "content_id": "cnt:7c62efa7a74068e73902e5190ed92dbdf24b65dbc4f422d72fbdf851a38f79f4",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -505,6 +510,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -541,7 +547,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -572,9 +578,9 @@
   },
   {
    "envelope": {
-    "artifact_id": "art:f4f1fa52b2e18766d89ce3b4cafabb5d8a6c2ba2b20c97bb5ad7b50cbee6542a",
+    "artifact_id": "art:e4ac5f2b3eb97001118b150ac8454ce7aa7a30e032737796b7e714991cafa507",
     "calibration_ref": null,
-    "content_id": "cnt:b409b5e464f7e053cd1046a7899af0c3ae4a30543d111b481c658c778eee4f3d",
+    "content_id": "cnt:7c62efa7a74068e73902e5190ed92dbdf24b65dbc4f422d72fbdf851a38f79f4",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -597,6 +603,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -633,7 +640,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -699,6 +706,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -735,7 +743,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -766,9 +774,9 @@
   },
   {
    "envelope": {
-    "artifact_id": "art:3b8265976693e7c345cb0a11b21732efc0ca36d272601cda0bb2b89a91a2451a",
+    "artifact_id": "art:50951bb838eaa3e67164ae48ef3e82522c36c7fa78a3eb81863dda855fd55ba8",
     "calibration_ref": null,
-    "content_id": "cnt:ebf3c4b09612bc3b54695ae3ec4cb2c72f999bb93f07d74c505f37dec22326bf",
+    "content_id": "cnt:5757dd615ccefa2dc607bcc102d20d663dad1b52da5e5b1ec6b53ab6a8c73d90",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -798,6 +806,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -834,7 +843,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -865,9 +874,9 @@
   },
   {
    "envelope": {
-    "artifact_id": "art:af1f50154950a97884a1359e2a92c306c79f049a3de01c0ba871038640269e6e",
+    "artifact_id": "art:cb344242411898c5df7d158a2071a2d9d3537c5c5813cf699c13ee56467fdcfd",
     "calibration_ref": null,
-    "content_id": "cnt:701b21ed821d9af2b781e63f5ed7f47a368f46d5e486158d0488cc8dee0f054a",
+    "content_id": "cnt:64054941d9ad54959620c1163b4a287250f5a439390c349da977baf9995eed28",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -890,6 +899,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -926,7 +936,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -957,9 +967,9 @@
   },
   {
    "envelope": {
-    "artifact_id": "art:e8cf1662ab1babef496cd5cf9189ed6af4745c2e2eea3f168859116bce22d610",
+    "artifact_id": "art:c58b80dc308840e63d8380ce1673ba2aa9378f9b98d7b7757c35987735bd9a97",
     "calibration_ref": null,
-    "content_id": "cnt:df7a184851c4aae0f0ddd17c7d5883ba480c7b1019b2eb993250cd496325652e",
+    "content_id": "cnt:2095f0b77eda6f1b54daabe94acb194a0d983002cb7726fbfcf0dd33df4176d9",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -989,6 +999,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -1028,7 +1039,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",
@@ -1059,9 +1070,9 @@
   },
   {
    "envelope": {
-    "artifact_id": "art:73bc8fd656074ac8c20dcda17550096b1585c0e1bd3bc8da7dcfb9202149c7da",
+    "artifact_id": "art:abc9d84a288f3543cc58e58e010ca214e06332592df582deca84e37c058e3c3b",
     "calibration_ref": null,
-    "content_id": "cnt:1039d53becdd1e807c1445747521ec7f93b53f0b5295978690c4885d99c0aa6f",
+    "content_id": "cnt:29edba8cc24babda23465f03aed64a56720b27ceb7a32e1e8ca6c26999c8c72f",
     "contract": {
      "id": "IC-00",
      "version": "1.0.0"
@@ -1083,6 +1094,7 @@
     ],
     "payload": {
      "between_alignment": "equal_only",
+     "exponent": -30,
      "method": {
       "name": "msr-geometry-calibration",
       "quantiles": {
@@ -1119,7 +1131,7 @@
     },
     "payload_schema": {
      "id": "msr.calibration",
-     "version": "0.7.0"
+     "version": "0.8.0"
     },
     "policy_refs": [],
     "produced_at": "2026-11-06T00:00:00Z",

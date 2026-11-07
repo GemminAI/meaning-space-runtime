@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "source": {
     "repository": "sensos",
-    "branch": "feature/contracts-ic02-v071",
-    "commit": "5473c5c6ae6953e98c8526dfdcee69e01021302e",
+    "branch": "feature/contracts-ic02-v080",
+    "commit": "bbc085b87d1ed54869ae325b8c2f05dc711cd108",
     "tag": null,
     "tag_note": "IC-00 files (common/artifact, provenance, uncertainty, FREEZE.md, the five frozen vectors) are byte-identical to tag contracts/ic00-v1.0.0 (c82918f); the tag is not on this commit",
     "root": "docs/architecture/contracts/"
@@ -13,7 +13,7 @@
     "IC-00": "1.0.0",
     "common/blob": "0.7.0",
     "msr/geometry-measurement": "0.7.1",
-    "msr/calibration": "0.7.0"
+    "msr/calibration": "0.8.0"
   },
   "note": "Verbatim copies under tests/contract/vendor/ (same relative paths). Never edit; update only by an explicit, reviewed contract change from sensos. IC-00/1.0.0/FREEZE.md is vendored so the frozen files' sha256 can be checked against its own table. common/provenance is vendored because artifact $refs it; msr/README.md defines the series and the pair-verdict formula.",
   "files": [
@@ -43,11 +43,11 @@
     },
     {
       "path": "msr/calibration.schema.json",
-      "sha256": "7a702f1ff8305ed808885a46b9b200d75380f66fd45276888867ad1eb93d8c72"
+      "sha256": "794852390b3ec765fdeeb8c71e9fad75b9e5f3c81f4f26daa769dff6b4955d4f"
     },
     {
       "path": "msr/README.md",
-      "sha256": "9ee80714e540f77f5e0c41c34e178968a23b283f00d828756fde894ff65c4c0f"
+      "sha256": "d16f04c6ddb904c2a6b7d75372d55b10ca4c3040f78c1bb04d7ed488f5f7c974"
     },
     {
       "path": "common/vectors/canonicalize.json",
@@ -83,7 +83,11 @@
     },
     {
       "path": "msr/vectors/calibration-parents.json",
-      "sha256": "6ffd5cbc2ab683640d278ea7ca1e3f818508f39cc02785b8f192144d40024035"
+      "sha256": "6c176b2673632281ff2676cf095462ead8b4b3f1eb77f9d9e128219a3e9ee0a1"
+    },
+    {
+      "path": "msr/vectors/calibration-exponent.json",
+      "sha256": "123ce297480be9b7b47cc46a7aa1d6466ba9301ce0f0094778e19ab6b70aa1a3"
     }
   ]
 }

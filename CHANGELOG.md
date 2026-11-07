@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased — IC-02 calibration 0.8.0 (branch feature/msr-ic02-v080; provisional decision Tomo 11-07)
+
+- Contract pinned to sensos `bbc085b` (IC-00 1.0.0, blob 0.7.0, msr/geometry-measurement 0.7.1,
+  msr/calibration 0.8.0); vendored `msr/vectors/calibration-exponent.json`.
+- `msr.calibration` 0.8.0: the payload declares `exponent` (required integer, no range in the
+  contract; not fixed at -30). `build_calibration(exponent=-30)` writes it; readers
+  (`calibration_from_envelope`, `load_calibration`) interpret `values` with the declared exponent.
+- A 0.7.x payload (no `exponent`) is refused, never read as 0.8.0; migration of old data is not
+  implemented (a separate decision).
+- A calibration whose exponent differs from the measurement grid (-30) is not converted: refused for
+  the pair verdict and for thresholds taken from it in `emit_single`.
+
 ## Unreleased — IC-02 0.7.1 (branch feature/msr-ic02-v071)
 
 - Contract pinned to sensos `1bf0182` (IC-00 1.0.0, blob 0.7.0, msr/geometry-measurement

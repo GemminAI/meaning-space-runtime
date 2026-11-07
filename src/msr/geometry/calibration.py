@@ -59,8 +59,11 @@ ShiftVerdict = Literal[
 Alignment = Literal["equal_only", "common_prefix"]
 METHOD_NAME = "msr-geometry-calibration"
 METHOD_VERSION = "msr-geometry-calibration/1"
-PAYLOAD_SCHEMA = ("msr.calibration", "0.7.0")
-EXPONENT = -30  # every real value in the contract is a multiple of 2**-30
+PAYLOAD_SCHEMA = ("msr.calibration", "0.8.0")
+# The grid of measurements (``geometry-measurement`` 0.7.1), of the quantile levels
+# (probabilities) and the default for a new calibration's ``exponent``. A calibration
+# declares its own ``exponent`` (0.8.0); readers use that, never this constant.
+EXPONENT = -30
 DEFAULT_MAX_POOLED_PAIRS = 50_000_000  # ~400 MB of float64
 
 _ARTIFACT = re.compile(r"^art:[0-9a-f]{64}$")
@@ -78,7 +81,7 @@ def payload_alignment(mode: Alignment) -> str:
 
 @dataclass(frozen=True, slots=True)
 class Calibration:
-    """Float view of a calibration's values (each exactly a multiple of 2**-30)."""
+    """Float view of a calibration's values (each ``q * 2**exponent``, as declared)."""
 
     model_build_id: str
     space_id: str
@@ -102,7 +105,8 @@ class CalibrationArtifact:
     envelope: dict[str, Any]
     calibration: Calibration
     file_sha256: str | None = None
-    exponent: int = EXPONENT  # the declared quantum of ``values`` (contract 0.7.0)
+    # the declared quantum of ``values`` (payload ``exponent``, contract 0.8.0)
+    exponent: int = EXPONENT
 
     @property
     def ref(self) -> ArtifactRef:
@@ -131,23 +135,28 @@ def calibration_from_envelope(
         }:
             raise CalibrationError("not an msr.calibration payload")
         payload = envelope["payload"]
+        exponent = payload["exponent"]  # as declared; -30 is never assumed
+        if type(exponent) is not int:
+            raise CalibrationError("exponent must be an integer")
         values = payload["values"]
         raw_ref = values["codebook_ref"]
         calibration = Calibration(
             model_build_id=payload["model_build_id"],
             space_id=payload["space_id"],
-            noise_floor_lower=dequantize(values["noise_floor_lower"], EXPONENT),
-            noise_floor_upper=dequantize(values["noise_floor_upper"], EXPONENT),
-            background_mean=dequantize(values["background_mean"], EXPONENT),
-            epsilon=dequantize(values["epsilon"], EXPONENT),
-            delta=dequantize(values["delta"], EXPONENT),
+            noise_floor_lower=dequantize(values["noise_floor_lower"], exponent),
+            noise_floor_upper=dequantize(values["noise_floor_upper"], exponent),
+            background_mean=dequantize(values["background_mean"], exponent),
+            epsilon=dequantize(values["epsilon"], exponent),
+            delta=dequantize(values["delta"], exponent),
             w_min=int(values["w_min"]),
             between_alignment=payload["between_alignment"],
             codebook_ref=None if raw_ref is None else ArtifactRef(**raw_ref),
         )
-        artifact = CalibrationArtifact(dict(envelope), calibration, file_sha256)
+        artifact = CalibrationArtifact(
+            dict(envelope), calibration, file_sha256, exponent
+        )
         artifact.ref  # noqa: B018 - validates artifact_id / content_id
-    except (KeyError, TypeError, ValueError, ContractError) as exc:
+    except (KeyError, TypeError, ValueError, OverflowError, ContractError) as exc:
         raise CalibrationError(f"malformed calibration envelope: {exc!r}") from exc
     return artifact
 
@@ -211,6 +220,7 @@ _ENVELOPE_KEYS = frozenset(
 )
 _PAYLOAD_KEYS = frozenset(
     [
+        "exponent",
         "space_id",
         "model_build_id",
         "method",
@@ -267,6 +277,7 @@ def _check_contract(
         and _is_id(_CNT, envelope["content_id"])
         and isinstance(payload, dict)
         and set(payload) == _PAYLOAD_KEYS
+        and type(payload["exponent"]) is int  # form only; no range (0.8.0)
         and isinstance(values, dict)
         and set(values) == _VALUE_KEYS
         and all(isinstance(payload[k], str) and payload[k] for k in _TEXT_KEYS)
@@ -481,6 +492,7 @@ def build_calibration(
     alignment: Alignment = "equal_only",
     block_size: int = DEFAULT_BLOCK_SIZE,
     max_pooled_pairs: int = DEFAULT_MAX_POOLED_PAIRS,
+    exponent: int = EXPONENT,
 ) -> CalibrationArtifact:
     """Derive a calibration artifact from a set of null trajectories.
 
@@ -489,6 +501,8 @@ def build_calibration(
     noise-floor interval = ``floor_quantiles`` of the pairwise mean per-step
     distance between null trajectories. Quantile levels are snapped to the
     2**-30 grid first and the snapped level is what is used and recorded.
+    ``exponent`` is the quantum (``2**exponent``) of the distance values; it is declared
+    in the payload and the contract sets no range for it (default -30).
     ``alignment`` ("equal_only" by default) governs the between-trajectory
     distances: unequal lengths are refused unless ``common_prefix`` is chosen,
     which needs ``ctx.alignment_approval`` (S17).
@@ -496,6 +510,8 @@ def build_calibration(
     Raises ``CalibrationError`` when the pooled within-trajectory pairs exceed
     ``max_pooled_pairs`` (the exact quantile needs them in memory).
     """
+    if type(exponent) is not int:
+        raise CalibrationError("exponent must be an integer")
     if len(null_set) < 2:
         raise CalibrationError("need at least 2 null trajectories")
     refs = [m.ref for m in null_set]
@@ -552,10 +568,11 @@ def build_calibration(
     )
     epsilon = float(np.quantile(pooled, dequantize(q_eps, EXPONENT)))
     delta = float(np.quantile(steps, dequantize(q_delta, EXPONENT)))
-    q_epsilon = quantize(epsilon, EXPONENT)
+    q_epsilon = quantize(epsilon, exponent)
     if q_epsilon < 1:
-        raise CalibrationError("epsilon is smaller than one quantum (2**-30)")
+        raise CalibrationError(f"epsilon is smaller than one quantum (2**{exponent})")
     payload = {
+        "exponent": exponent,
         "space_id": first.space_id,
         "model_build_id": first.model_build_id,
         "method": {
@@ -566,11 +583,11 @@ def build_calibration(
         "null_set": sorted((r.artifact_id for r in refs), key=lambda a: a.encode()),
         "between_alignment": mode,
         "values": {
-            "noise_floor_lower": quantize(lower, EXPONENT),
-            "noise_floor_upper": quantize(upper, EXPONENT),
-            "background_mean": quantize(float(np.mean(between)), EXPONENT),
+            "noise_floor_lower": quantize(lower, exponent),
+            "noise_floor_upper": quantize(upper, exponent),
+            "background_mean": quantize(float(np.mean(between)), exponent),
             "epsilon": q_epsilon,
-            "delta": quantize(delta, EXPONENT),
+            "delta": quantize(delta, exponent),
             "w_min": w_min,
             "codebook_ref": None if codebook_ref is None else codebook_ref.to_dict(),
         },

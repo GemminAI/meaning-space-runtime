@@ -17,15 +17,15 @@ LOCK: dict[str, Any] = json.loads((HERE / "contract.lock").read_text("utf-8"))
 
 def test_lock_shape_and_commit() -> None:
     assert LOCK["contract_id"] == "IC-00" and LOCK["version"] == "1.0.0"
-    assert LOCK["source"]["commit"] == "5473c5c6ae6953e98c8526dfdcee69e01021302e"
-    assert LOCK["source"]["branch"] == "feature/contracts-ic02-v071"
+    assert LOCK["source"]["commit"] == "bbc085b87d1ed54869ae325b8c2f05dc711cd108"
+    assert LOCK["source"]["branch"] == "feature/contracts-ic02-v080"
     assert LOCK["source"]["tag"] is None
     assert "contracts/ic00-v1.0.0" in LOCK["source"]["tag_note"]
     assert LOCK["contracts"] == {
         "IC-00": "1.0.0",
         "common/blob": "0.7.0",
         "msr/geometry-measurement": "0.7.1",
-        "msr/calibration": "0.7.0",
+        "msr/calibration": "0.8.0",
     }
     paths = {f["path"] for f in LOCK["files"]}
     for needed in (
@@ -37,6 +37,7 @@ def test_lock_shape_and_commit() -> None:
         "msr/README.md",
         "msr/vectors/series.json",
         "msr/vectors/calibration-parents.json",
+        "msr/vectors/calibration-exponent.json",
         "common/vectors/canonicalize.json",
         "common/vectors/quantize.json",
         "common/vectors/ids.json",
@@ -84,7 +85,7 @@ def test_schema_ids_carry_the_locked_versions() -> None:
         "common/uncertainty.schema.json": "sensos:contracts/common/uncertainty/1.0.0",
         "common/blob.schema.json": "sensos:contracts/common/blob/0.7.0",
         "msr/geometry-measurement.schema.json": "sensos:contracts/msr/geometry-measurement/0.7.1",
-        "msr/calibration.schema.json": "sensos:contracts/msr/calibration/0.7.0",
+        "msr/calibration.schema.json": "sensos:contracts/msr/calibration/0.8.0",
     }
 
 
@@ -98,7 +99,7 @@ def test_output_declares_the_vendored_versions() -> None:
     assert art.envelope["contract"] == {"id": "IC-00", "version": "1.0.0"}
     assert art.envelope["payload_schema"] == {
         "id": "msr.calibration",
-        "version": "0.7.0",
+        "version": "0.8.0",
     }
     assert em.envelope["payload_schema"] == {
         "id": "msr.geometry-measurement",
@@ -121,16 +122,17 @@ def test_vendor_equals_sensos_commit_when_available() -> None:
 
 
 PINNED = {
-    "msr/README.md": "9ee80714e540f77f5e0c41c34e178968a23b283f00d828756fde894ff65c4c0f",
-    "msr/vectors/calibration-parents.json": "6ffd5cbc2ab683640d278ea7ca1e3f818508f39cc02785b8f192144d40024035",
+    "msr/README.md": "d16f04c6ddb904c2a6b7d75372d55b10ca4c3040f78c1bb04d7ed488f5f7c974",
+    "msr/vectors/calibration-parents.json": "6c176b2673632281ff2676cf095462ead8b4b3f1eb77f9d9e128219a3e9ee0a1",
+    "msr/vectors/calibration-exponent.json": "123ce297480be9b7b47cc46a7aa1d6466ba9301ce0f0094778e19ab6b70aa1a3",
     "msr/geometry-measurement.schema.json": "d9aa7ea59237c4c6f19d33bbac6506ce0983b10ce46a3ee3a94b076b9bd05f6e",
     "msr/vectors/series.json": "de25c3ddab5c8632a63a8006bf3b0ea8b2ad7a958a2639a5a0dfde964a4f01e9",
-    "msr/calibration.schema.json": "7a702f1ff8305ed808885a46b9b200d75380f66fd45276888867ad1eb93d8c72",
+    "msr/calibration.schema.json": "794852390b3ec765fdeeb8c71e9fad75b9e5f3c81f4f26daa769dff6b4955d4f",
 }
 
 
 @pytest.mark.parametrize(("path", "digest"), sorted(PINNED.items()))
-def test_msr_contract_files_are_the_ic02_0_7_1_ones(path: str, digest: str) -> None:
+def test_msr_contract_files_are_the_ic02_0_8_0_ones(path: str, digest: str) -> None:
     recorded = {f["path"]: f["sha256"] for f in LOCK["files"]}
     assert recorded[path] == digest
     assert hashlib.sha256((VENDOR / path).read_bytes()).hexdigest() == digest

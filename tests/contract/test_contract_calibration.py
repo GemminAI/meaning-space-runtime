@@ -33,7 +33,8 @@ def test_calibration_envelope_validates_and_names_its_parents() -> None:
     assert envelope_errors(art.envelope) == []
     env = art.envelope
     assert env["kind"] == "interpretation" and env["calibration_ref"] is None
-    assert env["payload_schema"] == {"id": "msr.calibration", "version": "0.7.0"}
+    assert env["payload_schema"] == {"id": "msr.calibration", "version": "0.8.0"}
+    assert env["payload"]["exponent"] == -30
     assert [p["role"] for p in env["parents"]] == ["null_set"]
     assert env["parents"][0]["artifact_ids"] == env["payload"]["null_set"]
     assert env["parents"][0]["ordered"] is False
