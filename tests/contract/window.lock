@@ -1,0 +1,30 @@
+{
+  "contract_id": "IC-02",
+  "version": "0.9.0",
+  "source": {
+    "repository": "sensos",
+    "branch": "feature/contracts-ic02-v090-window",
+    "commit": "6e6bbee0aec0fa4a3cda277895d9623a88f816b0",
+    "tag": null,
+    "root": "docs/architecture/contracts/"
+  },
+  "contracts": {
+    "msr/trajectory-window": "0.9.0",
+    "msr/geometry-measurement (IC-02 0.8.0, $id 0.7.1, archived)": "0.7.1"
+  },
+  "note": "Verbatim copies under tests/contract/vendor_window/ (same relative paths): the window schema, the window vectors (D-129) and the archived IC-02 0.8.0 geometry schema (the frozen series.json vectors are 0.7.1 payloads and are read by that rule). Separate from contract.lock so the number of the existing lock tests is unchanged. Never edit; update only by an explicit, reviewed contract change from sensos.",
+  "files": [
+    {
+      "path": "msr/trajectory-window.schema.json",
+      "sha256": "332c636de733b173cb4236c07f6e875047b0ca04fad9ae2028b4b4291448f42c"
+    },
+    {
+      "path": "msr/vectors/window.json",
+      "sha256": "e8930e74dd15b329eac7fee5acd1322126fcd04f181ea209fce4eab27c26ea11"
+    },
+    {
+      "path": "msr/archive/0.8.0/geometry-measurement.schema.json",
+      "sha256": "d9aa7ea59237c4c6f19d33bbac6506ce0983b10ce46a3ee3a94b076b9bd05f6e"
+    }
+  ]
+}

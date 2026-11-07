@@ -15,7 +15,7 @@ import struct
 from collections.abc import Mapping
 from typing import Any
 
-from contract_support import validator
+from contract_support import old_geometry_validator, validator
 
 ALIGN_EXT = "x-meaning-space-runtime-alignment"
 INT64_MIN = -(2**63)
@@ -284,9 +284,10 @@ def series_payload_violations(
     parents: list[dict[str, Any]],
     blobs: Mapping[str, bytes],
 ) -> set[str]:
-    """Schema (msr/geometry-measurement) then the series checks, as the frozen
-    ``series.json`` vectors state them: ``schema`` alone, else S34-S37."""
-    if list(validator("msr/geometry-measurement").iter_errors(payload)):
+    """Schema (msr/geometry-measurement, the IC-02 0.8.0 rule the frozen 0.7.1 ``series.json``
+    vectors are written for) then the series checks, as those vectors state them:
+    ``schema`` alone, else S34-S37."""
+    if list(old_geometry_validator().iter_errors(payload)):
         return {"schema"}
     out: set[str] = set()
     _series({"parents": parents}, payload, blobs, out)

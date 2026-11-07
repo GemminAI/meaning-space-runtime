@@ -32,12 +32,20 @@ from msr.geometry.errors import (
     CalibrationError,
     CrossSpaceComparison,
     InvalidTrajectory,
+    InvalidWindow,
 )
 from msr.geometry.trajectory import Policy, TrajectoryInput
+from msr.geometry.window import (
+    WINDOW_LENGTH,
+    TrajectoryWindow,
+    prefix_matches,
+    window_from_envelope,
+)
 from msr.geometry.wire import ContractError
 
 __all__ = [
     "SERIES",
+    "WINDOW_LENGTH",
     "ArtifactRef",
     "Blob",
     "Calibration",
@@ -48,10 +56,12 @@ __all__ = [
     "Emission",
     "EmitContext",
     "InvalidTrajectory",
+    "InvalidWindow",
     "NullMember",
     "Policy",
     "PolicyRef",
     "TrajectoryInput",
+    "TrajectoryWindow",
     "analyze_trajectory",
     "build_calibration",
     "calibration_from_envelope",
@@ -61,6 +71,8 @@ __all__ = [
     "evaluate_shift",
     "evaluate_shift_quantized",
     "load_calibration",
+    "prefix_matches",
+    "window_from_envelope",
     "write_blob",
     "write_calibration",
 ]

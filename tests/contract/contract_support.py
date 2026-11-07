@@ -16,6 +16,9 @@ import msr.geometry as g
 
 HERE = Path(__file__).parent
 VENDOR = HERE / "vendor"
+VENDOR_WINDOW = (
+    HERE / "vendor_window"
+)  # window.lock: IC-02 0.9.0 window schema, vectors, archived 0.8.0 geometry schema
 VECTORS = VENDOR / "common" / "vectors"
 SCHEMAS = (
     "common/artifact",
@@ -39,6 +42,24 @@ def _registry() -> Registry:
 
 def validator(name: str) -> Draft202012Validator:
     doc = json.loads((VENDOR / f"{name}.schema.json").read_text("utf-8"))
+    return Draft202012Validator(doc, registry=_registry())
+
+
+def old_geometry_validator() -> Draft202012Validator:
+    """The IC-02 0.8.0 measurement schema (``$id`` 0.7.1, no ``input_scope``): the rule the frozen
+    ``series.json`` vectors and any 0.7.1 payload are read by."""
+    doc = json.loads(
+        (
+            VENDOR_WINDOW / "msr/archive/0.8.0/geometry-measurement.schema.json"
+        ).read_text("utf-8")
+    )
+    return Draft202012Validator(doc, registry=_registry())
+
+
+def window_validator() -> Draft202012Validator:
+    doc = json.loads(
+        (VENDOR_WINDOW / "msr/trajectory-window.schema.json").read_text("utf-8")
+    )
     return Draft202012Validator(doc, registry=_registry())
 
 

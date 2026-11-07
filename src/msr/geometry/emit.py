@@ -51,6 +51,7 @@ from msr.geometry.envelope import (
 from msr.geometry.errors import CalibrationError, InvalidTrajectory
 from msr.geometry.metrics import DEFAULT_BLOCK_SIZE
 from msr.geometry.trajectory import TrajectoryInput
+from msr.geometry.window import TrajectoryWindow
 from msr.geometry.wire import (
     BLOB_RANGE,
     E_QUANT_RANGE,
@@ -61,7 +62,7 @@ from msr.geometry.wire import (
     quantize,
 )
 
-PAYLOAD_SCHEMA = ("msr.geometry-measurement", "0.7.1")
+PAYLOAD_SCHEMA = ("msr.geometry-measurement", "0.9.0")
 UNDEFINED = INT64_RANGE[
     0
 ]  # the Blob's "no value" mark; -2**63 is never a measured value
@@ -166,6 +167,7 @@ def emit_single(
     ctx: EmitContext,
     *,
     trajectory_ref: ArtifactRef,
+    window: TrajectoryWindow | None = None,
     calibration: CalibrationArtifact | None = None,
     codebook: NDArray[np.float64] | None = None,
     codebook_ref: ArtifactRef | None = None,
@@ -174,7 +176,22 @@ def emit_single(
     w_min: int | None = None,
     block_size: int = DEFAULT_BLOCK_SIZE,
 ) -> Emission:
-    """One trajectory's measurement as an envelope (payload ``mode: "single"``)."""
+    """One trajectory's measurement as an envelope (payload ``mode: "single"``).
+
+    ``window=None``: the whole trajectory is measured; ``input_scope`` is
+    ``{"kind": "full"}`` and ``trajectory_ref`` is the (non-window) trajectory
+    artifact. ``window=w`` (IC-02 0.9.0, D-129): the first-128-rows window artifact
+    is measured; pass ``traj=w.trajectory`` and ``trajectory_ref=w.ref`` (anything
+    else is refused), and ``input_scope`` declares the window. A window artifact
+    passed as a ``full`` input cannot be told apart here (MSR does not hold the
+    parent); the Gate refuses it.
+    """
+    if window is not None and (
+        traj is not window.trajectory or trajectory_ref != window.ref
+    ):
+        raise InvalidTrajectory(
+            "with window=, traj must be window.trajectory and trajectory_ref window.ref"
+        )
     if (codebook is None) != (codebook_ref is None):
         raise ContractError(E_CONTEXT, "codebook and codebook_ref come together")
     calibrated = calibration.calibration if calibration else None
@@ -219,6 +236,7 @@ def emit_single(
         "source": traj.source,
         "layer": traj.layer,
         "input_ref": input_ref(traj),
+        "input_scope": {"kind": "full"} if window is None else dict(window.scope),
         "calibration": None if calibration is None else calibration.ref.to_dict(),
         "thresholds": {
             "epsilon": eps_q,
