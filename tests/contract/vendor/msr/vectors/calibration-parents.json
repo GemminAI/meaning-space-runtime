@@ -1,0 +1,1166 @@
+{
+ "cases": [
+  {
+   "envelope": {
+    "artifact_id": "art:e4ac5f2b3eb97001118b150ac8454ce7aa7a30e032737796b7e714991cafa507",
+    "calibration_ref": null,
+    "content_id": "cnt:7c62efa7a74068e73902e5190ed92dbdf24b65dbc4f422d72fbdf851a38f79f4",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": null,
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-null-set-only",
+   "note": "",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:d746f8b769ca7eedd00d159deaa595b45fa860d5c948bf600f55311bc1d50a40",
+    "calibration_ref": null,
+    "content_id": "cnt:f25f1575f59a1f5215171ffc55576010cac286433678a105dd48625bfdb11d27",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "ordered": false,
+      "role": "codebook"
+     },
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": {
+       "artifact_id": "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "content_id": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-with-codebook",
+   "note": "",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:e4ac5f2b3eb97001118b150ac8454ce7aa7a30e032737796b7e714991cafa507",
+    "calibration_ref": null,
+    "content_id": "cnt:7c62efa7a74068e73902e5190ed92dbdf24b65dbc4f422d72fbdf851a38f79f4",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": null,
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "parent_unknown"
+    ],
+    "result": "reject"
+   },
+   "id": "point1-parent-not-retrieved",
+   "note": "a null_set parent is not among the retrieved parents",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:d746f8b769ca7eedd00d159deaa595b45fa860d5c948bf600f55311bc1d50a40",
+    "calibration_ref": null,
+    "content_id": "cnt:f25f1575f59a1f5215171ffc55576010cac286433678a105dd48625bfdb11d27",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "ordered": false,
+      "role": "codebook"
+     },
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": {
+       "artifact_id": "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "content_id": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "codebook_content_mismatch"
+    ],
+    "result": "reject"
+   },
+   "id": "point2-codebook-content-id-differs",
+   "note": "the stored codebook's content_id is not codebook_ref's",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:9999999999999999999999999999999999999999999999999999999999999999"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:6feda2bb7448de596702a316c666ad1a39d0ff0c0cb8162d0030d8febfc5f2cf",
+    "calibration_ref": null,
+    "content_id": "cnt:317a2df8e18eb5999099e5d8b9d3ca386c2e42459495a91abb7bb70199a97d1a",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": {
+       "artifact_id": "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "content_id": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "role_set_mismatch"
+    ],
+    "result": "reject"
+   },
+   "id": "point3-codebook-ref-without-codebook-role",
+   "note": "payload names a codebook, parents have none",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:e4ac5f2b3eb97001118b150ac8454ce7aa7a30e032737796b7e714991cafa507",
+    "calibration_ref": null,
+    "content_id": "cnt:7c62efa7a74068e73902e5190ed92dbdf24b65dbc4f422d72fbdf851a38f79f4",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": null,
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "parent_content_id_form"
+    ],
+    "result": "reject"
+   },
+   "id": "point1-content-id-is-not-cnt-form",
+   "note": "a retrieved content_id is not cnt: + 64 hex (reported by its own code, not as a hash mismatch)",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "not-a-content-id",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:e4ac5f2b3eb97001118b150ac8454ce7aa7a30e032737796b7e714991cafa507",
+    "calibration_ref": null,
+    "content_id": "cnt:7c62efa7a74068e73902e5190ed92dbdf24b65dbc4f422d72fbdf851a38f79f4",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": null,
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "parent_content_id_form"
+    ],
+    "result": "reject"
+   },
+   "id": "point1-unrelated-entry-content-id-is-not-cnt-form",
+   "note": "an entry of parent_contents that no parent names also needs a cnt: content_id",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "art:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee": "not-a-content-id"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:0000000000000000000000000000000000000000000000000000000000000000",
+    "calibration_ref": null,
+    "content_id": "cnt:0000000000000000000000000000000000000000000000000000000000000000",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     },
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": null,
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "role_duplicate"
+    ],
+    "result": "reject"
+   },
+   "id": "point3-role-appears-twice",
+   "note": "parents has two null_set roles (not sealed: ids cannot be computed for it)",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:50951bb838eaa3e67164ae48ef3e82522c36c7fa78a3eb81863dda855fd55ba8",
+    "calibration_ref": null,
+    "content_id": "cnt:5757dd615ccefa2dc607bcc102d20d663dad1b52da5e5b1ec6b53ab6a8c73d90",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "ordered": false,
+      "role": "codebook"
+     },
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": null,
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "role_set_mismatch"
+    ],
+    "result": "reject"
+   },
+   "id": "point3-codebook-role-without-codebook-ref",
+   "note": "parents have a codebook, payload names none",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:cb344242411898c5df7d158a2071a2d9d3537c5c5813cf699c13ee56467fdcfd",
+    "calibration_ref": null,
+    "content_id": "cnt:64054941d9ad54959620c1163b4a287250f5a439390c349da977baf9995eed28",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": true,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": null,
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "null_set_ordered"
+    ],
+    "result": "reject"
+   },
+   "id": "point4-null-set-is-ordered",
+   "note": "",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:c58b80dc308840e63d8380ce1673ba2aa9378f9b98d7b7757c35987735bd9a97",
+    "calibration_ref": null,
+    "content_id": "cnt:2095f0b77eda6f1b54daabe94acb194a0d983002cb7726fbfcf0dd33df4176d9",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "ordered": true,
+      "role": "codebook"
+     },
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002",
+       "art:0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": {
+       "artifact_id": "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "content_id": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "codebook_ordered"
+    ],
+    "result": "reject"
+   },
+   "id": "point4-codebook-is-ordered",
+   "note": "",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  },
+  {
+   "envelope": {
+    "artifact_id": "art:abc9d84a288f3543cc58e58e010ca214e06332592df582deca84e37c058e3c3b",
+    "calibration_ref": null,
+    "content_id": "cnt:29edba8cc24babda23465f03aed64a56720b27ceb7a32e1e8ca6c26999c8c72f",
+    "contract": {
+     "id": "IC-00",
+     "version": "1.0.0"
+    },
+    "event_span": null,
+    "extensions": {},
+    "kind": "interpretation",
+    "observation_id": null,
+    "observed_at": null,
+    "parents": [
+     {
+      "artifact_ids": [
+       "art:0000000000000000000000000000000000000000000000000000000000000001",
+       "art:0000000000000000000000000000000000000000000000000000000000000002"
+      ],
+      "ordered": false,
+      "role": "null_set"
+     }
+    ],
+    "payload": {
+     "between_alignment": "equal_only",
+     "exponent": -30,
+     "method": {
+      "name": "msr-geometry-calibration",
+      "quantiles": {
+       "delta": 67108864,
+       "epsilon": 33554432,
+       "floor": [
+        33554432,
+        1040187392
+       ]
+      },
+      "version": "msr-geometry-calibration/1"
+     },
+     "model_build_id": "m1",
+     "null_set": [
+      "art:0000000000000000000000000000000000000000000000000000000000000001",
+      "art:0000000000000000000000000000000000000000000000000000000000000002",
+      "art:0000000000000000000000000000000000000000000000000000000000000003"
+     ],
+     "sample_config": {
+      "dims": 3,
+      "points": 40,
+      "trajectories": 3
+     },
+     "space_id": "S1",
+     "values": {
+      "background_mean": 1610612736,
+      "codebook_ref": null,
+      "delta": 1048576,
+      "epsilon": 268435456,
+      "noise_floor_lower": 1073741824,
+      "noise_floor_upper": 2147483648,
+      "w_min": 1
+     }
+    },
+    "payload_schema": {
+     "id": "msr.calibration",
+     "version": "0.8.0"
+    },
+    "policy_refs": [],
+    "produced_at": "2026-11-06T00:00:00Z",
+    "producer": {
+     "build": "build-1",
+     "name": "meaning-space-runtime",
+     "version": "1.0.0"
+    },
+    "rule_refs": [],
+    "seq": 5,
+    "session_id": "ses:5a65000702a3bbd2f327e174486ee45c5da79220d2c11099c1cda96a20a8c50f",
+    "space_id": "S1"
+   },
+   "expect": {
+    "codes": [
+     "null_set_mismatch"
+    ],
+    "result": "reject"
+   },
+   "id": "point5-null-set-differs-from-parents",
+   "note": "payload lists 3 artifacts, the parents' null_set has 2",
+   "parent_contents": {
+    "art:0000000000000000000000000000000000000000000000000000000000000001": "cnt:0000000000000000000000000000000000000000000000000000000000000065",
+    "art:0000000000000000000000000000000000000000000000000000000000000002": "cnt:0000000000000000000000000000000000000000000000000000000000000066",
+    "art:0000000000000000000000000000000000000000000000000000000000000003": "cnt:0000000000000000000000000000000000000000000000000000000000000067",
+    "art:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "cnt:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+   }
+  }
+ ],
+ "format": "calibration-parents/1",
+ "rule": "check_calibration_parents(envelope, parent_contents): the codes in expect.codes (empty = accept). parent_contents = artifact_id -> content_id of the parents that nvs-runtime fetched from HEKB and confirmed. msr/README.md, section on parent-reference consistency"
+}

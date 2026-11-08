@@ -1,0 +1,2396 @@
+{
+ "cases": [
+  {
+   "blobs": {
+    "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb": "0000000000000080"
+   },
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-T1-no-delta",
+   "note": "T=1: no displacement interval, so count 0 and mean/median/run are null",
+   "parents": [
+    {
+     "artifact_ids": [
+      "art:0000000000000000000000000000000000000000000000000000000000000000"
+     ],
+     "ordered": false,
+     "role": "trajectory"
+    }
+   ],
+   "payload": {
+    "calibration": null,
+    "input_ref": {
+     "dimension": 3,
+     "length": 1,
+     "model_build_id": "m1",
+     "policy": {
+      "name": "last-token",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     },
+     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "layer": 12,
+    "metrics": {
+     "displacement": {
+      "count": 0,
+      "longest_sub_delta_run": null,
+      "mean": null,
+      "median": null
+     },
+     "diversity": {
+      "cell_entropy": null,
+      "participation_ratio": null
+     },
+     "persistence": {
+      "dominant_cell_share": null,
+      "longest_stay": null
+     },
+     "recurrence": {
+      "pair_fraction": null,
+      "return_count": null,
+      "return_rate": null
+     }
+    },
+    "mode": "single",
+    "series": {
+     "displacement_longest_sub_delta_run": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "steps",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "displacement_mean": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "displacement_median": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "diversity_cell_entropy": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "nats",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "diversity_participation_ratio": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "dimensionless",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "persistence_dominant_cell_share": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "persistence_longest_stay": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "points",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_pair_fraction": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_return_count": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "returns",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_return_rate": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "returns_per_point",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     }
+    },
+    "source": "T-hid",
+    "space_id": "S1",
+    "thresholds": {
+     "delta": null,
+     "epsilon": null,
+     "source": {
+      "delta": null,
+      "epsilon": null,
+      "w_min": null
+     },
+     "w_min": null
+    },
+    "verdict": {
+     "reason": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 \u00a73.2)",
+     "state": null
+    }
+   }
+  },
+  {
+   "blobs": {
+    "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb": "0000000000000080"
+   },
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-T1-delta",
+   "note": "T=1: no displacement interval, so count 0 and mean/median/run are null",
+   "parents": [
+    {
+     "artifact_ids": [
+      "art:0000000000000000000000000000000000000000000000000000000000000000"
+     ],
+     "ordered": false,
+     "role": "trajectory"
+    }
+   ],
+   "payload": {
+    "calibration": null,
+    "input_ref": {
+     "dimension": 3,
+     "length": 1,
+     "model_build_id": "m1",
+     "policy": {
+      "name": "last-token",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     },
+     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "layer": 12,
+    "metrics": {
+     "displacement": {
+      "count": 0,
+      "longest_sub_delta_run": null,
+      "mean": null,
+      "median": null
+     },
+     "diversity": {
+      "cell_entropy": null,
+      "participation_ratio": null
+     },
+     "persistence": {
+      "dominant_cell_share": null,
+      "longest_stay": null
+     },
+     "recurrence": {
+      "pair_fraction": null,
+      "return_count": null,
+      "return_rate": null
+     }
+    },
+    "mode": "single",
+    "series": {
+     "displacement_longest_sub_delta_run": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "steps",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "displacement_mean": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "displacement_median": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "diversity_cell_entropy": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "nats",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "diversity_participation_ratio": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "dimensionless",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "persistence_dominant_cell_share": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "persistence_longest_stay": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "points",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_pair_fraction": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_return_count": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "returns",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_return_rate": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "returns_per_point",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     }
+    },
+    "source": "T-hid",
+    "space_id": "S1",
+    "thresholds": {
+     "delta": 536870912,
+     "epsilon": null,
+     "source": {
+      "delta": "explicit",
+      "epsilon": null,
+      "w_min": null
+     },
+     "w_min": null
+    },
+    "verdict": {
+     "reason": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 \u00a73.2)",
+     "state": null
+    }
+   }
+  },
+  {
+   "blobs": {
+    "blob:sha256:7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58": "00000000000000800000004000000000",
+    "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a": "00000000000000800000000000000080",
+    "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29": "0000000000000080000000c000000000"
+   },
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-T2-no-delta",
+   "note": "",
+   "parents": [
+    {
+     "artifact_ids": [
+      "art:0000000000000000000000000000000000000000000000000000000000000000"
+     ],
+     "ordered": false,
+     "role": "trajectory"
+    }
+   ],
+   "payload": {
+    "calibration": null,
+    "input_ref": {
+     "dimension": 3,
+     "length": 2,
+     "model_build_id": "m1",
+     "policy": {
+      "name": "last-token",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     },
+     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "layer": 12,
+    "metrics": {
+     "displacement": {
+      "count": 1,
+      "longest_sub_delta_run": null,
+      "mean": 3221225472,
+      "median": 3221225472
+     },
+     "diversity": {
+      "cell_entropy": null,
+      "participation_ratio": 1073741824
+     },
+     "persistence": {
+      "dominant_cell_share": null,
+      "longest_stay": null
+     },
+     "recurrence": {
+      "pair_fraction": null,
+      "return_count": null,
+      "return_rate": null
+     }
+    },
+    "mode": "single",
+    "series": {
+     "displacement_longest_sub_delta_run": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "steps",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "displacement_mean": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29"
+     },
+     "displacement_median": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29"
+     },
+     "diversity_cell_entropy": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "nats",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "diversity_participation_ratio": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "dimensionless",
+      "uri": "blob:sha256:7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58"
+     },
+     "persistence_dominant_cell_share": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "persistence_longest_stay": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "points",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_pair_fraction": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_return_count": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "returns",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_return_rate": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "returns_per_point",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     }
+    },
+    "source": "T-hid",
+    "space_id": "S1",
+    "thresholds": {
+     "delta": null,
+     "epsilon": null,
+     "source": {
+      "delta": null,
+      "epsilon": null,
+      "w_min": null
+     },
+     "w_min": null
+    },
+    "verdict": {
+     "reason": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 \u00a73.2)",
+     "state": null
+    }
+   }
+  },
+  {
+   "blobs": {
+    "blob:sha256:7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58": "00000000000000800000004000000000",
+    "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a": "00000000000000800000000000000080",
+    "blob:sha256:a44f869b720be79dafbfd94382036b7bd2406e1c162d632f74cb4a67a081b37e": "00000000000000800000000000000000",
+    "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29": "0000000000000080000000c000000000"
+   },
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-T2-delta",
+   "note": "",
+   "parents": [
+    {
+     "artifact_ids": [
+      "art:0000000000000000000000000000000000000000000000000000000000000000"
+     ],
+     "ordered": false,
+     "role": "trajectory"
+    }
+   ],
+   "payload": {
+    "calibration": null,
+    "input_ref": {
+     "dimension": 3,
+     "length": 2,
+     "model_build_id": "m1",
+     "policy": {
+      "name": "last-token",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     },
+     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "layer": 12,
+    "metrics": {
+     "displacement": {
+      "count": 1,
+      "longest_sub_delta_run": 0,
+      "mean": 3221225472,
+      "median": 3221225472
+     },
+     "diversity": {
+      "cell_entropy": null,
+      "participation_ratio": 1073741824
+     },
+     "persistence": {
+      "dominant_cell_share": null,
+      "longest_stay": null
+     },
+     "recurrence": {
+      "pair_fraction": null,
+      "return_count": null,
+      "return_rate": null
+     }
+    },
+    "mode": "single",
+    "series": {
+     "displacement_longest_sub_delta_run": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "a44f869b720be79dafbfd94382036b7bd2406e1c162d632f74cb4a67a081b37e",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "steps",
+      "uri": "blob:sha256:a44f869b720be79dafbfd94382036b7bd2406e1c162d632f74cb4a67a081b37e"
+     },
+     "displacement_mean": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29"
+     },
+     "displacement_median": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29"
+     },
+     "diversity_cell_entropy": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "nats",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "diversity_participation_ratio": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "dimensionless",
+      "uri": "blob:sha256:7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58"
+     },
+     "persistence_dominant_cell_share": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "persistence_longest_stay": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "points",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_pair_fraction": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_return_count": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "returns",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_return_rate": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "returns_per_point",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     }
+    },
+    "source": "T-hid",
+    "space_id": "S1",
+    "thresholds": {
+     "delta": 536870912,
+     "epsilon": null,
+     "source": {
+      "delta": "explicit",
+      "epsilon": null,
+      "w_min": null
+     },
+     "w_min": null
+    },
+    "verdict": {
+     "reason": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 \u00a73.2)",
+     "state": null
+    }
+   }
+  },
+  {
+   "blobs": {
+    "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb": "0000000000000080"
+   },
+   "expect": {
+    "codes": [
+     "S37"
+    ],
+    "result": "reject"
+   },
+   "id": "S37-T1-mean-is-0-but-series-has-no-value",
+   "note": "",
+   "parents": [
+    {
+     "artifact_ids": [
+      "art:0000000000000000000000000000000000000000000000000000000000000000"
+     ],
+     "ordered": false,
+     "role": "trajectory"
+    }
+   ],
+   "payload": {
+    "calibration": null,
+    "input_ref": {
+     "dimension": 3,
+     "length": 1,
+     "model_build_id": "m1",
+     "policy": {
+      "name": "last-token",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     },
+     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "layer": 12,
+    "metrics": {
+     "displacement": {
+      "count": 0,
+      "longest_sub_delta_run": null,
+      "mean": 0,
+      "median": null
+     },
+     "diversity": {
+      "cell_entropy": null,
+      "participation_ratio": null
+     },
+     "persistence": {
+      "dominant_cell_share": null,
+      "longest_stay": null
+     },
+     "recurrence": {
+      "pair_fraction": null,
+      "return_count": null,
+      "return_rate": null
+     }
+    },
+    "mode": "single",
+    "series": {
+     "displacement_longest_sub_delta_run": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "steps",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "displacement_mean": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "displacement_median": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "diversity_cell_entropy": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "nats",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "diversity_participation_ratio": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "dimensionless",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "persistence_dominant_cell_share": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "persistence_longest_stay": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "points",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_pair_fraction": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_return_count": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "returns",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_return_rate": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "returns_per_point",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     }
+    },
+    "source": "T-hid",
+    "space_id": "S1",
+    "thresholds": {
+     "delta": null,
+     "epsilon": null,
+     "source": {
+      "delta": null,
+      "epsilon": null,
+      "w_min": null
+     },
+     "w_min": null
+    },
+    "verdict": {
+     "reason": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 \u00a73.2)",
+     "state": null
+    }
+   }
+  },
+  {
+   "blobs": {
+    "blob:sha256:af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc": "0000000000000000",
+    "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb": "0000000000000080"
+   },
+   "expect": {
+    "codes": [
+     "S36",
+     "S37"
+    ],
+    "result": "reject"
+   },
+   "id": "S36-T1-series-t0-has-a-value",
+   "note": "",
+   "parents": [
+    {
+     "artifact_ids": [
+      "art:0000000000000000000000000000000000000000000000000000000000000000"
+     ],
+     "ordered": false,
+     "role": "trajectory"
+    }
+   ],
+   "payload": {
+    "calibration": null,
+    "input_ref": {
+     "dimension": 3,
+     "length": 1,
+     "model_build_id": "m1",
+     "policy": {
+      "name": "last-token",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     },
+     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "layer": 12,
+    "metrics": {
+     "displacement": {
+      "count": 0,
+      "longest_sub_delta_run": null,
+      "mean": null,
+      "median": null
+     },
+     "diversity": {
+      "cell_entropy": null,
+      "participation_ratio": null
+     },
+     "persistence": {
+      "dominant_cell_share": null,
+      "longest_stay": null
+     },
+     "recurrence": {
+      "pair_fraction": null,
+      "return_count": null,
+      "return_rate": null
+     }
+    },
+    "mode": "single",
+    "series": {
+     "displacement_longest_sub_delta_run": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "steps",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "displacement_mean": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+     },
+     "displacement_median": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "diversity_cell_entropy": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "nats",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "diversity_participation_ratio": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "dimensionless",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "persistence_dominant_cell_share": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "persistence_longest_stay": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "points",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_pair_fraction": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_return_count": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "returns",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     },
+     "recurrence_return_rate": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb",
+      "shape": [
+       1
+      ],
+      "undefined": "int64_min",
+      "unit": "returns_per_point",
+      "uri": "blob:sha256:e6ad6c9a3a3b7658c35bacf6553fcb8ffe34387534a648fe18f875b8f7a86ddb"
+     }
+    },
+    "source": "T-hid",
+    "space_id": "S1",
+    "thresholds": {
+     "delta": null,
+     "epsilon": null,
+     "source": {
+      "delta": null,
+      "epsilon": null,
+      "w_min": null
+     },
+     "w_min": null
+    },
+    "verdict": {
+     "reason": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 \u00a73.2)",
+     "state": null
+    }
+   }
+  },
+  {
+   "blobs": {
+    "blob:sha256:7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58": "00000000000000800000004000000000",
+    "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a": "00000000000000800000000000000080",
+    "blob:sha256:a44f869b720be79dafbfd94382036b7bd2406e1c162d632f74cb4a67a081b37e": "00000000000000800000000000000000",
+    "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29": "0000000000000080000000c000000000"
+   },
+   "expect": {
+    "codes": [
+     "S37"
+    ],
+    "result": "reject"
+   },
+   "id": "S37-T2-run-null-but-series-has-0",
+   "note": "",
+   "parents": [
+    {
+     "artifact_ids": [
+      "art:0000000000000000000000000000000000000000000000000000000000000000"
+     ],
+     "ordered": false,
+     "role": "trajectory"
+    }
+   ],
+   "payload": {
+    "calibration": null,
+    "input_ref": {
+     "dimension": 3,
+     "length": 2,
+     "model_build_id": "m1",
+     "policy": {
+      "name": "last-token",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     },
+     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "layer": 12,
+    "metrics": {
+     "displacement": {
+      "count": 1,
+      "longest_sub_delta_run": null,
+      "mean": 3221225472,
+      "median": 3221225472
+     },
+     "diversity": {
+      "cell_entropy": null,
+      "participation_ratio": 1073741824
+     },
+     "persistence": {
+      "dominant_cell_share": null,
+      "longest_stay": null
+     },
+     "recurrence": {
+      "pair_fraction": null,
+      "return_count": null,
+      "return_rate": null
+     }
+    },
+    "mode": "single",
+    "series": {
+     "displacement_longest_sub_delta_run": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "a44f869b720be79dafbfd94382036b7bd2406e1c162d632f74cb4a67a081b37e",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "steps",
+      "uri": "blob:sha256:a44f869b720be79dafbfd94382036b7bd2406e1c162d632f74cb4a67a081b37e"
+     },
+     "displacement_mean": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29"
+     },
+     "displacement_median": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29"
+     },
+     "diversity_cell_entropy": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "nats",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "diversity_participation_ratio": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "dimensionless",
+      "uri": "blob:sha256:7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58"
+     },
+     "persistence_dominant_cell_share": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "persistence_longest_stay": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "points",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_pair_fraction": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_return_count": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "returns",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_return_rate": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "returns_per_point",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     }
+    },
+    "source": "T-hid",
+    "space_id": "S1",
+    "thresholds": {
+     "delta": 536870912,
+     "epsilon": null,
+     "source": {
+      "delta": "explicit",
+      "epsilon": null,
+      "w_min": null
+     },
+     "w_min": null
+    },
+    "verdict": {
+     "reason": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 \u00a73.2)",
+     "state": null
+    }
+   }
+  },
+  {
+   "blobs": {
+    "blob:sha256:7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58": "00000000000000800000004000000000",
+    "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a": "00000000000000800000000000000080",
+    "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29": "0000000000000080000000c000000000"
+   },
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "schema-undefined-declaration-missing",
+   "note": "0.7.1: every series declares undefined",
+   "parents": [
+    {
+     "artifact_ids": [
+      "art:0000000000000000000000000000000000000000000000000000000000000000"
+     ],
+     "ordered": false,
+     "role": "trajectory"
+    }
+   ],
+   "payload": {
+    "calibration": null,
+    "input_ref": {
+     "dimension": 3,
+     "length": 2,
+     "model_build_id": "m1",
+     "policy": {
+      "name": "last-token",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     },
+     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "layer": 12,
+    "metrics": {
+     "displacement": {
+      "count": 1,
+      "longest_sub_delta_run": null,
+      "mean": 3221225472,
+      "median": 3221225472
+     },
+     "diversity": {
+      "cell_entropy": null,
+      "participation_ratio": 1073741824
+     },
+     "persistence": {
+      "dominant_cell_share": null,
+      "longest_stay": null
+     },
+     "recurrence": {
+      "pair_fraction": null,
+      "return_count": null,
+      "return_rate": null
+     }
+    },
+    "mode": "single",
+    "series": {
+     "displacement_longest_sub_delta_run": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "steps",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "displacement_mean": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29"
+     },
+     "displacement_median": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29",
+      "shape": [
+       2
+      ],
+      "unit": "distance",
+      "uri": "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29"
+     },
+     "diversity_cell_entropy": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "nats",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "diversity_participation_ratio": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "dimensionless",
+      "uri": "blob:sha256:7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58"
+     },
+     "persistence_dominant_cell_share": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "persistence_longest_stay": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "points",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_pair_fraction": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_return_count": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "returns",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_return_rate": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "returns_per_point",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     }
+    },
+    "source": "T-hid",
+    "space_id": "S1",
+    "thresholds": {
+     "delta": null,
+     "epsilon": null,
+     "source": {
+      "delta": null,
+      "epsilon": null,
+      "w_min": null
+     },
+     "w_min": null
+    },
+    "verdict": {
+     "reason": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 \u00a73.2)",
+     "state": null
+    }
+   }
+  },
+  {
+   "blobs": {
+    "blob:sha256:7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58": "00000000000000800000004000000000",
+    "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a": "00000000000000800000000000000080",
+    "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29": "0000000000000080000000c000000000"
+   },
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "schema-undefined-declaration-wrong-value",
+   "note": "",
+   "parents": [
+    {
+     "artifact_ids": [
+      "art:0000000000000000000000000000000000000000000000000000000000000000"
+     ],
+     "ordered": false,
+     "role": "trajectory"
+    }
+   ],
+   "payload": {
+    "calibration": null,
+    "input_ref": {
+     "dimension": 3,
+     "length": 2,
+     "model_build_id": "m1",
+     "policy": {
+      "name": "last-token",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     },
+     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "layer": 12,
+    "metrics": {
+     "displacement": {
+      "count": 1,
+      "longest_sub_delta_run": null,
+      "mean": 3221225472,
+      "median": 3221225472
+     },
+     "diversity": {
+      "cell_entropy": null,
+      "participation_ratio": 1073741824
+     },
+     "persistence": {
+      "dominant_cell_share": null,
+      "longest_stay": null
+     },
+     "recurrence": {
+      "pair_fraction": null,
+      "return_count": null,
+      "return_rate": null
+     }
+    },
+    "mode": "single",
+    "series": {
+     "displacement_longest_sub_delta_run": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "steps",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "displacement_mean": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "distance",
+      "uri": "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29"
+     },
+     "displacement_median": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29",
+      "shape": [
+       2
+      ],
+      "undefined": "nan",
+      "unit": "distance",
+      "uri": "blob:sha256:c51ed4d6f6472416767b6cc2c9f0e6dc0badefddc2cbfe494f955eb5d95c7e29"
+     },
+     "diversity_cell_entropy": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "nats",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "diversity_participation_ratio": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "dimensionless",
+      "uri": "blob:sha256:7b4989ce8ad6f2e3866e5bb286bb66bd5621deea1cf43489b81650e947c75a58"
+     },
+     "persistence_dominant_cell_share": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "persistence_longest_stay": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "points",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_pair_fraction": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "fraction",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_return_count": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": null,
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "returns",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     },
+     "recurrence_return_rate": {
+      "byte_order": "little",
+      "dtype": "int64",
+      "media_type": "application/vnd.sensos.ndarray-raw",
+      "order": "C",
+      "quantization": {
+       "quantum": {
+        "base": 2,
+        "exponent": -30
+       },
+       "rounding": "ties-to-even",
+       "tolerance_quanta": 1
+      },
+      "sha256": "8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a",
+      "shape": [
+       2
+      ],
+      "undefined": "int64_min",
+      "unit": "returns_per_point",
+      "uri": "blob:sha256:8a5f16f43d7be9d5da1bb71656fa69fcc035482b234cfd571954d046f0ca954a"
+     }
+    },
+    "source": "T-hid",
+    "space_id": "S1",
+    "thresholds": {
+     "delta": null,
+     "epsilon": null,
+     "source": {
+      "delta": null,
+      "epsilon": null,
+      "w_min": null
+     },
+     "w_min": null
+    },
+    "verdict": {
+     "reason": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 \u00a73.2)",
+     "state": null
+    }
+   }
+  }
+ ],
+ "format": "ic02-series/1",
+ "rule": "check_payload(envelope) with envelope = {payload_schema: msr.geometry-measurement 0.7.1, payload, parents}, blobs = uri -> bytes (hex here): the codes in expect.codes (empty = accept). T=1 and T=2, each without and with delta"
+}

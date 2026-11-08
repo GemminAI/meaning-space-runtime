@@ -1,0 +1,436 @@
+{
+ "cases": [
+  {
+   "expect": {
+    "code": "E_DUP_KEY",
+    "result": "reject"
+   },
+   "id": "dup-key-plain",
+   "input_utf8": "{\"a\":1,\"a\":2}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_DUP_KEY",
+    "result": "reject"
+   },
+   "id": "dup-key-escaped",
+   "input_utf8": "{\"value\":100,\"val\\u0075e\":200}",
+   "note": "keys compared after unescaping"
+  },
+  {
+   "expect": {
+    "code": "E_DUP_KEY",
+    "result": "reject"
+   },
+   "id": "dup-key-nested",
+   "input_utf8": "{\"x\":{\"k\":1,\"k\":2}}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_DUP_KEY",
+    "result": "reject"
+   },
+   "id": "dup-key-in-array-object",
+   "input_utf8": "[{\"k\":1,\"k\":1}]",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_DUP_KEY",
+    "result": "reject"
+   },
+   "id": "dup-key-surrogate-pair-escape",
+   "input_utf8": "{\"\ud83d\ude00\":1,\"\\ud83d\\ude00\":2}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "8ff02e51492298394eb8d285b3873e3660c41e58c6de5b51ad6871b003688ec2",
+    "jcs_utf8": "{\"a\":{\"a\":1}}",
+    "result": "accept"
+   },
+   "id": "same-key-different-levels",
+   "input_utf8": "{\"a\":{\"a\":1}}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "a7962fb10dc1255be368ece9c22b2256605921dc6d0a8c9409d3ee406bcb86e5",
+    "jcs_utf8": "{\"e\u0301\":2,\"\u00e9\":1}",
+    "result": "accept"
+   },
+   "id": "no-unicode-normalization",
+   "input_utf8": "{\"\u00e9\":1,\"e\u0301\":2}",
+   "note": "NFC/NFD forms are distinct keys; U+0065 sorts before U+00E9"
+  },
+  {
+   "expect": {
+    "code": "E_FLOAT_TOKEN",
+    "result": "reject"
+   },
+   "id": "float-1.0",
+   "input_utf8": "{\"a\":1.0}",
+   "note": "integral value, but a fraction token"
+  },
+  {
+   "expect": {
+    "code": "E_FLOAT_TOKEN",
+    "result": "reject"
+   },
+   "id": "float-1e0",
+   "input_utf8": "{\"a\":1e0}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_FLOAT_TOKEN",
+    "result": "reject"
+   },
+   "id": "float-1E0",
+   "input_utf8": "{\"a\":1E0}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_FLOAT_TOKEN",
+    "result": "reject"
+   },
+   "id": "float-1.5",
+   "input_utf8": "{\"a\":1.5}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_FLOAT_TOKEN",
+    "result": "reject"
+   },
+   "id": "float-minus-zero-point-zero",
+   "input_utf8": "{\"a\":-0.0}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_FLOAT_TOKEN",
+    "result": "reject"
+   },
+   "id": "float-0e0",
+   "input_utf8": "[0e0]",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_CONSTANT",
+    "result": "reject"
+   },
+   "id": "nan",
+   "input_utf8": "{\"a\":NaN}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_CONSTANT",
+    "result": "reject"
+   },
+   "id": "infinity",
+   "input_utf8": "{\"a\":Infinity}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_CONSTANT",
+    "result": "reject"
+   },
+   "id": "minus-infinity",
+   "input_utf8": "{\"a\":-Infinity}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "45b619e97b5d9b029af4522e9ffb02fa99ff2bf226c82ee22a7cc10269a557e8",
+    "jcs_utf8": "{\"a\":0}",
+    "result": "accept"
+   },
+   "id": "minus-zero-integer",
+   "input_utf8": "{\"a\":-0}",
+   "note": "-0 is an integer token; its value is 0"
+  },
+  {
+   "expect": {
+    "jcs_sha256": "a9af4cfcb37cc6c571d3b396a59af5f6e42c8ea43d06cafc89705e3fb495649d",
+    "jcs_utf8": "{\"a\":9007199254740991}",
+    "result": "accept"
+   },
+   "id": "max-safe-integer",
+   "input_utf8": "{\"a\":9007199254740991}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "2bbb858ae01f3f721370e806b33be7dd3ab381006bb3409ae01d29f8e326a8c2",
+    "jcs_utf8": "{\"a\":-9007199254740991}",
+    "result": "accept"
+   },
+   "id": "min-safe-integer",
+   "input_utf8": "{\"a\":-9007199254740991}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_INT_RANGE",
+    "result": "reject"
+   },
+   "id": "two-pow-53",
+   "input_utf8": "{\"a\":9007199254740992}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_INT_RANGE",
+    "result": "reject"
+   },
+   "id": "minus-two-pow-53",
+   "input_utf8": "{\"a\":-9007199254740992}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_INT_RANGE",
+    "result": "reject"
+   },
+   "id": "huge-integer",
+   "input_utf8": "[123456789012345678901234567890]",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_SYNTAX",
+    "result": "reject"
+   },
+   "id": "leading-zero",
+   "input_utf8": "{\"a\":01}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_SYNTAX",
+    "result": "reject"
+   },
+   "id": "plus-sign",
+   "input_utf8": "{\"a\":+1}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_SYNTAX",
+    "result": "reject"
+   },
+   "id": "trailing-comma",
+   "input_utf8": "[1,2,]",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_SYNTAX",
+    "result": "reject"
+   },
+   "id": "empty-input",
+   "input_utf8": "",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_SYNTAX",
+    "result": "reject"
+   },
+   "id": "single-quotes",
+   "input_utf8": "{'a':1}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_SYNTAX",
+    "result": "reject"
+   },
+   "id": "bom",
+   "input_hex": "efbbbf7b7d",
+   "note": "a UTF-8 BOM is not JSON text"
+  },
+  {
+   "expect": {
+    "code": "E_UTF8",
+    "result": "reject"
+   },
+   "id": "invalid-utf8-byte",
+   "input_hex": "7b2261223a22ff227d",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_UTF8",
+    "result": "reject"
+   },
+   "id": "invalid-utf8-overlong",
+   "input_hex": "7b2261223a22c0af227d",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_UTF8",
+    "result": "reject"
+   },
+   "id": "invalid-utf8-encoded-surrogate",
+   "input_hex": "7b2261223a22eda080227d",
+   "note": "ED A0 80 = U+D800"
+  },
+  {
+   "expect": {
+    "code": "E_SURROGATE",
+    "result": "reject"
+   },
+   "id": "lone-high-surrogate-escape",
+   "input_utf8": "{\"a\":\"\\ud800\"}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_SURROGATE",
+    "result": "reject"
+   },
+   "id": "lone-low-surrogate-escape",
+   "input_utf8": "{\"a\":\"\\udc00\"}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_SURROGATE",
+    "result": "reject"
+   },
+   "id": "lone-surrogate-in-key",
+   "input_utf8": "{\"\\udc00\":1}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "code": "E_SURROGATE",
+    "result": "reject"
+   },
+   "id": "reversed-surrogate-pair",
+   "input_utf8": "{\"a\":\"\\ude00\\ud83d\"}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "8da70d6db48a3dc32fa9526602b4970d2eb551ffbbb8c497d97e4cb24f637d04",
+    "jcs_utf8": "{\"a\":\"\ud83d\ude00\"}",
+    "result": "accept"
+   },
+   "id": "valid-surrogate-pair-escape",
+   "input_utf8": "{\"a\":\"\\ud83d\\ude00\"}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "fbe87e4cfc548ef811538ef0d3efdd201ac1b0849152159735c2ef7fbfd086f2",
+    "jcs_utf8": "{\"a\":4,\"\ud800\udc00\":2,\"\ue000\":3,\"\uffff\":1}",
+    "result": "accept"
+   },
+   "id": "key-order-utf16",
+   "input_utf8": "{\"\\uffff\":1,\"\\ud800\\udc00\":2,\"\\ue000\":3,\"a\":4}",
+   "note": "UTF-16 code units: a(0061) < U+10000 (D800 DC00) < U+E000 < U+FFFF; code-point order would differ"
+  },
+  {
+   "expect": {
+    "jcs_sha256": "54ed90c13f2cf9abc6be4688fb6a5e0e6a83f23eae58899b6b397923e59ebd1f",
+    "jcs_utf8": "{\"1\":5,\"10\":3,\"9\":4,\"a\":1,\"b\":2}",
+    "result": "accept"
+   },
+   "id": "key-order-ascii",
+   "input_utf8": "{\"b\":2,\"a\":1,\"10\":3,\"9\":4,\"1\":5}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "ee8723a8d7d6ef8e9dd499dd6308103c80dd8b74f4e349747090dc787da6d0f8",
+    "jcs_utf8": "{\"a\":2,\"ab\":1}",
+    "result": "accept"
+   },
+   "id": "key-prefix-order",
+   "input_utf8": "{\"ab\":1,\"a\":2}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "51bda7ab4e44726cde71fcb6e4b515357059bb6b6dd5146d1fc50f73f11678c6",
+    "jcs_utf8": "[3,1,2]",
+    "result": "accept"
+   },
+   "id": "array-order-kept",
+   "input_utf8": "[3,1,2]",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "f25109c4111335e4a32d49373585e7a788ff5b10e70023f7004b170e7f84716a",
+    "jcs_utf8": "{\"a\":[1,2],\"b\":null}",
+    "result": "accept"
+   },
+   "id": "whitespace-ignored",
+   "input_utf8": " { \"a\" : [ 1 , 2 ] , \"b\" : null }\n",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "4d0f18de2133118249c26acc481838d4f6bb6bc1de882d99abbd19ae9397e8df",
+    "jcs_utf8": "[true,false,null]",
+    "result": "accept"
+   },
+   "id": "literals",
+   "input_utf8": "[true,false,null]",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "aeeba1e56a144077f89e26c930dad7cf933e9383cfb8e33ddff618233b29be76",
+    "jcs_utf8": "{\"a\":{},\"b\":[]}",
+    "result": "accept"
+   },
+   "id": "empty-containers",
+   "input_utf8": "{\"a\":{},\"b\":[]}",
+   "note": ""
+  },
+  {
+   "expect": {
+    "jcs_sha256": "f67f73b31313928dafb833ac2f572b691116e2f49456c57e0f82d150d0c4eb7f",
+    "jcs_utf8": "{\"a\":\"\\u0001\\u001f\\b\\f\\n\\r\\t\\\"\\\\/\"}",
+    "result": "accept"
+   },
+   "id": "string-escapes",
+   "input_utf8": "{\"a\":\"\\u0001\\u001f\\b\\f\\n\\r\\t\\\"\\\\\\/\"}",
+   "note": "short escapes for b f n r t, double quote and backslash; other controls as lower-case \\u00xx; solidus not escaped"
+  },
+  {
+   "expect": {
+    "jcs_sha256": "072c9a3e9db50caaa1ff1a5406f5b53af13c4d2b95b6282e2ecb021607786013",
+    "jcs_utf8": "{\"a\":\"\u007f\u2028\u2029\u00e9\"}",
+    "result": "accept"
+   },
+   "id": "string-literal-specials",
+   "input_utf8": "{\"a\":\"\\u007f\\u2028\\u2029\\u00e9\"}",
+   "note": "U+007F, U+2028, U+2029 and non-ASCII are written as themselves"
+  },
+  {
+   "expect": {
+    "jcs_sha256": "3287ffa0a38195470a24d201c21592fbe89513a9fdb43c79df8ce8a0867d1551",
+    "jcs_utf8": "[-1,0,10,-10]",
+    "result": "accept"
+   },
+   "id": "negative-integers",
+   "input_utf8": "[-1,0,10,-10]",
+   "note": ""
+  }
+ ],
+ "format": "canonicalize/1",
+ "pipeline": "strict_load(bytes of input) then jcs(); input_utf8 is encoded as UTF-8, input_hex is raw bytes"
+}

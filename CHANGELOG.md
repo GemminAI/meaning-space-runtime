@@ -1,5 +1,56 @@
 # Changelog
 
+## Unreleased — IC-02 calibration 0.8.0 (branch feature/msr-ic02-v080; provisional decision Tomo 11-07)
+
+- Contract pinned to sensos `bbc085b` (IC-00 1.0.0, blob 0.7.0, msr/geometry-measurement 0.7.1,
+  msr/calibration 0.8.0); vendored `msr/vectors/calibration-exponent.json`.
+- `msr.calibration` 0.8.0: the payload declares `exponent` (required integer, no range in the
+  contract; not fixed at -30). `build_calibration(exponent=-30)` writes it; readers
+  (`calibration_from_envelope`, `load_calibration`) interpret `values` with the declared exponent.
+- A 0.7.x payload (no `exponent`) is refused, never read as 0.8.0; migration of old data is not
+  implemented (a separate decision).
+- A calibration whose exponent differs from the measurement grid (-30) is not converted: refused for
+  the pair verdict and for thresholds taken from it in `emit_single`.
+
+## Unreleased — IC-02 0.7.1 (branch feature/msr-ic02-v071)
+
+- Contract pinned to sensos `1bf0182` (IC-00 1.0.0, blob 0.7.0, msr/geometry-measurement
+  0.7.1, msr/calibration 0.7.0); vendored `msr/vectors/series.json`.
+- Every series always declares `undefined: "int64_min"`; payload_schema 0.7.1.
+- Calibration reader: contract version, field types/ranges, S17/S19/S21 and parent
+  consistency are checked before the ids are recomputed; `parent_contents` is what
+  nvs-runtime fetched from HEKB and verified (MSR calls no HEKB).
+
+## Unreleased — aligned to IC-00 1.0.0 / IC-02 0.7.0 (branch feature/msr-ic02-v070)
+
+- Contract pinned to sensos `c82918f` (tag `contracts/ic00-v1.0.0`): lock + vendor
+  updated (IC-00 1.0.0 frozen, blob 0.7.0, msr 0.7.0, all frozen vectors + blob vectors).
+- Envelope `contract.version` 1.0.0; payload schemas `msr.geometry-measurement` /
+  `msr.calibration` 0.7.0.
+- `series` = one 1-D int64 Blob per series name; count series unquantized;
+  `undefined: "int64_min"` where a value does not exist (msr/README.md); values
+  outside the Blob range raise. `SERIES_ORDER`/`SERIES_UNIT` removed (`SERIES`).
+- `load_calibration` no longer needs a `.sha256` file: strict parse -> shape ->
+  ids recomputed (needs `parent_contents`). Pair verdict only via
+  `evaluate_shift_quantized`; differing quanta are refused.
+- `displacement.longest_sub_delta_run` is `None` for a one-point trajectory (no step).
+
+## Unreleased — msr.geometry IC-00/IC-02 envelopes (branch feature/msr-ic02)
+
+- `msr.geometry` now emits IC-00 envelopes (design v0.6.2): `emit_single` /
+  `emit_pair` (payload `mode: single|pair`, integer-only, series as an int64
+  Blob), own strict-load / quantize (built-in `round()`, ties-to-even) / JCS /
+  `content_id` / `artifact_id` (`wire.py`, `ids.py`, `envelope.py`, `emit.py`).
+  MSR numbers nothing: ids, `seq`, parents come from the caller.
+- Calibration is an independent, immutable artifact (`CalibrationArtifact`),
+  stored as `<data_dir>/calibration/<artifact_id>.json` (+ `.sha256` integrity
+  file), never overwritten, never looked up by `model_build_id`. Null
+  trajectories default to `equal_only`; the pooled distances are block-wise.
+- Removed: `data_dir`/`model_build_id` lookup, `LoadedCalibration`,
+  `codebook_sha256`, `to_json_bytes`, `Calibration.measured_at`.
+- `tests/contract/`: `contract.lock` pins sensos 6a34b99 and the vendored
+  schemas/vectors under `tests/contract/vendor/` (never edited).
+
 ## 1.1.0 — 2026-08-04
 
 Implements Phase 0 (documentation) and Phase 1 (core reliability) of the

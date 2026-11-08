@@ -1,0 +1,940 @@
+{
+ "cases": [
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-real-int-blob",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000008005000000000000000000002000000000",
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-real-with-undefined-declared",
+   "note": "-2^63 marks a value that does not exist",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "f82e94f3294d221719a3628ca675234c0a1ce55ed5d389aaba662bd50be44699",
+    "shape": [
+     3
+    ],
+    "undefined": "int64_min",
+    "unit": "distance",
+    "uri": "blob:sha256:f82e94f3294d221719a3628ca675234c0a1ce55ed5d389aaba662bd50be44699"
+   }
+  },
+  {
+   "data_hex": "0000000000000000000000000000000002000000000000000700000000000000",
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-count-blob",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": null,
+    "sha256": "fe1a6ce245839606456de8f63ca815e45c8df49a781649be3103466020125a51",
+    "shape": [
+     4
+    ],
+    "unit": "returns",
+    "uri": "blob:sha256:fe1a6ce245839606456de8f63ca815e45c8df49a781649be3103466020125a51"
+   }
+  },
+  {
+   "data_hex": "000000000000008000000000000000000100000000000000",
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-count-with-undefined-declared",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": null,
+    "sha256": "050bc0b5fc34bc1ac12179763dc796f42f280b676d103c98ee0a3e3f164c576b",
+    "shape": [
+     3
+    ],
+    "undefined": "int64_min",
+    "unit": "returns",
+    "uri": "blob:sha256:050bc0b5fc34bc1ac12179763dc796f42f280b676d103c98ee0a3e3f164c576b"
+   }
+  },
+  {
+   "data_hex": "050000000000000006000000000000000700000000000000080000000000000009000000000000000a00000000000000",
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-two-dimensional-shape",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "be591eb5ae524ead0c7053a7889943887e10e0c5efe10d16c5b02afbe63101b2",
+    "shape": [
+     2,
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:be591eb5ae524ead0c7053a7889943887e10e0c5efe10d16c5b02afbe63101b2"
+   }
+  },
+  {
+   "data_hex": "000000000000e03f0000000000000240",
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-float-blob-with-comparison",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "comparison": {
+     "bound": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rule": "absolute_error"
+    },
+    "dtype": "float64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "sha256": "d1ee2cf4807b898b08e3c9ea3f52fc009e8f2b29f52a9be113dd9c55abeb5114",
+    "shape": [
+     2
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:d1ee2cf4807b898b08e3c9ea3f52fc009e8f2b29f52a9be113dd9c55abeb5114"
+   }
+  },
+  {
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-ref-only-no-bytes",
+   "note": "bytes not at hand: only the reference is checked",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-uri-file-uri",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "file:///tmp/0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-uri-https-uri",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "https://example.com/0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-uri-uppercase-hex",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:AFC561E8D4D36E646726134C3A527AFAA284949BA462AAEA5E33CABB8D3A8A3F"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-uri-short-hex",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-uri-extra-suffix",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f/x"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-uri-empty",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": ""
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "S34"
+    ],
+    "result": "reject"
+   },
+   "id": "S34-uri-hex-differs-from-sha256",
+   "note": "well-formed uri whose hex is not the sha256",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "S24"
+    ],
+    "result": "reject"
+   },
+   "id": "S24-sha256-differs-from-bytes",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:1111111111111111111111111111111111111111111111111111111111111111"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "S24"
+    ],
+    "result": "reject"
+   },
+   "id": "S24-length-differs-from-shape",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     4
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000008005000000000000000000002000000000",
+   "expect": {
+    "codes": [
+     "S36"
+    ],
+    "result": "reject"
+   },
+   "id": "S36-int64-min-without-declaration",
+   "note": "-2^63 is reserved; without the declaration it is an error",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "f82e94f3294d221719a3628ca675234c0a1ce55ed5d389aaba662bd50be44699",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:f82e94f3294d221719a3628ca675234c0a1ce55ed5d389aaba662bd50be44699"
+   }
+  },
+  {
+   "data_hex": "000000000000008000000000000000000100000000000000",
+   "expect": {
+    "codes": [
+     "S36",
+     "count_negative"
+    ],
+    "result": "reject"
+   },
+   "id": "S36-int64-min-in-count-blob-without-declaration",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": null,
+    "sha256": "050bc0b5fc34bc1ac12179763dc796f42f280b676d103c98ee0a3e3f164c576b",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:050bc0b5fc34bc1ac12179763dc796f42f280b676d103c98ee0a3e3f164c576b"
+   }
+  },
+  {
+   "data_hex": "0000000000000000ffffffffffffffff0200000000000000",
+   "expect": {
+    "codes": [
+     "count_negative"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-negative-count",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": null,
+    "sha256": "4b0325a73eef050f87900f82ddb77284f21f4aa88894bd6be806ccb01aa7977a",
+    "shape": [
+     3
+    ],
+    "unit": "returns",
+    "uri": "blob:sha256:4b0325a73eef050f87900f82ddb77284f21f4aa88894bd6be806ccb01aa7977a"
+   }
+  },
+  {
+   "data_hex": "0000000000000000ffffffffffffffff0200000000000000",
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-negative-in-real-blob",
+   "note": "quantized reals may be negative",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "4b0325a73eef050f87900f82ddb77284f21f4aa88894bd6be806ccb01aa7977a",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:4b0325a73eef050f87900f82ddb77284f21f4aa88894bd6be806ccb01aa7977a"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-undefined-bad-value",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "undefined": "nan",
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-quantization-missing",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-dtype-missing",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-big-endian",
+   "note": "",
+   "ref": {
+    "byte_order": "big",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-fortran-order",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "F",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-media-type",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/octet-stream",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-rounding",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "half-up",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000000000000040000000000000006000000000",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-extra-field",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "int64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "note": "x",
+    "order": "C",
+    "quantization": {
+     "quantum": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rounding": "ties-to-even",
+     "tolerance_quanta": 1
+    },
+    "sha256": "0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f",
+    "shape": [
+     3
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:0fc561e8d4d36e646726134c305270faa284949b046200e05e33c0bb8d30803f"
+   }
+  },
+  {
+   "data_hex": "000000000000e03f0000000000000240",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-float-blob-without-comparison",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "dtype": "float64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "sha256": "d1ee2cf4807b898b08e3c9ea3f52fc009e8f2b29f52a9be113dd9c55abeb5114",
+    "shape": [
+     2
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:d1ee2cf4807b898b08e3c9ea3f52fc009e8f2b29f52a9be113dd9c55abeb5114"
+   }
+  },
+  {
+   "data_hex": "000000000000e03f0000000000000240",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-float-blob-with-quantization",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "comparison": {
+     "bound": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rule": "absolute_error"
+    },
+    "dtype": "float64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "quantization": null,
+    "sha256": "d1ee2cf4807b898b08e3c9ea3f52fc009e8f2b29f52a9be113dd9c55abeb5114",
+    "shape": [
+     2
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:d1ee2cf4807b898b08e3c9ea3f52fc009e8f2b29f52a9be113dd9c55abeb5114"
+   }
+  },
+  {
+   "data_hex": "000000000000e03f0000000000000240",
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-float-blob-with-undefined",
+   "note": "float Blobs have no undefined mark (no NaN)",
+   "ref": {
+    "byte_order": "little",
+    "comparison": {
+     "bound": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rule": "absolute_error"
+    },
+    "dtype": "float64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "sha256": "d1ee2cf4807b898b08e3c9ea3f52fc009e8f2b29f52a9be113dd9c55abeb5114",
+    "shape": [
+     2
+    ],
+    "undefined": "int64_min",
+    "unit": "distance",
+    "uri": "blob:sha256:d1ee2cf4807b898b08e3c9ea3f52fc009e8f2b29f52a9be113dd9c55abeb5114"
+   }
+  },
+  {
+   "data_hex": "000000000000e03f0000000000000240",
+   "expect": {
+    "codes": [
+     "S25"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-float-blob-sha-differs",
+   "note": "",
+   "ref": {
+    "byte_order": "little",
+    "comparison": {
+     "bound": {
+      "base": 2,
+      "exponent": -30
+     },
+     "rule": "absolute_error"
+    },
+    "dtype": "float64",
+    "media_type": "application/vnd.sensos.ndarray-raw",
+    "order": "C",
+    "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "shape": [
+     2
+    ],
+    "unit": "distance",
+    "uri": "blob:sha256:2222222222222222222222222222222222222222222222222222222222222222"
+   }
+  }
+ ],
+ "format": "blob-refs/1",
+ "rule": "check_blob(ref, data): ref must match common/blob.schema.json (else code `schema`, alone); data_hex are the Blob's bytes (absent = reference only). Codes: S34 uri hex != sha256; S24 / S25 sha256 or length of an int / float Blob; S36 -2^63 without undefined: int64_min; count_negative a negative value in a count Blob (quantization null)"
+}

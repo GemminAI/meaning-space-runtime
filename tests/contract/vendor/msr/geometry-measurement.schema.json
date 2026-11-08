@@ -1,0 +1,1253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensos:contracts/msr/geometry-measurement/0.9.0",
+  "title": "IC-02 msr.geometry-measurement (payload) 0.9.0",
+  "type": "object",
+  "required": [
+    "mode",
+    "space_id",
+    "calibration",
+    "verdict"
+  ],
+  "properties": {
+    "mode": {
+      "enum": [
+        "single",
+        "pair"
+      ]
+    },
+    "space_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/single"
+    },
+    {
+      "$ref": "#/$defs/pair"
+    }
+  ],
+  "$defs": {
+    "sha256hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullableInt": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 9007199254740991,
+      "description": "件数・長さ（null か 0 以上の整数）。量子化しない離散の整数"
+    },
+    "inputRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "model_build_id",
+        "policy",
+        "length",
+        "dimension"
+      ],
+      "properties": {
+        "sha256": {
+          "$ref": "#/$defs/sha256hex"
+        },
+        "model_build_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "sha256"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256hex"
+            }
+          }
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "dimension": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "calibrationRef": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "artifact_id",
+            "content_id"
+          ],
+          "properties": {
+            "artifact_id": {
+              "type": "string",
+              "pattern": "^art:[0-9a-f]{64}$"
+            },
+            "content_id": {
+              "type": "string",
+              "pattern": "^cnt:[0-9a-f]{64}$"
+            }
+          }
+        }
+      ]
+    },
+    "thresholdSource": {
+      "enum": [
+        "calibration",
+        "explicit",
+        null
+      ]
+    },
+    "shiftState": {
+      "enum": [
+        "UNCALIBRATED",
+        "STAGNANT",
+        "NOISE_FLOOR_INTERNAL",
+        "STRUCTURAL_SHIFT_DETECTED"
+      ]
+    },
+    "single": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "space_id",
+        "source",
+        "layer",
+        "input_ref",
+        "input_scope",
+        "calibration",
+        "thresholds",
+        "metrics",
+        "series",
+        "verdict"
+      ],
+      "properties": {
+        "mode": {
+          "const": "single"
+        },
+        "space_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "enum": [
+            "T-tok",
+            "T-hid"
+          ]
+        },
+        "layer": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        },
+        "input_ref": {
+          "$ref": "#/$defs/inputRef"
+        },
+        "input_scope": {
+          "$ref": "#/$defs/inputScope"
+        },
+        "calibration": {
+          "$ref": "#/$defs/calibrationRef"
+        },
+        "thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "epsilon",
+            "delta",
+            "w_min",
+            "source"
+          ],
+          "properties": {
+            "epsilon": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "x-sensos-quantization": {
+                "quantum": {
+                  "base": 2,
+                  "exponent": -30
+                },
+                "rounding": "ties-to-even",
+                "tolerance_quanta": 1
+              },
+              "x-sensos-unit": "distance"
+            },
+            "delta": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "x-sensos-quantization": {
+                "quantum": {
+                  "base": 2,
+                  "exponent": -30
+                },
+                "rounding": "ties-to-even",
+                "tolerance_quanta": 1
+              },
+              "x-sensos-unit": "distance"
+            },
+            "w_min": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "description": "0 は異なる時刻のすべての組を数える"
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "epsilon",
+                "delta",
+                "w_min"
+              ],
+              "properties": {
+                "epsilon": {
+                  "$ref": "#/$defs/thresholdSource"
+                },
+                "delta": {
+                  "$ref": "#/$defs/thresholdSource"
+                },
+                "w_min": {
+                  "$ref": "#/$defs/thresholdSource"
+                }
+              }
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "epsilon": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "epsilon": {
+                    "type": "null"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "epsilon": {
+                        "enum": [
+                          "calibration",
+                          "explicit"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "epsilon": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "delta": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "delta": {
+                    "type": "null"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "delta": {
+                        "enum": [
+                          "calibration",
+                          "explicit"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "delta": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "w_min": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "w_min": {
+                    "type": "null"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "w_min": {
+                        "enum": [
+                          "calibration",
+                          "explicit"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "w_min": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "displacement",
+            "recurrence",
+            "diversity",
+            "persistence"
+          ],
+          "properties": {
+            "displacement": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "count",
+                "mean",
+                "median",
+                "longest_sub_delta_run"
+              ],
+              "properties": {
+                "count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "mean": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "distance"
+                },
+                "median": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "distance"
+                },
+                "longest_sub_delta_run": {
+                  "$ref": "#/$defs/nullableInt"
+                }
+              }
+            },
+            "recurrence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "pair_fraction",
+                "return_count",
+                "return_rate"
+              ],
+              "properties": {
+                "pair_fraction": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1073741824,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "fraction"
+                },
+                "return_count": {
+                  "$ref": "#/$defs/nullableInt"
+                },
+                "return_rate": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1073741824,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "returns_per_point (0..1: 1 点につき戻りは高々 1 回)"
+                }
+              }
+            },
+            "diversity": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "cell_entropy",
+                "participation_ratio"
+              ],
+              "properties": {
+                "cell_entropy": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "nats"
+                },
+                "participation_ratio": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "dimensionless"
+                }
+              }
+            },
+            "persistence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "longest_stay",
+                "dominant_cell_share"
+              ],
+              "properties": {
+                "longest_stay": {
+                  "$ref": "#/$defs/nullableInt"
+                },
+                "dominant_cell_share": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1073741824,
+                  "x-sensos-quantization": {
+                    "quantum": {
+                      "base": 2,
+                      "exponent": -30
+                    },
+                    "rounding": "ties-to-even",
+                    "tolerance_quanta": 1
+                  },
+                  "x-sensos-unit": "fraction"
+                }
+              }
+            }
+          }
+        },
+        "series": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "displacement_mean",
+            "displacement_median",
+            "displacement_longest_sub_delta_run",
+            "recurrence_pair_fraction",
+            "recurrence_return_count",
+            "recurrence_return_rate",
+            "diversity_cell_entropy",
+            "diversity_participation_ratio",
+            "persistence_longest_stay",
+            "persistence_dominant_cell_share"
+          ],
+          "properties": {
+            "displacement_mean": {
+              "allOf": [
+                {
+                  "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+                },
+                {
+                  "properties": {
+                    "shape": {
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "x-sensos-ordered": true,
+                      "items": {
+                        "minimum": 1
+                      }
+                    },
+                    "unit": {
+                      "const": "distance"
+                    },
+                    "quantization": {
+                      "type": "object",
+                      "properties": {
+                        "quantum": {
+                          "properties": {
+                            "exponent": {
+                              "const": -30
+                            }
+                          }
+                        },
+                        "tolerance_quanta": {
+                          "const": 1
+                        }
+                      }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
+                    }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
+                }
+              ]
+            },
+            "displacement_median": {
+              "allOf": [
+                {
+                  "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+                },
+                {
+                  "properties": {
+                    "shape": {
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "x-sensos-ordered": true,
+                      "items": {
+                        "minimum": 1
+                      }
+                    },
+                    "unit": {
+                      "const": "distance"
+                    },
+                    "quantization": {
+                      "type": "object",
+                      "properties": {
+                        "quantum": {
+                          "properties": {
+                            "exponent": {
+                              "const": -30
+                            }
+                          }
+                        },
+                        "tolerance_quanta": {
+                          "const": 1
+                        }
+                      }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
+                    }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
+                }
+              ]
+            },
+            "displacement_longest_sub_delta_run": {
+              "allOf": [
+                {
+                  "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+                },
+                {
+                  "properties": {
+                    "shape": {
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "x-sensos-ordered": true,
+                      "items": {
+                        "minimum": 1
+                      }
+                    },
+                    "unit": {
+                      "const": "steps"
+                    },
+                    "quantization": {
+                      "type": "null"
+                    },
+                    "undefined": {
+                      "const": "int64_min"
+                    }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
+                }
+              ]
+            },
+            "recurrence_pair_fraction": {
+              "allOf": [
+                {
+                  "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+                },
+                {
+                  "properties": {
+                    "shape": {
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "x-sensos-ordered": true,
+                      "items": {
+                        "minimum": 1
+                      }
+                    },
+                    "unit": {
+                      "const": "fraction"
+                    },
+                    "quantization": {
+                      "type": "object",
+                      "properties": {
+                        "quantum": {
+                          "properties": {
+                            "exponent": {
+                              "const": -30
+                            }
+                          }
+                        },
+                        "tolerance_quanta": {
+                          "const": 1
+                        }
+                      }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
+                    }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
+                }
+              ]
+            },
+            "recurrence_return_count": {
+              "allOf": [
+                {
+                  "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+                },
+                {
+                  "properties": {
+                    "shape": {
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "x-sensos-ordered": true,
+                      "items": {
+                        "minimum": 1
+                      }
+                    },
+                    "unit": {
+                      "const": "returns"
+                    },
+                    "quantization": {
+                      "type": "null"
+                    },
+                    "undefined": {
+                      "const": "int64_min"
+                    }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
+                }
+              ]
+            },
+            "recurrence_return_rate": {
+              "allOf": [
+                {
+                  "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+                },
+                {
+                  "properties": {
+                    "shape": {
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "x-sensos-ordered": true,
+                      "items": {
+                        "minimum": 1
+                      }
+                    },
+                    "unit": {
+                      "const": "returns_per_point"
+                    },
+                    "quantization": {
+                      "type": "object",
+                      "properties": {
+                        "quantum": {
+                          "properties": {
+                            "exponent": {
+                              "const": -30
+                            }
+                          }
+                        },
+                        "tolerance_quanta": {
+                          "const": 1
+                        }
+                      }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
+                    }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
+                }
+              ]
+            },
+            "diversity_cell_entropy": {
+              "allOf": [
+                {
+                  "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+                },
+                {
+                  "properties": {
+                    "shape": {
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "x-sensos-ordered": true,
+                      "items": {
+                        "minimum": 1
+                      }
+                    },
+                    "unit": {
+                      "const": "nats"
+                    },
+                    "quantization": {
+                      "type": "object",
+                      "properties": {
+                        "quantum": {
+                          "properties": {
+                            "exponent": {
+                              "const": -30
+                            }
+                          }
+                        },
+                        "tolerance_quanta": {
+                          "const": 1
+                        }
+                      }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
+                    }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
+                }
+              ]
+            },
+            "diversity_participation_ratio": {
+              "allOf": [
+                {
+                  "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+                },
+                {
+                  "properties": {
+                    "shape": {
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "x-sensos-ordered": true,
+                      "items": {
+                        "minimum": 1
+                      }
+                    },
+                    "unit": {
+                      "const": "dimensionless"
+                    },
+                    "quantization": {
+                      "type": "object",
+                      "properties": {
+                        "quantum": {
+                          "properties": {
+                            "exponent": {
+                              "const": -30
+                            }
+                          }
+                        },
+                        "tolerance_quanta": {
+                          "const": 1
+                        }
+                      }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
+                    }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
+                }
+              ]
+            },
+            "persistence_longest_stay": {
+              "allOf": [
+                {
+                  "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+                },
+                {
+                  "properties": {
+                    "shape": {
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "x-sensos-ordered": true,
+                      "items": {
+                        "minimum": 1
+                      }
+                    },
+                    "unit": {
+                      "const": "points"
+                    },
+                    "quantization": {
+                      "type": "null"
+                    },
+                    "undefined": {
+                      "const": "int64_min"
+                    }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
+                }
+              ]
+            },
+            "persistence_dominant_cell_share": {
+              "allOf": [
+                {
+                  "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+                },
+                {
+                  "properties": {
+                    "shape": {
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "x-sensos-ordered": true,
+                      "items": {
+                        "minimum": 1
+                      }
+                    },
+                    "unit": {
+                      "const": "fraction"
+                    },
+                    "quantization": {
+                      "type": "object",
+                      "properties": {
+                        "quantum": {
+                          "properties": {
+                            "exponent": {
+                              "const": -30
+                            }
+                          }
+                        },
+                        "tolerance_quanta": {
+                          "const": 1
+                        }
+                      }
+                    },
+                    "undefined": {
+                      "const": "int64_min"
+                    }
+                  },
+                  "required": [
+                    "undefined"
+                  ]
+                }
+              ]
+            }
+          },
+          "description": "系列の名前をキーにした整数の Blob（§3.3.2）。各 Blob は 1 次元 shape [T]（T = input_ref.length、S35）。実数の系列は 2^-30 で量子化、個数の系列は quantization: null。どの系列も値なしを持ちうるので、`undefined: \"int64_min\"` を常に宣言する（0.7.1。値なしが実際に無い計測でも宣言する）"
+        },
+        "verdict": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "reason"
+          ],
+          "properties": {
+            "state": {
+              "type": "null"
+            },
+            "reason": {
+              "const": "shift verdict applies to trajectory pairs (SPEC-MSR-001 v2 §3.2)"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "calibration": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "thresholds": {
+                "properties": {
+                  "source": {
+                    "properties": {
+                      "epsilon": {
+                        "not": {
+                          "const": "calibration"
+                        }
+                      },
+                      "delta": {
+                        "not": {
+                          "const": "calibration"
+                        }
+                      },
+                      "w_min": {
+                        "not": {
+                          "const": "calibration"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "input_scope": {
+                "properties": {
+                  "kind": {
+                    "const": "window"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "input_ref": {
+                "properties": {
+                  "length": {
+                    "const": 128
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "pair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "space_id",
+        "inputs",
+        "calibration",
+        "alignment",
+        "distance",
+        "verdict"
+      ],
+      "properties": {
+        "mode": {
+          "const": "pair"
+        },
+        "space_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "left",
+            "right"
+          ],
+          "properties": {
+            "left": {
+              "$ref": "#/$defs/inputRef"
+            },
+            "right": {
+              "$ref": "#/$defs/inputRef"
+            }
+          }
+        },
+        "calibration": {
+          "$ref": "#/$defs/calibrationRef"
+        },
+        "alignment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "points_used"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "equal_only",
+                "x-common_prefix"
+              ]
+            },
+            "points_used": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "distance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "definition",
+            "value"
+          ],
+          "properties": {
+            "definition": {
+              "const": "mean_step_l2"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "x-sensos-quantization": {
+                "quantum": {
+                  "base": 2,
+                  "exponent": -30
+                },
+                "rounding": "ties-to-even",
+                "tolerance_quanta": 1
+              },
+              "x-sensos-unit": "distance"
+            }
+          }
+        },
+        "verdict": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "$ref": "#/$defs/shiftState"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "calibration": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "verdict": {
+                "properties": {
+                  "state": {
+                    "const": "UNCALIBRATED"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "inputScope": {
+      "description": "single の入力の範囲（0.9.0）。full＝全長の軌跡をそのまま計測（親の役割 trajectory は窓でない軌跡の成果物）。window＝窓の成果物（msr.trajectory-window）を計測（親の役割 trajectory がその窓）。今回の実装は先頭 128 行の固定窓だけ：start と length は定数",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "full"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "rule",
+            "start",
+            "length",
+            "source_trajectory_id",
+            "content_sha256"
+          ],
+          "properties": {
+            "kind": {
+              "const": "window"
+            },
+            "rule": {
+              "const": "prefix_rows"
+            },
+            "start": {
+              "const": 0
+            },
+            "length": {
+              "const": 128
+            },
+            "source_trajectory_id": {
+              "$ref": "#/$defs/sha256hex"
+            },
+            "content_sha256": {
+              "$ref": "#/$defs/sha256hex"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

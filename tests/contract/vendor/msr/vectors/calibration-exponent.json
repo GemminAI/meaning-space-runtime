@@ -1,0 +1,547 @@
+{
+ "cases": [
+  {
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-exponent--30",
+   "note": "an integer; the range is not checked",
+   "payload": {
+    "between_alignment": "equal_only",
+    "exponent": -30,
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.8.0"
+   }
+  },
+  {
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-exponent--20",
+   "note": "an integer; the range is not checked",
+   "payload": {
+    "between_alignment": "equal_only",
+    "exponent": -20,
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.8.0"
+   }
+  },
+  {
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-exponent-missing",
+   "note": "0.8.0 requires exponent",
+   "payload": {
+    "between_alignment": "equal_only",
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.8.0"
+   }
+  },
+  {
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-exponent-string",
+   "note": "",
+   "payload": {
+    "between_alignment": "equal_only",
+    "exponent": "-30",
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.8.0"
+   }
+  },
+  {
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-exponent-fraction",
+   "note": "",
+   "payload": {
+    "between_alignment": "equal_only",
+    "exponent": -20.5,
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.8.0"
+   }
+  },
+  {
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-exponent-integral-float",
+   "note": "a float is not an integer here, even when integral",
+   "payload": {
+    "between_alignment": "equal_only",
+    "exponent": -20.0,
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.8.0"
+   }
+  },
+  {
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-exponent-bool",
+   "note": "",
+   "payload": {
+    "between_alignment": "equal_only",
+    "exponent": true,
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.8.0"
+   }
+  },
+  {
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-exponent-null",
+   "note": "",
+   "payload": {
+    "between_alignment": "equal_only",
+    "exponent": null,
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.8.0"
+   }
+  },
+  {
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-0.7.x-payload-declared-0.8.0",
+   "note": "a payload without exponent is never read as 0.8.0",
+   "payload": {
+    "between_alignment": "equal_only",
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.8.0"
+   }
+  },
+  {
+   "expect": {
+    "codes": [],
+    "result": "accept"
+   },
+   "id": "accept-0.7.0-old-rule",
+   "note": "0.7.0 keeps its own rule (no exponent field, fixed at -30)",
+   "payload": {
+    "between_alignment": "equal_only",
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.7.0"
+   }
+  },
+  {
+   "expect": {
+    "codes": [
+     "schema"
+    ],
+    "result": "reject"
+   },
+   "id": "reject-0.7.0-with-exponent",
+   "note": "the old rule has no exponent field",
+   "payload": {
+    "between_alignment": "equal_only",
+    "exponent": -30,
+    "method": {
+     "name": "msr-geometry-calibration",
+     "quantiles": {
+      "delta": 67108864,
+      "epsilon": 33554432,
+      "floor": [
+       33554432,
+       1040187392
+      ]
+     },
+     "version": "msr-geometry-calibration/1"
+    },
+    "model_build_id": "m1",
+    "null_set": [
+     "art:0000000000000000000000000000000000000000000000000000000000000000",
+     "art:0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "sample_config": {
+     "dims": 3,
+     "points": 40,
+     "trajectories": 2
+    },
+    "space_id": "S1",
+    "values": {
+     "background_mean": 1610612736,
+     "codebook_ref": null,
+     "delta": 1048576,
+     "epsilon": 268435456,
+     "noise_floor_lower": 1073741824,
+     "noise_floor_upper": 2147483648,
+     "w_min": 1
+    }
+   },
+   "payload_schema": {
+    "id": "msr.calibration",
+    "version": "0.7.0"
+   }
+  }
+ ],
+ "format": "calibration-exponent/1",
+ "rule": "check_payload(envelope) with envelope = {payload_schema: {id: msr.calibration, version}, payload, parents: []}: the codes in expect.codes (empty = accept). 0.8.0 requires `exponent` and checks only that it is a JSON integer (no range); 0.7.0 keeps its own rule. msr/README.md, section on the exponent"
+}
