@@ -18,7 +18,7 @@ HERE = Path(__file__).parent
 VENDOR = HERE / "vendor"
 VENDOR_WINDOW = (
     HERE / "vendor_window"
-)  # window.lock: IC-02 0.9.0 window schema, vectors, archived 0.8.0 geometry schema
+)  # window.lock: IC-02 0.10.0 window schema + vectors, archived 0.9.0 / 0.8.0 schemas
 VECTORS = VENDOR / "common" / "vectors"
 SCHEMAS = (
     "common/artifact",
@@ -56,7 +56,27 @@ def old_geometry_validator() -> Draft202012Validator:
     return Draft202012Validator(doc, registry=_registry())
 
 
+def geometry_v090_validator() -> Draft202012Validator:
+    """The IC-02 0.9.0 measurement schema (archived: window fixed to the first 128 rows)."""
+    doc = json.loads(
+        (
+            VENDOR_WINDOW / "msr/archive/0.9.0/geometry-measurement.schema.json"
+        ).read_text("utf-8")
+    )
+    return Draft202012Validator(doc, registry=_registry())
+
+
 def window_validator() -> Draft202012Validator:
+    """The IC-02 0.9.0 window schema (archived)."""
+    doc = json.loads(
+        (VENDOR_WINDOW / "msr/archive/0.9.0/trajectory-window.schema.json").read_text(
+            "utf-8"
+        )
+    )
+    return Draft202012Validator(doc, registry=_registry())
+
+
+def window_v0100_validator() -> Draft202012Validator:
     doc = json.loads(
         (VENDOR_WINDOW / "msr/trajectory-window.schema.json").read_text("utf-8")
     )
@@ -71,6 +91,14 @@ def envelope_errors(envelope: Mapping[str, Any]) -> list[str]:
     """Schema errors of the envelope and of its payload (by ``payload_schema``)."""
     errors = schema_errors("common/artifact", envelope)
     payload_schema = envelope["payload_schema"]["id"]
+    if (
+        payload_schema == "msr.geometry-measurement"
+        and envelope["payload_schema"]["version"] == "0.9.0"
+    ):  # each version is read by its own schema (0.9.0 archived, 0.10.0 under vendor/)
+        return errors + [
+            e.message
+            for e in geometry_v090_validator().iter_errors(envelope["payload"])
+        ]
     name = {
         "msr.geometry-measurement": "msr/geometry-measurement",
         "msr.calibration": "msr/calibration",

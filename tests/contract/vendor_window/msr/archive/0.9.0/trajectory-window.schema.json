@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensos:contracts/msr/trajectory-window/0.9.0",
+  "title": "IC-02 msr.trajectory-window (payload) 0.9.0 — 軌跡の先頭 128 行の固定窓（D-129）",
+  "description": "元の軌跡（親の役割 source_trajectory）の先頭 128 行を、別の成果物として持つ。位置 start と長さ length は今回の実装では定数（0 と 128）。将来パラメータにする余地は msr/README.md の文章に分けて書く（スキーマは今回の固定だけを表す）。窓の中身の sha256 は points の Blob のバイト列の sha256。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "window",
+    "origin",
+    "source",
+    "layer",
+    "dimension",
+    "model_build_id",
+    "policy",
+    "points",
+    "token_index"
+  ],
+  "properties": {
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule",
+        "start",
+        "length",
+        "content_sha256"
+      ],
+      "properties": {
+        "rule": {
+          "const": "prefix_rows"
+        },
+        "start": {
+          "const": 0
+        },
+        "length": {
+          "const": 128
+        },
+        "content_sha256": {
+          "$ref": "#/$defs/sha256hex"
+        }
+      }
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trajectory_id",
+        "position",
+        "length"
+      ],
+      "description": "元の軌跡。trajectory_id は元の軌跡の行のバイト列の sha256（RAW の識別子）、position は取得位置、length は元の全長（窓の長さ 128 以上）",
+      "properties": {
+        "trajectory_id": {
+          "$ref": "#/$defs/sha256hex"
+        },
+        "position": {
+          "type": "string",
+          "minLength": 1
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 128,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "source": {
+      "enum": [
+        "T-tok",
+        "T-hid"
+      ]
+    },
+    "layer": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ]
+    },
+    "dimension": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "model_build_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "sha256"
+      ],
+      "description": "窓の作り方。name は定数、sha256 は name の UTF-8 の sha256（Gate が確かめる）",
+      "properties": {
+        "name": {
+          "const": "first-128-rows/1"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256hex"
+        }
+      }
+    },
+    "points": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uri",
+        "sha256",
+        "media_type",
+        "dtype",
+        "shape",
+        "byte_order",
+        "order",
+        "unit"
+      ],
+      "description": "窓の 128 行（binary32、リトルエンディアン、行優先、詰め物なし、量子化なし。NaN・±Inf は拒否）。common/float32-blob（草案）が昇格したらそちらに寄せる",
+      "properties": {
+        "uri": {
+          "type": "string",
+          "pattern": "^blob:sha256:[0-9a-f]{64}$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256hex"
+        },
+        "media_type": {
+          "const": "application/vnd.sensos.ndarray-raw"
+        },
+        "dtype": {
+          "const": "float32"
+        },
+        "shape": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "x-sensos-ordered": true,
+          "prefixItems": [
+            {
+              "const": 128
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          ],
+          "items": false
+        },
+        "byte_order": {
+          "const": "little"
+        },
+        "order": {
+          "const": "C"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "token_index": {
+      "allOf": [
+        {
+          "$ref": "sensos:contracts/common/blob/0.7.0#/$defs/intBlob"
+        },
+        {
+          "properties": {
+            "shape": {
+              "const": [
+                128
+              ]
+            },
+            "quantization": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "source": {
+            "const": "T-hid"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "layer": {
+            "not": {
+              "type": "null"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "source": {
+            "const": "T-tok"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "layer": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

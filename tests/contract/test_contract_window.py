@@ -19,10 +19,10 @@ from contract_support import (
     VENDOR_WINDOW,
     ctx,
     envelope_errors,
+    geometry_v090_validator,
     old_geometry_validator,
     ref,
     traj,
-    validator,
     window_validator,
 )
 
@@ -30,7 +30,7 @@ import msr.geometry as g
 
 LOCK: dict[str, Any] = json.loads((HERE / "window.lock").read_text("utf-8"))
 VEC: dict[str, Any] = json.loads(
-    (VENDOR_WINDOW / "msr/vectors/window.json").read_text("utf-8")
+    (VENDOR_WINDOW / "msr/archive/0.9.0/vectors/window.json").read_text("utf-8")
 )
 BLOBS = {u: bytes.fromhex(h) for u, h in VEC["blobs"].items()}
 CASES = {c["id"]: c for c in VEC["cases"]}
@@ -61,7 +61,7 @@ def test_window_lock_matches_the_vendored_files_and_the_commit_of_the_main_lock(
     None
 ):
     main = json.loads((HERE / "contract.lock").read_text("utf-8"))
-    assert LOCK["contract_id"] == "IC-02" and LOCK["version"] == "0.9.0"
+    assert LOCK["contract_id"] == "IC-02" and LOCK["version"] == "0.10.0"
     assert (
         LOCK["source"]["commit"] == main["source"]["commit"]
         and LOCK["source"]["tag"] is None
@@ -79,7 +79,9 @@ def test_window_lock_matches_the_vendored_files_and_the_commit_of_the_main_lock(
         ), entry["path"]
     assert (
         json.loads(
-            (VENDOR_WINDOW / "msr/trajectory-window.schema.json").read_text("utf-8")
+            (
+                VENDOR_WINDOW / "msr/archive/0.9.0/trajectory-window.schema.json"
+            ).read_text("utf-8")
         )["$id"]
         == "sensos:contracts/msr/trajectory-window/0.9.0"
     )
@@ -267,9 +269,7 @@ def test_an_old_0_7_1_payload_is_still_read_by_the_old_rule_only() -> None:
         == []
     )
     assert list(
-        validator("msr/geometry-measurement").iter_errors(
-            old_case["envelope"]["payload"]
-        )
+        geometry_v090_validator().iter_errors(old_case["envelope"]["payload"])
     )  # not read as 0.9.0
 
 
@@ -288,7 +288,7 @@ def test_measurement_schema_agrees_with_the_vectors(case: dict[str, Any]) -> Non
     schema = (
         old_geometry_validator()
         if env["payload_schema"]["version"] == "0.7.1"
-        else validator("msr/geometry-measurement")
+        else geometry_v090_validator()
     )
     assert bool(list(schema.iter_errors(env["payload"]))) == (
         "schema" in case["expect"]["payload"]

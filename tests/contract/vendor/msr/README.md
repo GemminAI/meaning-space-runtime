@@ -1,16 +1,16 @@
 # msr/ — IC-02（MSR の計測）と calibration の契約
 
-**IC-02 は 0.9.0**（D-129：先頭 128 行の固定窓を契約に入れた）。IC-02 の版は下の表の組で、各 payload の版は `$id` の版（IC-00 の `contract.version` とは別）。
+**IC-02 は 0.10.0**（D-132：窓の位置と長さを契約の項目にした。0.9.0＝D-129 は先頭 128 行の固定窓）。IC-02 の版は下の表の組で、各 payload の版は `$id` の版（IC-00 の `contract.version` とは別）。
 
 | ファイル | 版 | 中身 |
 |---|---|---|
-| `geometry-measurement.schema.json` | **0.9.0** | 計測の payload（`mode: single` / `pair`）。`series` は系列の名前をキーにした整数の Blob（§3.3.2）。0.7.1 からの変更：`single` に `input_scope`（必須。`full` か `window`）を足した。`pair` は変えていない。下の「窓」の節 |
-| `trajectory-window.schema.json` | **0.9.0**（新） | 窓の成果物の payload（`msr.trajectory-window`）。元の軌跡の先頭 128 行を別の成果物として持つ（D-129）。下の「窓」の節 |
+| `geometry-measurement.schema.json` | **0.10.0** | 計測の payload（`mode: single` / `pair`）。`series` は系列の名前をキーにした整数の Blob（§3.3.2）。0.9.0 からの変更：`input_scope` の `window` が `rule`（`prefix_rows` / `rows`）・`start`（0 以上）・`length`（1 以上）を宣言する。`input_ref.length` は 128 固定でなく `scope.length`（Gate が確かめる）。`pair` のスキーマは変えていない。下の「窓」の節 |
+| `trajectory-window.schema.json` | **0.10.0** | 窓の成果物の payload（`msr.trajectory-window`）。元の軌跡の行 `[start, start + length)` を別の成果物として持つ（D-132）。下の「窓」の節 |
 | `calibration.schema.json` | **0.8.0**（変更なし） | calibration の payload。`exponent`（整数、必須）。下の「calibration の量子化の指数」の節 |
-| `archive/0.6.1/`・`archive/0.6.2/`・`archive/0.7.0/`・`archive/0.7.1/`・`archive/0.8.0/` | — | 旧スキーマと記録の写し。**そのまま残す**（書き換えない。スキーマは `contract.lock` の `archived` に sha256）。`archive/0.8.0/` は IC-02 0.8.0 の計測のスキーマ（`$id` は 0.7.1、`input_scope` が無い）と、0.8.0 の README。0.7.1 の計測は旧版の規則のまま Gate が読む（`input_scope` を要求せず、足すと拒否。0.9.0 としては読まない）。0.7.0 の calibration も旧版の規則のまま（指数の欄が無く −30 固定。0.8.0 としては読まない） |
+| `archive/0.6.1/`・`archive/0.6.2/`・`archive/0.7.0/`・`archive/0.7.1/`・`archive/0.8.0/`・`archive/0.9.0/` | — | 旧スキーマと記録の写し。**そのまま残す**（書き換えない。スキーマは `contract.lock` の `archived` に sha256）。`archive/0.8.0/` は IC-02 0.8.0 の計測のスキーマ（`$id` は 0.7.1、`input_scope` が無い）と、0.8.0 の README。0.7.1 の計測は旧版の規則のまま Gate が読む（`input_scope` を要求せず、足すと拒否。0.9.0 としては読まない）。`archive/0.9.0/` は IC-02 0.9.0 の計測・窓のスキーマ（`$id` は 0.9.0、先頭 128 行の固定）、0.9.0 の README、窓の見本 `vectors/window.json`（47 件、変更なし）。0.9.0 の成果物は 0.9.0 の規則のまま Gate が読む。0.7.0 の calibration も旧版の規則のまま（指数の欄が無く −30 固定。0.8.0 としては読まない） |
 
 Blob の参照の型（`intBlob`・`floatBlob`）は `../common/blob.schema.json`（0.7.0）。`series` の各系列は `intBlob` への `$ref`。
-`payload_schema` の `{id, version}` は `msr.geometry-measurement` `0.9.0`（旧 `0.7.1` も旧規則で受理）、`msr.trajectory-window` `0.9.0`、`msr.calibration` `0.8.0`（`$id` の版。IC-00 の `contract.version` とは別。設計書 §2.6、S39）。
+`payload_schema` の `{id, version}` は `msr.geometry-measurement` `0.10.0`（旧 `0.9.0`・`0.7.1` も各版の規則で受理）、`msr.trajectory-window` `0.10.0`（旧 `0.9.0` も受理）、`msr.calibration` `0.8.0`（`$id` の版。IC-00 の `contract.version` とは別。設計書 §2.6、S39）。
 
 定義の出典：meaning-space-runtime の `feature/msr-ic02`（`13d0a51`）の `src/msr/geometry/metrics.py` の冒頭。この README が**規範**で、コードの冒頭は正本にしない（設計書 §3.3.2）。
 
@@ -76,63 +76,75 @@ Blob の参照の型（`intBlob`・`floatBlob`）は `../common/blob.schema.json
 - D-97 (5) の原文は変えていない。置き換える決定は Tomo が別に記録する。
 - 見本は `vectors/calibration-exponent.json`（受理 3・拒否 8）。
 
-## 窓（IC-02 0.9.0、D-129）
+## 窓（IC-02 0.10.0、D-132。0.9.0 は D-129）
 
-決定（D-129）：**先頭 128 行の固定窓を、IC-02 の窓入力として正式に入れる**。窓は**別の成果物**で、元の軌跡との対応は `parents` の親参照。`common_prefix` を承認して全長で計測する案は採らない（D-120 の承認の対象にしない）。
+決定（D-129）：窓は**別の成果物**で、元の軌跡との対応は `parents` の親参照。`common_prefix` で全長を計測する案は採らない（D-120）。
+決定（D-132）：**窓の位置と長さを契約の項目にする**（先頭 128 行の固定をやめる）。0.9.0（先頭 128 行の固定窓）の文章・スキーマ・見本は `archive/0.9.0/` に書き換えずに移した。Gate は **0.9.0 と 0.10.0 の両方を受け付ける**（各版は自分の規則で読み、互いに読み替えない）。
 
-### 今回の実装（固定）
-
-| 項目 | 固定の値 | 置き場所 |
-|---|---|---|
-| 規則 `window.rule` | `prefix_rows`（先頭から連続した行） | スキーマの定数 |
-| 開始位置 `window.start` | `0` | スキーマの定数 |
-| 長さ `window.length` | `128`（行） | スキーマの定数 |
-| 窓の作り方 `policy.name` | `first-128-rows/1`（`policy.sha256` は名前の UTF-8 の sha256） | スキーマの定数 ＋ Gate |
-
-窓が 128 行に満たない軌跡（元の長さ < 128）は窓にできない（`origin.length` の最小が 128。窓を作らず、全長の入力として扱う）。
-
-### 窓の成果物（`msr.trajectory-window` 0.9.0）
+### 窓の規則（0.10.0）
 
 | 項目 | 内容 |
 |---|---|
-| `kind` | `observation`（行を選んで切り出す機械的な操作で、解釈を作らない。D-89） |
-| `producer.name` | `nvs-runtime`（処理の順序と受け渡しの主体、D-124。MSR は計測だけで窓を作らない）。IC-00 の登録は 1.0.0・1.1.0 とも `nvs-runtime`×`observation` を許す。窓の契約は kind と producer をさらに絞る（`window_kind`・`window_producer`） |
-| 封筒の `space_id` | null でない。窓の空間（元の軌跡の空間とは別の識別。窓の長さが違えば別の空間）。計測の `space_id` は窓のものと同じ |
-| `parents` | **ちょうど 1 つ**：役割 `source_trajectory`（`ordered: false`、`artifact_ids` は 1 件）＝元の軌跡の成果物。それ以外の親は持たない（`window_parents`）。元の成果物は HEKB にあること（`parent_unknown`） |
-| `payload.origin` | `trajectory_id`（元の軌跡の行のバイト列の sha256＝RAW の識別子）、`position`（取得位置）、`length`（元の全長、128 以上） |
-| `payload.window` | `rule`・`start`・`length`（上の固定値）、`content_sha256`（窓の中身の sha256） |
-| `payload.points` | 窓の 128 行の Blob（binary32・リトルエンディアン・行優先・詰め物なし・量子化なし、`shape: [128, dimension]`）。NaN・±Inf は拒否（`window_nonfinite`）。**`content_sha256` ＝ `points.sha256` ＝ Blob のバイト列の sha256**（`window_sha256`） |
-| `payload.token_index` | 窓の 128 行のトークン番号（int64 の個数の Blob、`shape: [128]`、厳密に増える。元の先頭 128 件で、0 から始まるとは限らない） |
-| `payload.source`・`layer`・`dimension`・`model_build_id`・`policy` | 計測の `input_ref`・`layer`・`source` と同じ意味・同じ形（`TrajectoryInput` の欄） |
+| `window.rule` | `rows`（`start` 行目から `length` 行、連続）、または `prefix_rows`（`start = 0` の特別な場合。0.9.0 の窓の表現を残したもの） |
+| `window.start` | 整数、0 以上（`prefix_rows` は 0 のみ） |
+| `window.length` | 整数、1 以上。**128 に固定しない**(`prefix_rows` も任意の長さ。D-133 (2))。位置ごとに変えてもよい |
+| 位置の候補 | 契約は**狭めない**（先頭・中ほど・末尾など、`start`・`length` が範囲内なら何でもよい。D-132 (5)） |
+| `policy.name` | 空でない文字列（`policy.sha256` は名前の UTF-8 の sha256）。作り方の名前の例：`first-128-rows/1`、`rows-86+128/1`。形式は自由な文字列のまま(D-133 (3)) |
 
-- 「窓の中身の sha256」は**窓の点の Blob のバイト列だけ**の sha256。`token_index` は自分の Blob の sha256 を持つ。
-- **Gate が確かめるもの**：スキーマ（固定値）、kind・producer、親が 1 件であること、`content_sha256`・Blob の sha256 とバイト列、行数、有限性、親（元の成果物）が保存されていてその `raw_ref.trajectory_id`・`length`・`position` が `origin` と一致すること（`window_origin`。読む欄は草案 `nvs.hidden-trajectory` 0.1.0 の名前で、他の欄は読まない。読めなければ `window_origin_unreadable`）。
-- **Gate が確かめられないもの**：窓が元の RAW の**先頭 128 行そのもの**であること（RAW は参照で持ち、成果物に行を入れないため）。RAW の行を持つ読み手は `prefix_matches`（`tools/contracts/ic02_window.py`）で確かめる。この確認を Gate の責任にするかは未決。
-- 符号の一覧は `tools/contracts/ic02_window.py` の冒頭。見本は `vectors/window.json`。
+- `prefix_rows`（`start = 0`）と `rows`（`start = 0`）は**同じ行を指す**。`window.rule` の宣言だけが違い、Gate の判定は同じ（見本 `accept-equivalence-*`）。
+- 0.9.0 の窓の成果物（`rule: prefix_rows`、`start: 0`、`length: 128`）は 0.9.0 の版のまま読める。0.10.0 の窓として読み替えない。
+- `origin.length` は 1 以上（0.9.0 は 128 以上）。窓が元より長い（`start + length > origin.length`）ことは Gate が拒否する。
 
-### 計測（`msr.geometry-measurement` 0.9.0、`mode: single`）
+### 窓の成果物（`msr.trajectory-window` 0.10.0）
 
-`input_scope`（必須）が、計測した入力の範囲を宣言する。
+0.9.0 と同じ表のうち、次を変える。他（`kind`・`producer.name`・`parents`・`origin` の読み合わせ・`content_sha256` と Blob の sha256・有限性）は 0.9.0 のまま。
+
+| 項目 | 内容 |
+|---|---|
+| 封筒の `space_id` | null でない。**窓の空間は位置で分ける**（D-132 (4)）。校正の空間は `row_rule` に位置（`start`・`length`）を含めて分けるので、位置ごとの校正は**別の空間**。同じ `space_id` を、位置（`start`・`length`）の違う窓が使うと拒否する（`window_space_position`。D-133 (4)：`(start, length)` を比べて拒否する）。計測の `space_id` は窓のものと同じ |
+| `payload.window` | `rule`・`start`・`length`・`content_sha256`（窓の中身の sha256）。**元の行 `[start, start + length)` を指す** |
+| `payload.points` | 窓の `length` 行の Blob（binary32・LE・行優先・量子化なし、`shape: [length, dimension]`）。`content_sha256` ＝ `points.sha256`。行数が `window.length` と違えば `window_shape` |
+| `payload.token_index` | 窓の `length` 行のトークン番号（int64、`shape: [length]`、厳密に増える） |
+
+- **Gate が確かめるもの（0.10.0 で足したもの）**：`start + length <= origin.length`（`window_range`）、`token_index` の各値が `[0, origin.length)` に入ること（`window_token_range`。D-133 (1)：`[0, origin.length)` の外は拒否。トークン番号と行番号の対応は決めていない）、空間と位置の対応（`window_space_position`）。ほかは 0.9.0 の検査（行数は固定の 128 でなく `window.length`）。
+- **Gate が確かめられないもの**：窓が元の RAW の行 `[start, start + length)` そのものであること（RAW は参照で持つため）。RAW の行を持つ読み手は `rows_match`（`tools/contracts/ic02_window.py`。先頭 128 行の 0.9.0 は `prefix_matches`）で確かめる。
+- 符号の一覧は `tools/contracts/ic02_window.py` の冒頭。
+
+### 計測（`msr.geometry-measurement` 0.10.0、`mode: single`）
+
+`input_scope`（必須）：
 
 | `input_scope` | 意味 | 親の役割 `trajectory` |
 |---|---|---|
-| `{"kind": "window", "rule": "prefix_rows", "start": 0, "length": 128, "source_trajectory_id", "content_sha256"}` | **窓の成果物を入力にした計測**。`input_ref.length` は 128（スキーマ） | 窓の成果物（`msr.trajectory-window`）1 件 |
-| `{"kind": "full"}` | **窓なしの全長の入力**。軌跡をそのまま計測する。契約は長さの上限を決めない（実用の上限は MSR の資源の問題で、契約の外） | 窓でない軌跡の成果物 1 件 |
+| `{"kind": "window", "rule", "start", "length", "source_trajectory_id", "content_sha256"}` | 窓の成果物を入力にした計測。`rule`・`start`・`length` は窓の成果物と同じ値（整数、`start >= 0`、`length >= 1`、`prefix_rows` は `start = 0`）。`input_ref.length == scope.length` | 窓の成果物 1 件（0.9.0 の窓、つまり `start = 0` の `prefix_rows` でもよい。D-133 (5)） |
+| `{"kind": "full"}` | 窓なしの全長の入力（0.9.0 と同じ） | 窓でない軌跡の成果物 1 件 |
 
-Gate の検査（`check_scope`）：
-- `window`：`input_ref.length == scope.length`（スキーマ。窓の長さが 128 でなければ拒否）。親が `trajectory` に 1 件あり（`window_parent`）、保存されていて（`parent_unknown`）、窓の成果物であること（`window_not_window`）。親の窓が、`scope` の `source_trajectory_id`・`content_sha256`・`length`・`start` と、計測の `input_ref`（`dimension`・`model_build_id`・`policy`）・`layer`・`source`・`space_id` と一致すること（`window_mismatch`）。
-- `full`：親が窓の成果物なら拒否（`window_undeclared`。窓を全長のふりで使わせない）。親の `length` が読めて整数なら、`input_ref.length` と一致すること（`full_length_mismatch`。宣言なしに先頭だけを計測させない）。読めない親（長さの欄が無い）は、この点を確かめない。
-- **版の扱い**：`0.7.1`（IC-02 0.8.0）の計測は旧規則のまま。`input_scope` を要求せず、足すと `schema` で拒否。0.9.0 として暗黙に読まない。
-- **`pair`（ペアの比較）は 0.9.0 で変えていない**。窓の成果物 2 つを `left`・`right` の親にして比べることはできる（`equal_only`）が、`pair` には `input_scope` を足していない。ペアが窓の入力であることの宣言は将来の拡張。
+`check_scope` は 0.9.0 の検査に加えて、`rule` の一致（`window_mismatch`）と、`input_ref.length == scope.length`（0.9.0 はスキーマの定数 128 が保証していたもの。0.10.0 は Gate が `window_length` で言う）を確かめる。
 
-### 将来の拡張（今回の実装ではない）
+### ペア（`mode: pair`、0.10.0）
 
-次は**契約の文章としてだけ**書く。スキーマ・Gate・MSR は固定のまま。
-- 窓の位置 `start` と長さ `length` をパラメータにする（末尾窓、中間の窓、128 以外の長さ）。欄は既に `window` と `input_scope` にあるので、定数を範囲に緩めるのは**追加の変更**で、版を上げる（0.9.0 のスキーマは固定のまま読み続ける）。そのとき `window.rule` を足す（例：`suffix_rows`）か、`prefix_rows` を一般化するかは、そのときに決める。
-- 窓の位置が生成全体のループを反映するかは未確認（D-129）。末尾窓などは追加の実験として試す。窓の位置を変えるのは、その結果を見てから。
-- `pair` への `input_scope` の追加。
-- 窓の点の Blob の表現を `common/float32-blob`（草案）に寄せる（昇格したとき）。
+- **長さの異なる窓どうしは `equal_only` で比べられない**（`common_prefix` は採らない。D-120）。`left`・`right` の親が保存された窓で、`window.length` が違えば `pair_window_length` で拒否する。位置（`start`）の違う窓の比較（`equal_only` は長さだけを見る）は**未規定のまま**（D-133 (6)）。窓位置の実験では同じ位置どうしだけを比べる。
+- 親が窓でない、または保存されていない場合は 0.9.0 と同じく、ここでは判定しない。
+- `pair` に `input_scope` を足すことは今回もしない。
 
+### 確定（D-133、11-08 20:16）と未規定
+
+D-133 で次の 5 点を、実装の挙動のとおり確定した（見本は `vectors/window-rows.json`、各件の `derives_from` に D-133 の番号）。
+1. `token_index` の範囲は `[0, origin.length)` の外を拒否（`window_token_range`）。窓が元より長い場合は `window_range` と `window_token_range` の両方が出る。
+2. `prefix_rows` の長さは 128 に固定せず、任意の `length`（1 以上）を許す。
+3. `policy.name` の形式は自由な文字列のまま。
+4. 同じ `space_id` を位置の違う窓が使うと、`(start, length)` を比べて拒否（`window_space_position`）。
+5. 0.10.0 の計測は 0.9.0 の窓（`start = 0` の `prefix_rows`）を親にできる。
+
+**未規定のまま残すもの**（`vectors/window-rows-undetermined.json`、lock・凍結の対象外）：
+- (6) 位置の違う窓どうしの比較（`equal_only` は長さだけを見る）。窓位置の実験では同じ位置どうしだけを比べる。
+- トークン番号と行番号の対応（窓の行が元の何番目のトークンか）。範囲の内側なら拒否しない、までが決まっている。
+
+### 今回の変更ではないもの
+
+- `pair` への `input_scope`、窓の Blob の `common/float32-blob`（草案）への寄せ。
+- MSR・nvs-runtime の実装（別の PR）。
+- 窓の位置が生成全体のループを反映するかは未確認（D-129）。位置の比較は実験で確かめる。
 
 ## 検査の責任
 
@@ -157,5 +169,5 @@ calibration を**読む側**が、取得した親（`parent_contents`：親の `
 
 ## 検査器（`tools/contracts`）での扱い
 
-`blob.py`（S34・S24/S25・S36 の宣言・個数の負の値）、`ic02.py`（S35・S36 の位置・S37・S38、calibration の親の参照整合）、`ic02_window.py`（窓の成果物と `input_scope`、0.9.0）、`gate.py`（S39 と payload のスキーマ）。
+`blob.py`（S34・S24/S25・S36 の宣言・個数の負の値）、`ic02.py`（S35・S36 の位置・S37・S38、calibration の親の参照整合）、`ic02_window.py`（窓の成果物と `input_scope`、0.9.0 と 0.10.0）、`gate.py`（S39 と payload のスキーマ）。
 Blob の見本は `../common/vectors/blob/blob-refs.json`、系列（T=1・T=2、δ なし・あり）の見本は `vectors/series.json`。

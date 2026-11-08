@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "source": {
     "repository": "sensos",
-    "branch": "feature/contracts-ic02-v090-window",
-    "commit": "6e6bbee0aec0fa4a3cda277895d9623a88f816b0",
+    "branch": "main",
+    "commit": "56171e064059b8a27ad895e24482afa53a5c70c1",
     "tag": null,
     "tag_note": "IC-00 files (common/artifact, provenance, uncertainty, FREEZE.md, the five frozen vectors) are byte-identical to tag contracts/ic00-v1.0.0 (c82918f); the tag is not on this commit; this commit also carries IC-00 1.1.0 (c0064c8, merged), which is not vendored here",
     "root": "docs/architecture/contracts/"
@@ -12,10 +12,10 @@
   "contracts": {
     "IC-00": "1.0.0",
     "common/blob": "0.7.0",
-    "msr/geometry-measurement": "0.9.0",
+    "msr/geometry-measurement": "0.10.0",
     "msr/calibration": "0.8.0"
   },
-  "note": "Verbatim copies under tests/contract/vendor/ (same relative paths). Never edit; update only by an explicit, reviewed contract change from sensos. IC-00/1.0.0/FREEZE.md is vendored so the frozen files' sha256 can be checked against its own table. common/provenance is vendored because artifact $refs it; msr/README.md (IC-02 0.9.0: series, window, pair-verdict formula) defines the series and the pair-verdict formula.",
+  "note": "Verbatim copies under tests/contract/vendor/ (same relative paths). Never edit; update only by an explicit, reviewed contract change from sensos. IC-00/1.0.0/FREEZE.md is vendored so the frozen files' sha256 can be checked against its own table. common/provenance is vendored because artifact $refs it; msr/README.md (IC-02 0.10.0: series, window, pair-verdict formula) defines the series and the pair-verdict formula.",
   "files": [
     {
       "path": "IC-00/1.0.0/FREEZE.md",
@@ -39,7 +39,7 @@
     },
     {
       "path": "msr/geometry-measurement.schema.json",
-      "sha256": "e1f3a54e2f8bf43bc5e931dd1f2ebd74e1bf5b2c3e1ff9be9c6147efd336f4d0"
+      "sha256": "4a2d269bcff5a2977bec044d9006b75e0627e1dadc1054dd49f40e69987f4614"
     },
     {
       "path": "msr/calibration.schema.json",
@@ -47,7 +47,7 @@
     },
     {
       "path": "msr/README.md",
-      "sha256": "6b171eb103d46879f82f27ac656fb07c9723f4dad03ce21673479701eb0d7abf"
+      "sha256": "a8bf5bc63af6ec7c4e6156c0e70e319f4632564697ef13bc81040101b5007792"
     },
     {
       "path": "common/vectors/canonicalize.json",
