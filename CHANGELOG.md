@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased — IC-02 0.10.0: the window with a position and a length (branch feature/msr-ic02-v0100-window-rows; D-132, D-133)
+
+- Contract pinned to sensos main `56171e0` (PR #8): `contract.lock` (msr/geometry-measurement 0.10.0, README),
+  `window.lock` (0.10.0 window schema, determined vectors `window-rows.json` 61 cases, undetermined vectors
+  `window-rows-undetermined.json` 2 cases, archived 0.9.0 schemas/vectors, archived 0.8.0 geometry schema).
+- `window_from_envelope` reads `msr.trajectory-window` 0.9.0 (fixed first 128 rows, unchanged) and 0.10.0: rule
+  `rows` (`start >= 0`, `length >= 1`) or `prefix_rows` (start 0, any length); `start + length <= origin.length`;
+  `token_index` in `[0, origin.length)`; `policy.name` free. `TrajectoryWindow` gains `schema_version`, `rule`,
+  `start`, `length`, `space_id`. New: `rows_match`, `check_window_spaces` (D-133 (4)).
+- `emit_single(schema_version=None)`: a 0.10.0 window is emitted under `msr.geometry-measurement` 0.10.0; a full input
+  and a 0.9.0 window stay 0.9.0 (byte-identical); `"0.10.0"` can be asked for with a 0.9.0 window parent (D-133 (5)).
+- `emit_pair(left_window=, right_window=)`: windows of different lengths are refused (`pair_window_length`); windows in
+  one space at two positions are refused. Comparing windows at different positions is undecided (D-133 (6)): recorded
+  in the tests, not decided.
+
 ## Unreleased — IC-02 calibration 0.8.0 (branch feature/msr-ic02-v080; provisional decision Tomo 11-07)
 
 - Contract pinned to sensos `bbc085b` (IC-00 1.0.0, blob 0.7.0, msr/geometry-measurement 0.7.1,

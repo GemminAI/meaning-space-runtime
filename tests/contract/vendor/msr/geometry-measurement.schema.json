@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "sensos:contracts/msr/geometry-measurement/0.9.0",
-  "title": "IC-02 msr.geometry-measurement (payload) 0.9.0",
+  "$id": "sensos:contracts/msr/geometry-measurement/0.10.0",
+  "title": "IC-02 msr.geometry-measurement (payload) 0.10.0",
   "type": "object",
   "required": [
     "mode",
@@ -1050,30 +1050,6 @@
               }
             }
           }
-        },
-        {
-          "if": {
-            "properties": {
-              "input_scope": {
-                "properties": {
-                  "kind": {
-                    "const": "window"
-                  }
-                }
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "input_ref": {
-                "properties": {
-                  "length": {
-                    "const": 128
-                  }
-                }
-              }
-            }
-          }
         }
       ]
     },
@@ -1201,7 +1177,7 @@
       ]
     },
     "inputScope": {
-      "description": "single の入力の範囲（0.9.0）。full＝全長の軌跡をそのまま計測（親の役割 trajectory は窓でない軌跡の成果物）。window＝窓の成果物（msr.trajectory-window）を計測（親の役割 trajectory がその窓）。今回の実装は先頭 128 行の固定窓だけ：start と length は定数",
+      "description": "single の入力の範囲（0.10.0）。full＝全長の軌跡をそのまま計測（親の役割 trajectory は窓でない軌跡の成果物）。window＝窓の成果物（msr.trajectory-window）を計測（親の役割 trajectory がその窓）。rule・start・length は窓の宣言と同じ形（D-132）：prefix_rows は start 0、rows は start >= 0・length >= 1。窓の位置の候補は狭めない。",
       "oneOf": [
         {
           "type": "object",
@@ -1231,13 +1207,20 @@
               "const": "window"
             },
             "rule": {
-              "const": "prefix_rows"
+              "enum": [
+                "prefix_rows",
+                "rows"
+              ]
             },
             "start": {
-              "const": 0
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
             },
             "length": {
-              "const": 128
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
             },
             "source_trajectory_id": {
               "$ref": "#/$defs/sha256hex"
@@ -1245,7 +1228,25 @@
             "content_sha256": {
               "$ref": "#/$defs/sha256hex"
             }
-          }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "rule": {
+                    "const": "prefix_rows"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "start": {
+                    "const": 0
+                  }
+                }
+              }
+            }
+          ]
         }
       ]
     }

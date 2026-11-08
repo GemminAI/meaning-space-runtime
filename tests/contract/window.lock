@@ -1,25 +1,43 @@
 {
   "contract_id": "IC-02",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "source": {
     "repository": "sensos",
-    "branch": "feature/contracts-ic02-v090-window",
-    "commit": "6e6bbee0aec0fa4a3cda277895d9623a88f816b0",
+    "branch": "main",
+    "commit": "56171e064059b8a27ad895e24482afa53a5c70c1",
     "tag": null,
     "root": "docs/architecture/contracts/"
   },
   "contracts": {
-    "msr/trajectory-window": "0.9.0",
+    "msr/trajectory-window": "0.10.0",
+    "msr/geometry-measurement": "0.10.0 (vendor/)",
+    "archive/0.9.0 (msr/trajectory-window, msr/geometry-measurement)": "0.9.0",
     "msr/geometry-measurement (IC-02 0.8.0, $id 0.7.1, archived)": "0.7.1"
   },
-  "note": "Verbatim copies under tests/contract/vendor_window/ (same relative paths): the window schema, the window vectors (D-129) and the archived IC-02 0.8.0 geometry schema (the frozen series.json vectors are 0.7.1 payloads and are read by that rule). Separate from contract.lock so the number of the existing lock tests is unchanged. Never edit; update only by an explicit, reviewed contract change from sensos.",
+  "note": "Verbatim copies under tests/contract/vendor_window/ (same relative paths): the 0.10.0 window schema, the determined window vectors (window-rows.json, 61 cases, D-132/D-133) and the undetermined ones (window-rows-undetermined.json, 2 cases: sensos does not freeze them; MSR only records its behaviour), the archived 0.9.0 window and geometry schemas and window vectors (47 cases), and the archived IC-02 0.8.0 geometry schema (the frozen series.json vectors are 0.7.1 payloads read by that rule). The 0.10.0 geometry schema is under vendor/ (contract.lock). Never edit; update only by an explicit, reviewed contract change from sensos.",
   "files": [
     {
       "path": "msr/trajectory-window.schema.json",
+      "sha256": "2e358529ae0e550f9e6e1bebdc600fc19cb16f44a873f01685d66f4eac324f1f"
+    },
+    {
+      "path": "msr/vectors/window-rows.json",
+      "sha256": "494d57a0f98e8ce8aa45eaa9d21bff299e440c23a3afb93e26cd987553bdd232"
+    },
+    {
+      "path": "msr/vectors/window-rows-undetermined.json",
+      "sha256": "333b432c536eba822cbbfc874561ea67a440e9ba03a92e01c11c0d3666c64dd5"
+    },
+    {
+      "path": "msr/archive/0.9.0/trajectory-window.schema.json",
       "sha256": "332c636de733b173cb4236c07f6e875047b0ca04fad9ae2028b4b4291448f42c"
     },
     {
-      "path": "msr/vectors/window.json",
+      "path": "msr/archive/0.9.0/geometry-measurement.schema.json",
+      "sha256": "e1f3a54e2f8bf43bc5e931dd1f2ebd74e1bf5b2c3e1ff9be9c6147efd336f4d0"
+    },
+    {
+      "path": "msr/archive/0.9.0/vectors/window.json",
       "sha256": "e8930e74dd15b329eac7fee5acd1322126fcd04f181ea209fce4eab27c26ea11"
     },
     {

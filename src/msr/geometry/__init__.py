@@ -38,7 +38,9 @@ from msr.geometry.trajectory import Policy, TrajectoryInput
 from msr.geometry.window import (
     WINDOW_LENGTH,
     TrajectoryWindow,
+    check_window_spaces,
     prefix_matches,
+    rows_match,
     window_from_envelope,
 )
 from msr.geometry.wire import ContractError
@@ -65,6 +67,7 @@ __all__ = [
     "analyze_trajectory",
     "build_calibration",
     "calibration_from_envelope",
+    "check_window_spaces",
     "compare_trajectories",
     "emit_pair",
     "emit_single",
@@ -72,6 +75,7 @@ __all__ = [
     "evaluate_shift_quantized",
     "load_calibration",
     "prefix_matches",
+    "rows_match",
     "window_from_envelope",
     "write_blob",
     "write_calibration",

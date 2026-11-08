@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "sensos:contracts/msr/trajectory-window/0.9.0",
-  "title": "IC-02 msr.trajectory-window (payload) 0.9.0 — 軌跡の先頭 128 行の固定窓（D-129）",
-  "description": "元の軌跡（親の役割 source_trajectory）の先頭 128 行を、別の成果物として持つ。位置 start と長さ length は今回の実装では定数（0 と 128）。将来パラメータにする余地は msr/README.md の文章に分けて書く（スキーマは今回の固定だけを表す）。窓の中身の sha256 は points の Blob のバイト列の sha256。",
+  "$id": "sensos:contracts/msr/trajectory-window/0.10.0",
+  "title": "IC-02 msr.trajectory-window (payload) 0.10.0 — 軌跡の連続した行の窓（位置 start と長さ length を持つ。D-132）",
+  "description": "元の軌跡（親の役割 source_trajectory）の連続した length 行（start 行目から）を、別の成果物として持つ。rule は prefix_rows（start は 0。0.9.0 の先頭窓の一般化した長さ）か rows（start >= 0、length >= 1）。窓の位置の候補（先頭・中ほど・末尾など）はここでは狭めない。start + length <= origin.length、points と token_index の行数が length であること、token_index の範囲は Gate が確かめる（スキーマは表せない）。窓の中身の sha256 は points の Blob のバイト列の sha256。0.9.0 の窓（先頭 128 行の固定）は archive/0.9.0 のスキーマで読む。",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -28,18 +28,43 @@
       ],
       "properties": {
         "rule": {
-          "const": "prefix_rows"
+          "enum": [
+            "prefix_rows",
+            "rows"
+          ]
         },
         "start": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
         },
         "length": {
-          "const": 128
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
         },
         "content_sha256": {
           "$ref": "#/$defs/sha256hex"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "rule": {
+                "const": "prefix_rows"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "start": {
+                "const": 0
+              }
+            }
+          }
+        }
+      ]
     },
     "origin": {
       "type": "object",
@@ -49,7 +74,7 @@
         "position",
         "length"
       ],
-      "description": "元の軌跡。trajectory_id は元の軌跡の行のバイト列の sha256（RAW の識別子）、position は取得位置、length は元の全長（窓の長さ 128 以上）",
+      "description": "元の軌跡。trajectory_id は元の軌跡の行のバイト列の sha256（RAW の識別子）、position は取得位置、length は元の全長（窓の end = start + length 以上。Gate が確かめる）",
       "properties": {
         "trajectory_id": {
           "$ref": "#/$defs/sha256hex"
@@ -60,7 +85,7 @@
         },
         "length": {
           "type": "integer",
-          "minimum": 128,
+          "minimum": 1,
           "maximum": 9007199254740991
         }
       }
@@ -103,10 +128,11 @@
         "name",
         "sha256"
       ],
-      "description": "窓の作り方。name は定数、sha256 は name の UTF-8 の sha256（Gate が確かめる）",
+      "description": "窓の作り方。name は窓の作り方を表す名前（形式は契約で固定しない。例：first-128-rows/1、rows-86+128/1）、sha256 は name の UTF-8 の sha256（Gate が確かめる）",
       "properties": {
         "name": {
-          "const": "first-128-rows/1"
+          "type": "string",
+          "minLength": 1
         },
         "sha256": {
           "$ref": "#/$defs/sha256hex"
@@ -126,7 +152,7 @@
         "order",
         "unit"
       ],
-      "description": "窓の 128 行（binary32、リトルエンディアン、行優先、詰め物なし、量子化なし。NaN・±Inf は拒否）。common/float32-blob（草案）が昇格したらそちらに寄せる",
+      "description": "窓の length 行（binary32、リトルエンディアン、行優先、詰め物なし、量子化なし。NaN・±Inf は拒否）。shape[0] が length と一致することは Gate が確かめる（スキーマは表せない）",
       "properties": {
         "uri": {
           "type": "string",
@@ -148,7 +174,9 @@
           "x-sensos-ordered": true,
           "prefixItems": [
             {
-              "const": 128
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
             },
             {
               "type": "integer",
@@ -178,9 +206,18 @@
         {
           "properties": {
             "shape": {
-              "const": [
-                128
-              ]
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1,
+              "x-sensos-ordered": true,
+              "prefixItems": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              ],
+              "items": false
             },
             "quantization": {
               "type": "null"

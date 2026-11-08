@@ -1,16 +1,28 @@
-"""The first-128-rows window as an input of ``emit_single`` (IC-02 0.9.0, D-129).
+"""A window as an input of ``emit_single``.
 
-A window is its own artifact (``msr.trajectory-window`` 0.9.0, made by nvs-runtime
-from a stored trajectory; MSR never makes one). This module *reads* it:
+IC-02 0.9.0: the first 128 rows (D-129). IC-02 0.10.0: a position and a length
+(D-132, D-133).
+
+A window is its own artifact (``msr.trajectory-window`` 0.9.0 or 0.10.0, made by
+nvs-runtime from a stored trajectory; MSR never makes one). This module *reads* it:
 :func:`window_from_envelope` verifies what a reader must verify (design section 5:
 never trust a copy without checking) and returns a :class:`TrajectoryWindow` -- the
 :class:`~msr.geometry.trajectory.TrajectoryInput` to measure, the
 :class:`~msr.geometry.envelope.ArtifactRef` to put under the parents' role
 ``trajectory``, and the ``input_scope`` the measurement declares.
 
-Fixed in this implementation (``msr/README.md``, "window"): rule ``prefix_rows``,
-start 0, length 128. Position and length as parameters are a future extension;
-nothing here takes them.
+Two versions are read, each under its own rule (never one as the other):
+
+* 0.9.0: rule ``prefix_rows``, start 0, length 128, policy ``first-128-rows/1``
+  (fixed; the output is unchanged from before 0.10.0, byte for byte).
+* 0.10.0 (D-132, D-133): rule ``prefix_rows`` (start 0) or ``rows`` (start >= 0,
+  length >= 1, integers); ``start + length <= origin.length``; every ``token_index``
+  entry in ``[0, origin.length)``; ``policy.name`` any non-empty string (its sha256
+  is checked). Positions are not narrowed.
+
+The space of a window is separated by its position: :func:`check_window_spaces`
+refuses two windows that share a ``space_id`` but not ``(start, length)`` (D-133
+(4)). The Gate does the same over what it stores.
 
 What this reader checks: payload schema id/version, kind ``observation``, producer
 ``nvs-runtime``, ``space_id`` present, parents (exactly one, role
@@ -20,7 +32,8 @@ byte length / finiteness (float32) / strictly increasing ``token_index``,
 ``content_sha256``, and that ``content_id`` / ``artifact_id`` recompute. What it
 cannot check: that the stored original says the same ``trajectory_id`` /
 ``length`` / ``position`` (it does not hold the original; the Gate does), and that
-the rows are really the first 128 of the RAW rows (see :func:`prefix_matches`).
+the rows are really the RAW rows ``[start, start + length)`` (see :func:`rows_match`,
+:func:`prefix_matches`).
 """
 
 from __future__ import annotations
@@ -29,7 +42,7 @@ import hashlib
 import math
 import re
 import struct
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from itertools import pairwise
 from typing import Any
@@ -43,7 +56,9 @@ from msr.geometry.trajectory import Policy, TrajectoryInput
 from msr.geometry.wire import ContractError
 
 WINDOW_SCHEMA = ("msr.trajectory-window", "0.9.0")
+WINDOW_SCHEMA_V0100 = ("msr.trajectory-window", "0.10.0")
 WINDOW_RULE = "prefix_rows"
+ROWS_RULE = "rows"
 WINDOW_START = 0
 WINDOW_LENGTH = 128
 WINDOW_POLICY = "first-128-rows/1"
@@ -64,6 +79,25 @@ class TrajectoryWindow:
     origin: Mapping[str, Any]  # {trajectory_id, position, length}
     scope: Mapping[str, Any]  # the measurement's ``input_scope``
     source_artifact_id: str
+    schema_version: str = (
+        "0.9.0"  # the payload_schema version the artifact was read under
+    )
+
+    @property
+    def rule(self) -> str:
+        return str(self.scope["rule"])
+
+    @property
+    def start(self) -> int:
+        return int(self.scope["start"])
+
+    @property
+    def length(self) -> int:
+        return int(self.scope["length"])
+
+    @property
+    def space_id(self) -> str:
+        return self.trajectory.space_id
 
 
 def _need(ok: bool, what: str) -> None:
@@ -125,11 +159,17 @@ def _read(
     blobs: Mapping[str, bytes],
     parent_contents: Mapping[str, str],
 ) -> TrajectoryWindow:
+    declared = envelope["payload_schema"]
     _need(
-        envelope["payload_schema"]
-        == {"id": WINDOW_SCHEMA[0], "version": WINDOW_SCHEMA[1]},
-        "payload_schema is not msr.trajectory-window 0.9.0",
+        declared
+        in (
+            {"id": WINDOW_SCHEMA[0], "version": WINDOW_SCHEMA[1]},
+            {"id": WINDOW_SCHEMA_V0100[0], "version": WINDOW_SCHEMA_V0100[1]},
+        ),
+        "payload_schema is not msr.trajectory-window 0.9.0 or 0.10.0",
     )
+    version = declared["version"]
+    fixed = version == WINDOW_SCHEMA[1]
     _need(envelope["kind"] == WINDOW_KIND, f"kind must be {WINDOW_KIND!r}")
     _need(
         envelope["producer"]["name"] == WINDOW_PRODUCER,
@@ -172,16 +212,29 @@ def _read(
         "payload",
     )
     w = _obj(p["window"], {"rule", "start", "length", "content_sha256"}, "window")
-    _need(
-        w["rule"] == WINDOW_RULE
-        and type(w["start"]) is int
-        and w["start"] == WINDOW_START,
-        "window: rule/start are fixed (prefix_rows, 0)",
-    )
-    _need(
-        type(w["length"]) is int and w["length"] == WINDOW_LENGTH,
-        f"window.length must be {WINDOW_LENGTH}",
-    )
+    if fixed:
+        _need(
+            w["rule"] == WINDOW_RULE
+            and type(w["start"]) is int
+            and w["start"] == WINDOW_START,
+            "window: rule/start are fixed (prefix_rows, 0)",
+        )
+        _need(
+            type(w["length"]) is int and w["length"] == WINDOW_LENGTH,
+            f"window.length must be {WINDOW_LENGTH}",
+        )
+    else:
+        _need(
+            w["rule"] in (WINDOW_RULE, ROWS_RULE),
+            "window.rule must be prefix_rows or rows",
+        )
+        _need(_is_int(w["start"]), "window.start must be an integer >= 0")
+        _need(_is_int(w["length"], 1), "window.length must be an integer >= 1")
+        _need(
+            w["rule"] != WINDOW_RULE or w["start"] == WINDOW_START,
+            "window: prefix_rows is the case start = 0",
+        )
+    start, length = w["start"], w["length"]
     _need(_sha_str(w["content_sha256"]), "window.content_sha256")
     o = _obj(p["origin"], {"trajectory_id", "position", "length"}, "origin")
     _need(
@@ -190,9 +243,18 @@ def _read(
         and bool(o["position"]),
         "origin.trajectory_id / position",
     )
-    _need(
-        _is_int(o["length"], WINDOW_LENGTH), "origin.length must be an integer >= 128"
-    )
+    if fixed:
+        _need(
+            _is_int(o["length"], WINDOW_LENGTH),
+            "origin.length must be an integer >= 128",
+        )
+    else:
+        _need(_is_int(o["length"], 1), "origin.length must be an integer >= 1")
+        _need(
+            start + length <= o["length"],
+            f"window_range: start {start} + length {length} > "
+            f"origin.length {o['length']}",
+        )
     _need(p["source"] in ("T-tok", "T-hid"), "source must be T-tok or T-hid")
     layer = p["layer"]
     _need(
@@ -210,9 +272,15 @@ def _read(
         "model_build_id",
     )
     pol = _obj(p["policy"], {"name", "sha256"}, "policy")
-    _need(pol["name"] == WINDOW_POLICY, f"policy.name must be {WINDOW_POLICY!r}")
+    if fixed:
+        _need(pol["name"] == WINDOW_POLICY, f"policy.name must be {WINDOW_POLICY!r}")
+    else:
+        _need(
+            isinstance(pol["name"], str) and bool(pol["name"]),
+            "policy.name must be a non-empty string",
+        )
     _need(
-        pol["sha256"] == hashlib.sha256(WINDOW_POLICY.encode("utf-8")).hexdigest(),
+        pol["sha256"] == hashlib.sha256(pol["name"].encode("utf-8")).hexdigest(),
         "policy.sha256 is not the sha256 of policy.name",
     )
 
@@ -232,8 +300,8 @@ def _read(
     )
     _blob_common(pts, "points", "float32")
     _need(
-        pts["shape"] == [WINDOW_LENGTH, dim],
-        f"points.shape must be [{WINDOW_LENGTH}, {dim}]",
+        pts["shape"] == [length, dim],
+        f"points.shape must be [{length}, {dim}]",
     )
     tix = _obj(
         p["token_index"],
@@ -252,7 +320,7 @@ def _read(
     )
     _blob_common(tix, "token_index", "int64")
     _need(
-        tix["shape"] == [WINDOW_LENGTH] and tix["quantization"] is None,
+        tix["shape"] == [length] and tix["quantization"] is None,
         "token_index.shape / quantization",
     )
     _need(
@@ -268,21 +336,27 @@ def _read(
         "points bytes differ from points.sha256",
     )
     _need(
-        len(data) == WINDOW_LENGTH * dim * 4,
-        f"points must hold {WINDOW_LENGTH} x {dim} float32",
+        len(data) == length * dim * 4,
+        f"points must hold {length} x {dim} float32",
     )
     _need(
         hashlib.sha256(raw).hexdigest() == tix["sha256"],
         "token_index bytes differ from token_index.sha256",
     )
-    _need(len(raw) == 8 * WINDOW_LENGTH, "token_index must hold 128 int64")
-    values = struct.unpack(f"<{WINDOW_LENGTH * dim}f", data)
+    _need(len(raw) == 8 * length, f"token_index must hold {length} int64")
+    values = struct.unpack(f"<{length * dim}f", data)
     _need(all(math.isfinite(v) for v in values), "points hold a NaN or an infinity")
-    index = struct.unpack(f"<{WINDOW_LENGTH}q", raw)
+    index = struct.unpack(f"<{length}q", raw)
     _need(
         all(b > a for a, b in pairwise(index)),
         "token_index is not strictly increasing",
     )
+    if not fixed:
+        _need(
+            index[0] >= 0 and index[-1] < o["length"],
+            f"window_token_range: token_index [{index[0]}, {index[-1]}] is outside "
+            f"[0, {o['length']})",
+        )
 
     recomputed = (
         ids.content_id(envelope, parent_contents),
@@ -296,7 +370,7 @@ def _read(
     traj = TrajectoryInput(
         space_id,
         p["source"],
-        np.frombuffer(data, dtype="<f4").reshape(WINDOW_LENGTH, dim).astype(np.float64),
+        np.frombuffer(data, dtype="<f4").reshape(length, dim).astype(np.float64),
         tuple(int(v) for v in index),
         Policy(pol["name"], pol["sha256"]),
         p["model_build_id"],
@@ -304,9 +378,9 @@ def _read(
     )
     scope = {
         "kind": "window",
-        "rule": WINDOW_RULE,
-        "start": WINDOW_START,
-        "length": WINDOW_LENGTH,
+        "rule": w["rule"],
+        "start": start,
+        "length": length,
         "source_trajectory_id": o["trajectory_id"],
         "content_sha256": w["content_sha256"],
     }
@@ -316,20 +390,45 @@ def _read(
         dict(o),
         scope,
         source,
+        version,
     )
 
 
 def prefix_matches(window: TrajectoryWindow, source_rows: bytes) -> bool:
-    """For a caller holding the original RAW rows (float32 LE, row-major)."""
-    n = WINDOW_LENGTH * window.trajectory.dimension * 4
+    """For a caller holding the original RAW rows (float32 LE): the first rows."""
+    n = window.trajectory.length * window.trajectory.dimension * 4
     mine = np.ascontiguousarray(window.trajectory.points, dtype="<f4").tobytes()
     return len(source_rows) >= n and mine == source_rows[:n]
 
 
+def rows_match(window: TrajectoryWindow, source_rows: bytes) -> bool:
+    """Are these the original RAW rows ``[start, start + length)`` (float32 LE)?"""
+    row = window.trajectory.dimension * 4
+    a, n = window.start * row, window.length * row
+    mine = np.ascontiguousarray(window.trajectory.points, dtype="<f4").tobytes()
+    return len(source_rows) >= a + n and mine == source_rows[a : a + n]
+
+
+def check_window_spaces(windows: Iterable[TrajectoryWindow]) -> None:
+    """D-133 (4): windows in one ``space_id`` must share ``(start, length)``."""
+    seen: dict[str, tuple[int, int]] = {}
+    for w in windows:
+        position = (w.start, w.length)
+        if seen.setdefault(w.space_id, position) != position:
+            raise InvalidWindow(
+                f"window_space_position: space_id {w.space_id!r} is used by windows "
+                f"at {seen[w.space_id]} and {position}"
+            )
+
+
 __all__ = [
+    "ROWS_RULE",
     "WINDOW_LENGTH",
     "WINDOW_SCHEMA",
+    "WINDOW_SCHEMA_V0100",
     "TrajectoryWindow",
+    "check_window_spaces",
     "prefix_matches",
+    "rows_match",
     "window_from_envelope",
 ]
