@@ -48,10 +48,10 @@ from msr.geometry.envelope import (
     build_envelope,
     int64_blob,
 )
-from msr.geometry.errors import CalibrationError, InvalidTrajectory
+from msr.geometry.errors import CalibrationError, InvalidTrajectory, InvalidWindow
 from msr.geometry.metrics import DEFAULT_BLOCK_SIZE
 from msr.geometry.trajectory import TrajectoryInput
-from msr.geometry.window import TrajectoryWindow
+from msr.geometry.window import TrajectoryWindow, check_window_spaces
 from msr.geometry.wire import (
     BLOB_RANGE,
     E_QUANT_RANGE,
@@ -63,6 +63,39 @@ from msr.geometry.wire import (
 )
 
 PAYLOAD_SCHEMA = ("msr.geometry-measurement", "0.9.0")
+PAYLOAD_SCHEMA_V0100 = (
+    "msr.geometry-measurement",
+    "0.10.0",
+)  # IC-02 0.10.0 (D-132): the window's rule/start/length
+
+
+def _payload_schema(
+    schema_version: str | None, *windows: TrajectoryWindow | None
+) -> tuple[str, str]:
+    """0.9.0 unless a 0.10.0 window is measured or 0.10.0 is asked for.
+
+    Otherwise the output stays byte-identical to before 0.10.0.
+
+    A 0.10.0 measurement may have a 0.9.0 window as its parent (D-133 (5)); a 0.9.0
+    measurement can only declare the 0.9.0 window (prefix_rows, start 0, length 128).
+    """
+    held = [w for w in windows if w is not None]
+    if schema_version is None:
+        schema_version = (
+            "0.10.0" if any(w.schema_version == "0.10.0" for w in held) else "0.9.0"
+        )
+    if schema_version == "0.10.0":
+        return PAYLOAD_SCHEMA_V0100
+    if schema_version != "0.9.0":
+        raise ContractError(E_CONTEXT, f"unknown schema_version {schema_version!r}")
+    if any((w.rule, w.start, w.length) != ("prefix_rows", 0, 128) for w in held):
+        raise InvalidWindow(
+            "a 0.9.0 measurement can declare only the 0.9.0 window "
+            "(prefix_rows, 0, 128)"
+        )
+    return PAYLOAD_SCHEMA
+
+
 UNDEFINED = INT64_RANGE[
     0
 ]  # the Blob's "no value" mark; -2**63 is never a measured value
@@ -175,6 +208,7 @@ def emit_single(
     delta: float | None = None,
     w_min: int | None = None,
     block_size: int = DEFAULT_BLOCK_SIZE,
+    schema_version: str | None = None,
 ) -> Emission:
     """One trajectory's measurement as an envelope (payload ``mode: "single"``).
 
@@ -185,7 +219,14 @@ def emit_single(
     else is refused), and ``input_scope`` declares the window. A window artifact
     passed as a ``full`` input cannot be told apart here (MSR does not hold the
     parent); the Gate refuses it.
+
+    ``schema_version=None`` (default): ``0.10.0`` when the window was read under 0.10.0
+    (IC-02 0.10.0, D-132: ``input_scope`` declares rule/start/length), otherwise
+    ``0.9.0`` -- a full input and a 0.9.0 window are emitted exactly as before.
+    ``"0.10.0"`` may also
+    be asked for with a 0.9.0 window as the parent (D-133 (5)).
     """
+    schema = _payload_schema(schema_version, window)
     if window is not None and (
         traj is not window.trajectory or trajectory_ref != window.ref
     ):
@@ -277,7 +318,7 @@ def emit_single(
         parents.append(("codebook", [codebook_ref]))
     envelope = build_envelope(
         ctx,
-        payload_schema=PAYLOAD_SCHEMA,
+        payload_schema=schema,
         payload=payload,
         space_id=traj.space_id,
         parents=parents,
@@ -296,13 +337,43 @@ def emit_pair(
     right_ref: ArtifactRef,
     calibration: CalibrationArtifact | None = None,
     alignment: Alignment = "equal_only",
+    left_window: TrajectoryWindow | None = None,
+    right_window: TrajectoryWindow | None = None,
+    schema_version: str | None = None,
 ) -> Emission:
     """Two trajectories compared, as an envelope (payload ``mode: "pair"``).
 
     ``common_prefix`` is written as ``x-common_prefix`` and needs
     ``ctx.alignment_approval`` (S17). A calibration made for another alignment
     is refused (S13). Trajectories of different spaces are always refused.
+
+    Windows (IC-02 0.10.0): ``left_window=`` / ``right_window=`` say the side is a
+    window artifact (``left`` must be its ``trajectory`` and ``left_ref`` its ``ref``).
+    Two windows of different lengths are refused (``pair_window_length``; the Gate
+    refuses them whatever the alignment, ``common_prefix`` is not adopted, D-120).
+    Windows sharing a ``space_id`` must share ``(start, length)``
+    (``window_space_position``). Comparing windows at different positions is NOT
+    DECIDED (D-133 (6)):
+    this function does not decide it; what it does today is recorded in the tests.
     """
+    schema = _payload_schema(schema_version, left_window, right_window)
+    for side, w, t, r in (
+        ("left", left_window, left, left_ref),
+        ("right", right_window, right, right_ref),
+    ):
+        if w is not None and (t is not w.trajectory or r != w.ref):
+            raise InvalidTrajectory(
+                f"with {side}_window=, {side} must be its trajectory "
+                f"and {side}_ref its ref"
+            )
+    if left_window is not None and right_window is not None:
+        check_window_spaces([left_window, right_window])
+        if left_window.length != right_window.length:
+            raise InvalidWindow(
+                f"pair_window_length: window lengths {left_window.length} != "
+                f"{right_window.length}; windows of different lengths cannot be "
+                "compared (equal_only; common_prefix is not adopted, D-120)"
+            )
     if left.model_build_id != right.model_build_id:
         raise InvalidTrajectory("left and right must share model_build_id (S18)")
     mode = payload_alignment(alignment)
@@ -335,7 +406,7 @@ def emit_pair(
         parents.append(("calibration", [calibration.ref]))
     envelope = build_envelope(
         ctx,
-        payload_schema=PAYLOAD_SCHEMA,
+        payload_schema=schema,
         payload=payload,
         space_id=left.space_id,
         parents=parents,
@@ -347,6 +418,7 @@ def emit_pair(
 
 __all__ = [
     "PAYLOAD_SCHEMA",
+    "PAYLOAD_SCHEMA_V0100",
     "SERIES",
     "UNDEFINED",
     "emit_pair",
