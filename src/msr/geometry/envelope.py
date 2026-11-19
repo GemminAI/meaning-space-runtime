@@ -26,6 +26,7 @@ from msr.version import __version__
 
 PRODUCER_NAME = "meaning-space-runtime"
 CONTRACT = {"id": "IC-00", "version": "1.0.0"}
+SUPPORTED_CONTRACT_VERSIONS = frozenset({"1.0.0", "1.1.0"})
 ALIGNMENT_EXTENSION = "x-meaning-space-runtime-alignment"
 BLOB_MEDIA_TYPE = "application/vnd.sensos.ndarray-raw"
 
@@ -51,6 +52,24 @@ def default_build() -> str:
 
 def _now() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def resolve_contract_version(version: str | None, *, fallback: str = "1.1.0") -> str:
+    """``None`` selects ``fallback`` (the default is IC-00 1.1.0).
+
+    Only ``1.0.0`` and ``1.1.0`` are accepted. Anything else, including an empty
+    string or a non-string, is refused. A refused version is never replaced
+    with 1.0.0.
+    """
+    chosen: object = fallback if version is None else version
+    if type(chosen) is not str:
+        raise ContractError(
+            E_CONTEXT,
+            f"contract_version must be a string, not {type(chosen).__name__}",
+        )
+    if chosen not in SUPPORTED_CONTRACT_VERSIONS:
+        raise ContractError(E_CONTEXT, f"unsupported contract version {chosen!r}")
+    return chosen
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,6 +109,9 @@ class EmitContext:
     ``produced_at`` defaults to the current UTC time; it enters no id.
     ``alignment_approval`` ({reason, approved_by}) is required to emit anything
     aligned by ``common_prefix`` (S17).
+    ``contract_version`` selects the IC-00 version written into the envelope.
+    Omitted, ``None``, and the default are ``1.1.0``. ``1.0.0`` remains
+    accepted when it is passed explicitly.
     """
 
     session_id: str
@@ -101,6 +123,7 @@ class EmitContext:
     event_span: tuple[int, int] | None = None
     policy_refs: tuple[PolicyRef, ...] = ()
     alignment_approval: Mapping[str, str] | None = None
+    contract_version: str | None = "1.1.0"
 
     def __post_init__(self) -> None:
         if not _SESSION.match(self.session_id):
@@ -121,6 +144,11 @@ class EmitContext:
             start, end = self.event_span
             if not 0 <= start <= end <= MAX_SAFE:
                 raise ContractError(E_CONTEXT, "event_span must be 0 <= start <= end")
+        object.__setattr__(
+            self,
+            "contract_version",
+            resolve_contract_version(self.contract_version),
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -202,11 +230,15 @@ def build_envelope(
     parents: Sequence[tuple[str, Sequence[ArtifactRef]]],
     calibration_ref: ArtifactRef | None,
     extensions: Mapping[str, Any],
+    contract_version: str | None = None,
 ) -> dict[str, Any]:
     """Assemble an IC-00 envelope and fill ``content_id`` / ``artifact_id``.
 
     ``parents`` is ``(role, refs)`` per role; every role MSR emits is
     ``ordered: false`` (ids are stored sorted, duplicates refused).
+    ``contract_version=None`` uses ``ctx.contract_version`` (default
+    ``1.1.0``). An explicit version overrides the context. ``content_id``
+    hashes ``contract``, so the version is part of the id.
     """
     parent_contents: dict[str, str] = {}
     roles: list[dict[str, Any]] = []
@@ -224,8 +256,11 @@ def build_envelope(
                 "artifact_ids": [ref.artifact_id for ref in refs],
             }
         )
+    version = resolve_contract_version(
+        contract_version, fallback=str(ctx.contract_version)
+    )
     envelope: dict[str, Any] = {
-        "contract": dict(CONTRACT),
+        "contract": {"id": CONTRACT["id"], "version": version},
         "content_id": "",
         "artifact_id": "",
         "kind": "interpretation",

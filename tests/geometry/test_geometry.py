@@ -74,6 +74,7 @@ def ref(i: int) -> g.ArtifactRef:
 
 
 def ctx(seq: int = 1, **kw: Any) -> g.EmitContext:
+    kw.setdefault("contract_version", "1.0.0")
     return g.EmitContext(
         "ses:" + "1" * 64,
         "obs:" + "2" * 64,

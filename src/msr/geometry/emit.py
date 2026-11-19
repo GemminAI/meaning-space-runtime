@@ -209,6 +209,7 @@ def emit_single(
     w_min: int | None = None,
     block_size: int = DEFAULT_BLOCK_SIZE,
     schema_version: str | None = None,
+    contract_version: str | None = None,
 ) -> Emission:
     """One trajectory's measurement as an envelope (payload ``mode: "single"``).
 
@@ -225,6 +226,10 @@ def emit_single(
     ``0.9.0`` -- a full input and a 0.9.0 window are emitted exactly as before.
     ``"0.10.0"`` may also
     be asked for with a 0.9.0 window as the parent (D-133 (5)).
+
+    ``contract_version`` is the IC-00 version of this envelope (``1.0.0`` or
+    ``1.1.0``). ``None`` uses ``ctx.contract_version``, whose default is
+    ``1.1.0``. It is independent of the window artifact's own contract version.
     """
     schema = _payload_schema(schema_version, window)
     if window is not None and (
@@ -324,6 +329,7 @@ def emit_single(
         parents=parents,
         calibration_ref=None if calibration is None else calibration.ref,
         extensions={},
+        contract_version=contract_version,
     )
     return Emission(envelope, blobs)
 
