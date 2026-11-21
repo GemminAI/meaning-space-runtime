@@ -223,3 +223,24 @@ def test_temperature_keeps_the_runtime_reproducible() -> None:
     first, second = run(), run()
     assert first == second
     assert not np.allclose(first[-1], first[0])
+
+
+def test_content_address_frames_are_not_mixed() -> None:
+    address = "frame:sha256:" + "a" * 64
+    other = "frame:sha256:" + "b" + "a" * 63
+    engine = MeaningSpaceRuntime(frame_id=address, dimension=2)
+    result = engine.ingest(
+        MeaningMeasurement.isotropic("o", address, [0.0, 0.0], 0.1, 0)
+    )
+    assert result.state.frame_id == address
+    with pytest.raises(FrameMismatch):
+        engine.ingest(MeaningMeasurement.isotropic("o2", other, [0.0, 0.0], 0.1, 1))
+    with pytest.raises(FrameMismatch):
+        engine.ingest(
+            MeaningMeasurement.isotropic(
+                "o3", "meaning-mapper.default", [0.0, 0.0], 0.1, 2
+            )
+        )
+    named = MeaningSpaceRuntime(frame_id="meaning-mapper.default", dimension=2)
+    with pytest.raises(FrameMismatch):
+        named.ingest(MeaningMeasurement.isotropic("o", address, [0.0, 0.0], 0.1, 0))

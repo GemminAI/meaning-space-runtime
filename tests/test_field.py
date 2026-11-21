@@ -137,6 +137,14 @@ def test_require_frame() -> None:
         prior.require_frame("G")
 
 
+def test_require_frame_rejects_another_content_address() -> None:
+    address = "frame:sha256:" + "a" * 64
+    other = "frame:sha256:" + "b" + "a" * 63
+    prior = FieldPrior.empty(address, 1)
+    with pytest.raises(FrameMismatch):
+        prior.require_frame(other)
+
+
 def test_well_validation() -> None:
     with pytest.raises(DimensionMismatch):
         GaussianWell.isotropic("c1", [0.0], width=0.0)
