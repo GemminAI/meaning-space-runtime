@@ -144,3 +144,17 @@ def test_payload_rejects_missing_or_invalid_fields() -> None:
         measurement_from_payload({**base, "variance": None, "sigma": None})
     with pytest.raises(DimensionMismatch):
         measurement_from_payload({**base, "variance": 0.0})
+
+
+def test_content_address_frame_id_is_passed_through() -> None:
+    frame_id = "frame:sha256:" + "a" * 64
+    body = {
+        "observation_id": "o1",
+        "theta": [1.0, 2.0],
+        "sigma": [[0.5, 0.0], [0.0, 0.5]],
+        "timestamp_ns": 42,
+    }
+    by_id = measurement_from_payload({**body, "frame_id": frame_id})
+    by_frame = measurement_from_payload({**body, "frame": frame_id})
+    assert by_id.frame_id == frame_id
+    assert by_frame.frame_id == frame_id
