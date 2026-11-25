@@ -73,6 +73,7 @@ def test_seq_and_produced_at_enter_no_id() -> None:
             999,
             producer_build="test-build",
             produced_at="2030-01-01T00:00:00Z",
+            contract_version="1.0.0",
         ),
         trajectory_ref=ref(50),
     )
@@ -83,7 +84,11 @@ def test_seq_and_produced_at_enter_no_id() -> None:
 
 def test_build_enters_artifact_id_but_not_content_id() -> None:
     other = g.EmitContext(
-        ctx().session_id, ctx().observation_id, 3, producer_build="another-build"
+        ctx().session_id,
+        ctx().observation_id,
+        3,
+        producer_build="another-build",
+        contract_version="1.0.0",
     )
     a = g.emit_single(traj(9), ctx(3), trajectory_ref=ref(50))
     b = g.emit_single(traj(9), other, trajectory_ref=ref(50))

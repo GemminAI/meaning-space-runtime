@@ -111,6 +111,9 @@ def ref(i: int) -> g.ArtifactRef:
 
 
 def ctx(seq: int = 1, **kw: Any) -> g.EmitContext:
+    # Existing checks read the vendored IC-00 1.0.0 schema. The product default
+    # is 1.1.0; these tests ask for 1.0.0 explicitly.
+    kw.setdefault("contract_version", "1.0.0")
     return g.EmitContext(
         "ses:" + "1" * 64,
         "obs:" + "2" * 64,

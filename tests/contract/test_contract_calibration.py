@@ -157,7 +157,11 @@ def test_a_stored_calibration_is_never_overwritten(tmp_path: Path) -> None:
     assert path.read_bytes() == before
     # another build of the same content: same content_id, new artifact, own file
     other_build = g.EmitContext(
-        ctx().session_id, ctx().observation_id, 9, producer_build="build-2"
+        ctx().session_id,
+        ctx().observation_id,
+        9,
+        producer_build="build-2",
+        contract_version="1.0.0",
     )
     rebuilt = g.build_calibration(nulls(), other_build)
     assert rebuilt.envelope["content_id"] == art.envelope["content_id"]

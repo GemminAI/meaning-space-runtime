@@ -378,7 +378,9 @@ def test_envelope_carries_exactly_what_the_caller_supplied() -> None:
     assert [p["name"] for p in env["policy_refs"]] == ["a-policy", "z-policy"]
     assert env["observed_at"]["precision"] == "day"
     assert env["producer"]["build"] == "test-build"
-    default = g.EmitContext("ses:" + "1" * 64, None, 0)
+    default = g.EmitContext(
+        "ses:" + "1" * 64, None, 0, contract_version="1.0.0"
+    )
     assert default.producer_build
     stamped = g.emit_pair(
         traj(8), traj(9), default, left_ref=ref(60), right_ref=ref(61)

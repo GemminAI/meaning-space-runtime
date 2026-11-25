@@ -30,6 +30,7 @@ from msr.geometry.envelope import (
     ALIGNMENT_EXTENSION,
     CONTRACT,
     PRODUCER_NAME,
+    SUPPORTED_CONTRACT_VERSIONS,
     ArtifactRef,
     EmitContext,
     alignment_extensions,
@@ -256,6 +257,17 @@ def _is_id(pattern: re.Pattern[str], value: object) -> bool:
     return isinstance(value, str) and pattern.match(value) is not None
 
 
+def _contract_ok(contract: Any) -> bool:
+    """``{"id": "IC-00", "version": <a supported version>}`` and nothing else."""
+    return (
+        isinstance(contract, dict)
+        and set(contract) == {"id", "version"}
+        and contract["id"] == CONTRACT["id"]
+        and isinstance(contract["version"], str)
+        and contract["version"] in SUPPORTED_CONTRACT_VERSIONS
+    )
+
+
 def _check_contract(
     envelope: Mapping[str, Any], parent_contents: Mapping[str, str]
 ) -> None:
@@ -267,7 +279,7 @@ def _check_contract(
     values = payload.get("values") if isinstance(payload, dict) else None
     ok = (
         set(envelope) == _ENVELOPE_KEYS
-        and envelope["contract"] == CONTRACT
+        and _contract_ok(envelope["contract"])
         and envelope["kind"] == "interpretation"
         and envelope["payload_schema"]
         == {"id": PAYLOAD_SCHEMA[0], "version": PAYLOAD_SCHEMA[1]}
